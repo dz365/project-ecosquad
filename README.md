@@ -1,6 +1,6 @@
 ## Title:
 
-- Citizen Scientist Progressive Web App (PWA)
+- Citizen Scientist Web App
 
 ## Team Name:
 
