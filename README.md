@@ -49,14 +49,12 @@ Currently, no bonus complexity points are planned. However, if we decide on havi
 
 **Beta**
 
-- Allow users to filter data points on the map
+- Allow users to filter and search for data points on the map using Meilisearch
 - Allow users to follow other users and topics
-- Send push notifications
-- Set up PWA aspect
+- Send periodic emails for followed topics
 - Further styling
 
 **Final**
 
-- Ensure PWA works on common mobile OS (Android, IOS)
 - Polished UI & UX
 - Deploy app
