@@ -27,12 +27,12 @@ Users will also get the chance to explore what other users are sharing and if in
 
 ## Complexity Points
 
-| Complexity                                  | Points | Envisioned Usage                                                                                                  |
-| ------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------- |
-| PWA with the use of service and web workers | 2      | Allowing users to "download" the app on their phone and make use of the features even without internet connection |
-| Push API                                    | 3      | Sending notifications for new postings from other users or topics that the user follows                           |
-| Auth0                                       | 1      | Authorization and authentication purposes                                                                         |
-| Unovis                                      | 1      | Interactive map that users can add posts and filter posts                                                         |
+| Complexity  | Points | Envisioned Usage                                                          |
+| ----------- | ------ | ------------------------------------------------------------------------- |
+| Meilisearch | 3      | Search and filter options to view posts displayed on the interactive map. |
+| SendGrid    | 2      | Periodically sending email for followed topics                            |
+| Auth0       | 1      | Authorization and authentication purposes                                 |
+| Unovis      | 1      | Interactive map that users can add posts and filter posts                 |
 
 Currently, no bonus complexity points are planned. However, if we decide on having new features that require additional complexity, then they will be included below.
 
