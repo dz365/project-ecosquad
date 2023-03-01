@@ -9,7 +9,7 @@
 ## Stack Focus
 
 - Focus will be evenly divided between the frontend and backend aspects
-- Backend focus will be towards the PWA aspects of the app
+- Backend focus will be towards the searching and filtering aspects of the app
 - Frontend focus will be towards the incorporation of an interactive map
 
 ## Team Members
