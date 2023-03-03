@@ -14,7 +14,14 @@ const SignInButton = () => {
     });
   };
 
-  return <button onClick={onSignIn}>Sign In</button>;
+  return (
+    <button
+      onClick={onSignIn}
+      className="py-1 px-2 rounded-lg bg-gray-50 text-green-700"
+    >
+      Sign In
+    </button>
+  );
 };
 
 export default SignInButton;

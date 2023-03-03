@@ -6,7 +6,7 @@ interface Props {
 
 const PageLayout: React.FC<Props> = ({ children }) => {
   return (
-    <div>
+    <div className="min-h-screen bg-green-100">
       <Navbar />
       <div>{children}</div>
     </div>

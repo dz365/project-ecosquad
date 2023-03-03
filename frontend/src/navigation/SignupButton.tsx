@@ -10,12 +10,16 @@ const SignUpButton = () => {
       },
       authorizationParams: {
         prompt: "login",
-        screen_hint: "signup",
+        action: "signup",
       },
     });
   };
 
-  return <button onClick={onSignUp}>Sign Up</button>;
+  return (
+    <button onClick={onSignUp} className="text-green-50">
+      Sign Up
+    </button>
+  );
 };
 
 export default SignUpButton;

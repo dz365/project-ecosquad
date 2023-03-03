@@ -16,6 +16,7 @@ function App() {
           </PageLayout>
         }
       />
+      <Route path="/credits" element={<h1>CREDITS</h1>} />
       <Route
         path="/profile"
         element={<AuthenticationGuard component={ProfilePage} />}

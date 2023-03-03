@@ -5,7 +5,14 @@ const SignOutButton = () => {
 
   const onSignOut = () => logout();
 
-  return <button onClick={onSignOut}>Log Out</button>;
+  return (
+    <button
+      onClick={onSignOut}
+      className="py-1 px-2 rounded-lg bg-gray-50 text-green-700 text-sm"
+    >
+      Log Out
+    </button>
+  );
 };
 
 export default SignOutButton;
