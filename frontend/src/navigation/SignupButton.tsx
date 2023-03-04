@@ -10,13 +10,13 @@ const SignUpButton = () => {
       },
       authorizationParams: {
         prompt: "login",
-        action: "signup",
+        screen_hint: "signup",
       },
     });
   };
 
   return (
-    <button onClick={onSignUp} className="text-green-50">
+    <button onClick={onSignUp} className="text-green-600">
       Sign Up
     </button>
   );

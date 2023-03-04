@@ -1,21 +1,14 @@
 import { Route, Routes } from "react-router-dom";
 import AuthenticationGuard from "./AuthenticationGuard";
 import CallbackPage from "./pages/CallbackPage";
+import HomePage from "./pages/HomePage";
 import NotExistingPage from "./pages/NotExistingPage";
-import PageLayout from "./pages/PageLayout";
 import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          <PageLayout>
-            <h1 className="text-3xl font-bold underline">Hello world!</h1>
-          </PageLayout>
-        }
-      />
+      <Route path="/" element={<HomePage />} />
       <Route path="/credits" element={<h1>CREDITS</h1>} />
       <Route
         path="/profile"

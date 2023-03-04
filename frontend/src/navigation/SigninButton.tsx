@@ -17,7 +17,7 @@ const SignInButton = () => {
   return (
     <button
       onClick={onSignIn}
-      className="py-1 px-2 rounded-lg bg-gray-50 text-green-700"
+      className="py-1 px-2 rounded-lg bg-green-600 text-green-50"
     >
       Sign In
     </button>
