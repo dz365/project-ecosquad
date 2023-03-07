@@ -20,15 +20,6 @@ export const Post = sequelize.define("Post", {
     type: DataTypes.FLOAT,
     allowNull: false,
   },
-  location: {
-    type: DataTypes.STRING,
-    defaultValue: "",
-    allowNull: false,
-  },
-  weather: {
-    type: DataTypes.JSON,
-    allowNull: false,
-  },
   discoveryTime: {
     type: DataTypes.TIME,
     allowNull: false,

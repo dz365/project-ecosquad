@@ -5,7 +5,7 @@ import multer from "multer";
 
 export const usersRouter = Router();
 
-const avatar = multer({ dest: "avatar/" });
+const avatar = multer({ dest: "/pictures/avatars/" });
 
 // create a new user
 usersRouter.post("/", avatar.single("avatar"), async (req, res) => {
@@ -38,7 +38,6 @@ usersRouter.get("/:id", async (req, res) => {
 usersRouter.patch("/:id", avatar.single("avatar"), async (req, res) => {
   const user = await User.findByPk(req.params.id);
   const name = req.body.name;
-  const email = req.body.email;
   const avatarMetadata = req.file;
   const about = req.body.about;
   const privateProfile = req.body.privateProfile;
@@ -49,7 +48,6 @@ usersRouter.patch("/:id", avatar.single("avatar"), async (req, res) => {
   }
 
   if (name) update.name = name;
-  if (email) update.email = email;
   if (avatarMetadata) update.avatarMetadata = avatarMetadata;
   if (about) update.about = about;
   if (privateProfile) update.privateProfile = privateProfile;
@@ -69,7 +67,7 @@ usersRouter.delete("/:id", async (req, res) => {
     return res.status(404).json({ error: "User not found" });
   }
 
-  return res.status(204);
+  return res.status(204).end();
 });
 
 // user follows another user
@@ -77,8 +75,23 @@ usersRouter.post("/:id/follows", async (req, res) => {
   const user = await User.findByPk(req.params.id);
   const following = await User.findByPk(req.body.followingId);
 
+  if (user.id === following.id) {
+    return res.status(422).json({ error: "Cannot follow yourself." });
+  }
+
   if (!user || !following) {
     return res.status(404).json({ error: "User(s) not found." });
+  }
+
+  const follow = await Follow.findOne({
+    where: {
+      UserId: req.params.id,
+      following: req.body.followingId,
+    },
+  });
+
+  if (follow) {
+    return res.status(422).json({ error: "User is already following." });
   }
 
   await Follow.create({
@@ -86,7 +99,7 @@ usersRouter.post("/:id/follows", async (req, res) => {
     following: req.body.followingId,
   });
 
-  return res.status(204);
+  return res.status(204).end();
 });
 
 // user unfollows another user
@@ -106,5 +119,5 @@ usersRouter.post("/:id/unfollows", async (req, res) => {
     return res.status(404).json({ error: "User(s) not found." });
   }
 
-  return res.status(204);
+  return res.status(204).end();
 });
