@@ -11,6 +11,7 @@ const avatar = multer({ dest: "/pictures/avatars/" });
 usersRouter.post("/", avatar.single("avatar"), async (req, res) => {
   try {
     const user = await User.create({
+      id: req.body.id,
       name: req.body.name,
       email: req.body.email,
       avatarMetadata: req.file,
@@ -18,7 +19,8 @@ usersRouter.post("/", avatar.single("avatar"), async (req, res) => {
       privateProfile: req.body.privateProfile,
     });
     return res.json(user);
-  } catch {
+  } catch (e) {
+    console.log(e)
     return res.status(422).json({ error: "User creation failed." });
   }
 });

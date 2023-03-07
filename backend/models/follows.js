@@ -4,7 +4,7 @@ import { User } from "./users.js";
 
 export const Follow = sequelize.define("Follow", {
   following: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     allowNull: false,
   },
 });

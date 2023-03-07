@@ -1,6 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { createUser, getUser, updateUser } from "../service/test.service";
 import PageLayout from "./PageLayout";
 
 const UpdateProfilePage = () => {
@@ -10,17 +11,8 @@ const UpdateProfilePage = () => {
   const [bio, setBio] = useState("");
   const [privateProfile, setPrivateProfile] = useState(true);
 
-  const { user } = useAuth0();
+  const { user, getAccessTokenSilently } = useAuth0();
 
-  /*
-  fetch(user!.picture!).then(res => {
-      res.blob().then((data) => {
-        let metadata = {
-          type: 'image/jpeg'
-        };
-        const file = new File([data], "test.jpg", metadata);
-      });
-  */
   useEffect(() => {
     setAvatarURL(user?.picture ?? "");
   }, [user?.sub]);
@@ -33,10 +25,28 @@ const UpdateProfilePage = () => {
     }
   };
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: any) => {
     e.preventDefault();
-    console.log(e.target);
-    navigate("/");
+
+    getAccessTokenSilently().then((token) => {
+      const formData = new FormData(e.target);
+      formData.append("email", user!.email!);
+      
+      formData.append("privateProfile", "1");
+      const formProps = Object.fromEntries(formData);
+
+      getUser(token, user!.sub!)
+        .then(() => {
+          updateUser(token, formData, user!.sub!);
+        })
+        .catch(() => {
+          formData.append("id", user!.sub!);
+          createUser(token, formData);
+        })
+        .finally(() => {
+          navigate("/");
+        });
+    });
   };
 
   return (
@@ -87,7 +97,7 @@ const UpdateProfilePage = () => {
           <label className="flex flex-col">
             <div className="text-green-900">About</div>
             <textarea
-              name="bio"
+              name="about"
               placeholder="Tell people who you are."
               value={bio}
               onChange={(e) => setBio(e.target.value)}
