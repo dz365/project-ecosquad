@@ -6,7 +6,7 @@ const SignInButton = () => {
   const onSignIn = async () => {
     await loginWithRedirect({
       appState: {
-        returnTo: "/profile",
+        returnTo: "/",
       },
       authorizationParams: {
         prompt: "login",

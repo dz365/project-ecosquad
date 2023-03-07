@@ -4,6 +4,7 @@ import CallbackPage from "./pages/CallbackPage";
 import HomePage from "./pages/HomePage";
 import NotExistingPage from "./pages/NotExistingPage";
 import ProfilePage from "./pages/ProfilePage";
+import UpdateProfilePage from "./pages/UpdateProfilePage";
 
 function App() {
   return (
@@ -13,6 +14,10 @@ function App() {
       <Route
         path="/profile"
         element={<AuthenticationGuard component={ProfilePage} />}
+      />
+      <Route
+        path="/updateprofile"
+        element={<AuthenticationGuard component={UpdateProfilePage} />}
       />
       <Route path="/callback" element={<CallbackPage />} />
       <Route path="*" element={<NotExistingPage />} />

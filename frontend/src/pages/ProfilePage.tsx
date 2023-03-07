@@ -34,7 +34,7 @@ const ProfilePage = () => {
 
   return (
     <PageLayout>
-      <div>
+      <div className="p-4">
         <h1>Test API endpoint</h1>
         <p>{testAPIMessage}</p>
         <img src={user?.picture} alt={user?.name} />
