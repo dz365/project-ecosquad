@@ -83,20 +83,11 @@ usersRouter.post("/:id/follows", async (req, res) => {
     return res.status(404).json({ error: "User(s) not found." });
   }
 
-  const follow = await Follow.findOne({
+  await Follow.findOrCreate({
     where: {
       UserId: req.params.id,
       following: req.body.followingId,
     },
-  });
-
-  if (follow) {
-    return res.status(422).json({ error: "User is already following." });
-  }
-
-  await Follow.create({
-    UserId: req.params.id,
-    following: req.body.followingId,
   });
 
   return res.status(204).end();
