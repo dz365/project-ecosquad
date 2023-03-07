@@ -1,5 +1,10 @@
 import cors from "cors";
 import express from "express";
+import { sequelize } from "./datasource.js";
+import bodyParser from "body-parser";
+import { usersRouter } from "./routers/users_router.js";
+import { postsRouter } from "./routers/posts_router.js";
+
 const app = express();
 
 import {
@@ -30,6 +35,19 @@ app.use((error, request, response, next) => {
   }
   return response.status(status).json({ error: message });
 });
+
+app.use(bodyParser.json());
+
+try {
+  await sequelize.authenticate();
+  await sequelize.sync({ alter: { drop: false } });
+  console.log("Connection has been established successfully.");
+} catch (error) {
+  console.error("Unable to connect to the database:", error);
+}
+
+app.use("/users", usersRouter);
+app.use("/posts", postsRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
