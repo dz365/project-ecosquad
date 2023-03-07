@@ -2,19 +2,16 @@ import { sequelize } from "../datasource.js";
 import { DataTypes } from "sequelize";
 
 export const User = sequelize.define("User", {
-  firstName: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  lastName: {
+  name: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   email: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
-  picture: {
+  avatarMetadata: {
     type: DataTypes.JSON,
     allowNull: true,
   },
