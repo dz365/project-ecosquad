@@ -14,13 +14,12 @@ const UpdateProfilePage = () => {
   const { user, getAccessTokenSilently } = useAuth0();
 
   useEffect(() => {
-    setAvatarURL(user?.picture ?? "");
+    setAvatarURL("/icons/logo.png");
   }, [user?.sub]);
 
   const onAvatarUpdate = (e: ChangeEvent<HTMLInputElement>) => {
     const avatar = e.target.files;
     if (avatar && avatar[0]) {
-      console.log(avatar[0]);
       setAvatarURL(URL.createObjectURL(avatar[0]));
     }
   };
@@ -29,23 +28,38 @@ const UpdateProfilePage = () => {
     e.preventDefault();
 
     getAccessTokenSilently().then((token) => {
-      const formData = new FormData(e.target);
-      formData.append("email", user!.email!);
-      
-      formData.append("privateProfile", "1");
-      const formProps = Object.fromEntries(formData);
+      fetch(avatarURL).then((res) => {
+        res.blob().then((data) => {
+          let metadata = {
+            type: "image/png",
+          };
 
-      getUser(token, user!.sub!)
-        .then(() => {
-          updateUser(token, formData, user!.sub!);
-        })
-        .catch(() => {
-          formData.append("id", user!.sub!);
-          createUser(token, formData);
-        })
-        .finally(() => {
-          navigate("/");
+          const formData = new FormData(e.target);
+
+          formData.append("email", user!.email!);
+
+          formData.append("privateProfile", "1");
+          const formProps = Object.fromEntries(formData);
+
+          console.log(!(formData.get("avatar") as File).size);
+          if (!(formData.get("avatar") as File).size) {
+            const file = new File([data], "avatar.jpg", metadata);
+            console.log(file);
+            formData.append("avatar", file);
+          }
+          getUser(token, user!.sub!)
+            .then(() => {
+              updateUser(token, formData, user!.sub!);
+            })
+            .catch(() => {
+              formData.append("id", user!.sub!);
+              createUser(token, formData);
+            })
+            .finally(() => {
+              navigate("/");
+            });
         });
+      });
     });
   };
 
