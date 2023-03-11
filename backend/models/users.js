@@ -4,7 +4,7 @@ import { DataTypes } from "sequelize";
 export const User = sequelize.define("User", {
   id: {
     type: DataTypes.STRING,
-    primaryKey: true
+    primaryKey: true,
   },
   name: {
     type: DataTypes.STRING,

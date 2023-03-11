@@ -10,22 +10,27 @@ export const usersRouter = Router();
 const avatar = multer({ dest: "./pictures/avatars/" });
 
 // create a new user
-usersRouter.post("/", validateAccessToken, avatar.single("avatar"), async (req, res) => {
-  try {
-    const user = await User.create({
-      id: req.body.id,
-      name: req.body.name,
-      email: req.body.email,
-      avatarMetadata: req.file,
-      about: req.body.about,
-      privateProfile: req.body.privateProfile,
-    });
-    return res.json(user);
-  } catch (e) {
-    console.log(e);
-    return res.status(422).json({ error: "User creation failed." });
+usersRouter.post(
+  "/",
+  validateAccessToken,
+  avatar.single("avatar"),
+  async (req, res) => {
+    try {
+      const user = await User.create({
+        id: req.body.id,
+        name: req.body.name,
+        email: req.body.email,
+        avatarMetadata: req.file,
+        about: req.body.about,
+        privateProfile: req.body.privateProfile,
+      });
+      return res.json(user);
+    } catch (e) {
+      console.log(e);
+      return res.status(422).json({ error: "User creation failed." });
+    }
   }
-});
+);
 
 // get a specific user's profile
 usersRouter.get("/:id", validateAccessToken, async (req, res) => {
@@ -53,27 +58,32 @@ usersRouter.get("/:id/avatar", async (req, res) => {
 });
 
 // update a specific user's profile (except their profile picture)
-usersRouter.patch("/:id", validateAccessToken, avatar.single("avatar"), async (req, res) => {
-  const user = await User.findByPk(req.params.id);
-  const name = req.body.name;
-  const avatarMetadata = req.file;
-  const about = req.body.about;
-  const privateProfile = req.body.privateProfile;
-  const update = {};
+usersRouter.patch(
+  "/:id",
+  validateAccessToken,
+  avatar.single("avatar"),
+  async (req, res) => {
+    const user = await User.findByPk(req.params.id);
+    const name = req.body.name;
+    const avatarMetadata = req.file;
+    const about = req.body.about;
+    const privateProfile = req.body.privateProfile;
+    const update = {};
 
-  if (!user) {
-    return res.status(404).json({ error: "User not found." });
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    if (name) update.name = name;
+    if (avatarMetadata) update.avatarMetadata = avatarMetadata;
+    if (about) update.about = about;
+    if (privateProfile) update.privateProfile = privateProfile;
+
+    await user.update(update);
+    await user.reload();
+    return res.json(user);
   }
-
-  if (name) update.name = name;
-  if (avatarMetadata) update.avatarMetadata = avatarMetadata;
-  if (about) update.about = about;
-  if (privateProfile) update.privateProfile = privateProfile;
-
-  await user.update(update);
-  await user.reload();
-  return res.json(user);
-});
+);
 
 // delete a specific user
 usersRouter.delete("/:id", validateAccessToken, async (req, res) => {

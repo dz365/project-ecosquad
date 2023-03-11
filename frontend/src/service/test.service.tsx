@@ -23,6 +23,17 @@ const getUser = async (accessToken: string, userId: string) => {
   }).then((res) => res.data);
 };
 
+const getUserAvatar = async (accessToken: string, userId: string) => {
+  return axios({
+    url: `${serverURL}/users/${userId}/avatar`,
+    method: "GET",
+    headers: {
+      "content-type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  }).then((res) => res.data);
+};
+
 const createUser = async (accessToken: string, formData: FormData) => {
   return axios
     .postForm(`${serverURL}/users`, formData, {
@@ -33,7 +44,11 @@ const createUser = async (accessToken: string, formData: FormData) => {
     .then((res) => res.data);
 };
 
-const updateUser = async (accessToken: string, formData: FormData, userId: string) => {
+const updateUser = async (
+  accessToken: string,
+  formData: FormData,
+  userId: string
+) => {
   return axios
     .patchForm(`${serverURL}/users/${userId}`, formData, {
       headers: {
@@ -43,4 +58,4 @@ const updateUser = async (accessToken: string, formData: FormData, userId: strin
     .then((res) => res.data);
 };
 
-export { testAPIEndpoint, getUser, createUser, updateUser };
+export { testAPIEndpoint, getUser, getUserAvatar, createUser, updateUser };

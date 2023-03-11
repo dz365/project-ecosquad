@@ -1,6 +1,7 @@
 import { VisLeafletMap } from "@unovis/react";
 import { useCallback } from "react";
 import Navbar from "../navigation/Navbar";
+import PageLayout from "./PageLayout";
 
 import { MapPointDataRecord, data } from "./SampleData";
 
@@ -20,21 +21,18 @@ const ExplorePage = () => {
   const pointColor = "#286e47";
 
   return (
-    <div className="min-h-screen bg-green-100">
-      <Navbar />
-      <div className="relative w-full h-screen">
-        <VisLeafletMap
-          style={style}
-          attribution={attribution}
-          data={data}
-          pointLatitude={pointLatitude}
-          pointLongitude={pointLongitude}
-          pointBottomLabel={pointBottomLabel}
-          pointColor={pointColor}
-          clusterExpandOnClick={false}
-        />
-      </div>
-    </div>
+    <PageLayout>
+      <VisLeafletMap
+        style={style}
+        attribution={attribution}
+        data={data}
+        pointLatitude={pointLatitude}
+        pointLongitude={pointLongitude}
+        pointBottomLabel={pointBottomLabel}
+        pointColor={pointColor}
+        clusterExpandOnClick={false}
+      />
+    </PageLayout>
   );
 };
 

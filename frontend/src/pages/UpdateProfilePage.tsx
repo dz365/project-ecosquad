@@ -1,6 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ToggleSwitch from "../components/ToggleSwitch/ToggleSwitch";
 import { createUser, getUser, updateUser } from "../service/test.service";
 import PageLayout from "./PageLayout";
 
@@ -8,13 +9,25 @@ const UpdateProfilePage = () => {
   const navigate = useNavigate();
   const [avatarURL, setAvatarURL] = useState("");
   const [name, setName] = useState("");
-  const [bio, setBio] = useState("");
+  const [about, setAbout] = useState("");
   const [privateProfile, setPrivateProfile] = useState(true);
 
   const { user, getAccessTokenSilently } = useAuth0();
 
+  const togglePrivateProfile = () => {
+    setPrivateProfile(!privateProfile);
+  };
+
   useEffect(() => {
-    setAvatarURL("/icons/logo.png");
+    setAvatarURL("/icons/default_avatar.svg");
+
+    getAccessTokenSilently().then((token) => {
+      getUser(token, user!.sub!).then((res) => {
+        setName(res.name);
+        setAbout(res.about);
+        setPrivateProfile(res.privateProfile);
+      });
+    });
   }, [user?.sub]);
 
   const onAvatarUpdate = (e: ChangeEvent<HTMLInputElement>) => {
@@ -28,38 +41,22 @@ const UpdateProfilePage = () => {
     e.preventDefault();
 
     getAccessTokenSilently().then((token) => {
-      fetch(avatarURL).then((res) => {
-        res.blob().then((data) => {
-          let metadata = {
-            type: "image/png",
-          };
+      const formData = new FormData(e.target);
 
-          const formData = new FormData(e.target);
+      formData.append("email", user!.email!);
+      formData.append("privateProfile", +privateProfile + "");
 
-          formData.append("email", user!.email!);
-
-          formData.append("privateProfile", "1");
-          const formProps = Object.fromEntries(formData);
-
-          console.log(!(formData.get("avatar") as File).size);
-          if (!(formData.get("avatar") as File).size) {
-            const file = new File([data], "avatar.jpg", metadata);
-            console.log(file);
-            formData.append("avatar", file);
-          }
-          getUser(token, user!.sub!)
-            .then(() => {
-              updateUser(token, formData, user!.sub!);
-            })
-            .catch(() => {
-              formData.append("id", user!.sub!);
-              createUser(token, formData);
-            })
-            .finally(() => {
-              navigate("/");
-            });
+      getUser(token, user!.sub!)
+        .then(() => {
+          updateUser(token, formData, user!.sub!);
+        })
+        .catch(() => {
+          formData.append("id", user!.sub!);
+          createUser(token, formData);
+        })
+        .finally(() => {
+          navigate("/");
         });
-      });
     });
   };
 
@@ -80,7 +77,7 @@ const UpdateProfilePage = () => {
             <img
               src={avatarURL}
               alt="avatar"
-              className="w-24 h-24 rounded-full"
+              className="w-24 h-24 rounded-full bg-contain border"
             />
             <div className="absolute top-0 right-0 flex items-center gap-1">
               <div
@@ -113,11 +110,20 @@ const UpdateProfilePage = () => {
             <textarea
               name="about"
               placeholder="Tell people who you are."
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
+              value={about}
+              onChange={(e) => setAbout(e.target.value)}
               className="border outline-none focus:border-gray-700 text-gray-700 rounded-lg px-2 py-1"
             />
           </label>
+          <div className="flex gap-4 items-center">
+            <span className="text-green-900">Private profile</span>
+            <ToggleSwitch
+              inputName="privateProfile"
+              checked={privateProfile}
+              onChangeHandler={togglePrivateProfile}
+            />
+          </div>
+
           <input
             type="submit"
             value="Update"
