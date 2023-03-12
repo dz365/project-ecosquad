@@ -41,11 +41,11 @@ const AddPostPage = () => {
 
   return (
     <PageLayout>
-      <div className="flex">
-        <div className="w-8/12 h-screen">
+      <div className="pb-2 flex flex-col md:flex-row md:p-0">
+        <div className="w-full h-96 md:w-8/12 md:h-screen">
           <MapLibreAddMarker />
         </div>
-        <div className="z-10 w-4/12 h-screen p-4 overflow-y-auto">
+        <div className="z-10 md:w-4/12 md:h-screen p-4 md:overflow-y-auto">
           <form
             className="flex flex-col gap-4"
             onKeyDown={preventEnterKeyAction}
@@ -85,7 +85,7 @@ const AddPostPage = () => {
                 </div>
               )}
             </label>
-            <label className="flex gap-4">
+            <label className="flex flex-col gap-4">
               <LabelText text="Time Recorded" />
               <input name="time" type="datetime-local" />
             </label>
