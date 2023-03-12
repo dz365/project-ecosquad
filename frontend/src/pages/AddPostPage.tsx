@@ -2,9 +2,9 @@ import { useState } from "react";
 import FileInput from "../components/FileInput";
 import TextAreaInput from "../components/controlled/TextareaInput";
 import TextInput from "../components/controlled/TextInput";
-import MapLibre from "../components/MapLibre";
 import PageLayout from "./PageLayout";
 import SubmitInput from "../components/controlled/SubmitInput";
+import MapLibreAddMarker from "../components/Maps/MapLibreAddMarker";
 
 const AddPostPage = () => {
   const [title, setTitle] = useState("");
@@ -43,7 +43,7 @@ const AddPostPage = () => {
     <PageLayout>
       <div className="flex">
         <div className="w-8/12 h-screen">
-          <MapLibre />
+          <MapLibreAddMarker />
         </div>
         <div className="z-10 w-4/12 h-screen p-4 overflow-y-auto">
           <form

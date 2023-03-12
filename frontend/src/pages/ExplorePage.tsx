@@ -1,7 +1,7 @@
 import PageLayout from "./PageLayout";
 
 import "maplibre-gl/dist/maplibre-gl.css";
-import MapLibre from "../components/MapLibre";
+import MapLibre from "../components/Maps/MapLibre";
 import { useNavigate } from "react-router-dom";
 
 const ExplorePage = () => {

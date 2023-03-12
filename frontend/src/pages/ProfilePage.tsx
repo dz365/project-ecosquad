@@ -4,7 +4,7 @@ import PageLayout from "./PageLayout";
 import { getUser } from "../service/test.service";
 import { ProfileModel } from "../models/ProfileModel";
 import { useNavigate } from "react-router-dom";
-import MapLibre from "../components/MapLibre";
+import MapLibre from "../components/Maps/MapLibre";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
