@@ -34,7 +34,7 @@ const ProfilePage = () => {
 
   return (
     <PageLayout>
-      <div>
+      <div className="w-full h-screen">
         {hideProfile && (
           <div className="absolute top-4 left-20 z-10 bg-gray-50 rounded-xl p-1 flex flex-col place-items-center">
             <img

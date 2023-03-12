@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import AuthenticationGuard from "./AuthenticationGuard";
+import AddPostPage from "./pages/AddPostPage";
 import CallbackPage from "./pages/CallbackPage";
 import HomePage from "./pages/HomePage";
 import NotExistingPage from "./pages/NotExistingPage";
@@ -18,6 +19,10 @@ function App() {
       <Route
         path="/updateprofile"
         element={<AuthenticationGuard component={UpdateProfilePage} />}
+      />
+      <Route
+        path="/addpost"
+        element={<AuthenticationGuard component={AddPostPage} />}
       />
       <Route path="/callback" element={<CallbackPage />} />
       <Route path="*" element={<NotExistingPage />} />

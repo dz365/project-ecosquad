@@ -24,6 +24,7 @@ const MapLibre = () => {
 
       new maplibregl.Marker({ color: "#FF0000" })
         .setLngLat([139.7525, 75.6846])
+        .setDraggable(true)
         .addTo(newMap);
 
       // Add a new source from our GeoJSON data and
@@ -156,7 +157,7 @@ const MapLibre = () => {
   }, []);
 
   return (
-    <div className="relative overflow-hidden h-screen">
+    <div className="relative overflow-hidden w-full h-full">
       <div ref={mapContainer} className="h-full"></div>
     </div>
   );
