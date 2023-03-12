@@ -4,6 +4,7 @@ import PageLayout from "./PageLayout";
 import { getUser } from "../service/test.service";
 import { ProfileModel } from "../models/ProfileModel";
 import { useNavigate } from "react-router-dom";
+import MapLibre from "../components/MapLibre";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -86,6 +87,7 @@ const ProfilePage = () => {
             <div className="text-gray-500">{profile?.about}</div>
           </div>
         )}
+        <MapLibre />
       </div>
     </PageLayout>
   );

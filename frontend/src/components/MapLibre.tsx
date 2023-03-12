@@ -13,19 +13,17 @@ const MapLibre = () => {
     const newMap = new maplibreGl.Map({
       container: mapContainer.current!,
       style: `https://api.maptiler.com/maps/outdoor-v2/style.json?key=${process.env.REACT_APP_MAP_TILER_KEY}`,
-      center: [0, 0],
-      zoom: 0,
+      center: [-79.3832, 43.6532],
+      zoom: 15,
     });
 
     newMap.on("load", () => {
       newMap.dragRotate.disable();
       newMap.touchZoomRotate.disableRotation();
-      newMap.addControl(
-        new maplibreGl.NavigationControl({ visualizePitch: true })
-      );
+      newMap.addControl(new maplibreGl.NavigationControl({}));
 
       new maplibregl.Marker({ color: "#FF0000" })
-        .setLngLat([139.7525, 35.6846])
+        .setLngLat([139.7525, 75.6846])
         .addTo(newMap);
 
       // Add a new source from our GeoJSON data and
@@ -33,8 +31,6 @@ const MapLibre = () => {
       // add the point_count property to your source data.
       newMap.addSource("earthquakes", {
         type: "geojson",
-        // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
-        // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
         data: "https://maplibre.org/maplibre-gl-js-docs/assets/earthquakes.geojson",
         cluster: true,
         clusterMaxZoom: 14, // Max zoom to cluster points on
@@ -92,7 +88,7 @@ const MapLibre = () => {
         filter: ["!", ["has", "point_count"]],
         paint: {
           "circle-color": "#11b4da",
-          "circle-radius": 4,
+          "circle-radius": 8,
           "circle-stroke-width": 1,
           "circle-stroke-color": "#fff",
         },
