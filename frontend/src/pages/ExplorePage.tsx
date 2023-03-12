@@ -1,37 +1,14 @@
-import { VisLeafletMap } from "@unovis/react";
-import { useCallback } from "react";
-import Navbar from "../navigation/Navbar";
 import PageLayout from "./PageLayout";
 
-import { MapPointDataRecord, data } from "./SampleData";
+import "maplibre-gl/dist/maplibre-gl.css";
+import MapLibre from "../components/MapLibre";
 
 const ExplorePage = () => {
-  const style = `https://api.maptiler.com/maps/outdoor-v2/style.json?key=S045gSdAQ3IN2GgxxGWu`;
-  const attribution = [
-    `<a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>`,
-    `<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>`,
-  ];
-
-  const pointLatitude = useCallback((d: MapPointDataRecord) => d.latitude, []);
-  const pointLongitude = useCallback(
-    (d: MapPointDataRecord) => d.longitude,
-    []
-  );
-  const pointBottomLabel = useCallback((d: MapPointDataRecord) => d.id, []);
-  const pointColor = "#286e47";
-
   return (
     <PageLayout>
-      <VisLeafletMap
-        style={style}
-        attribution={attribution}
-        data={data}
-        pointLatitude={pointLatitude}
-        pointLongitude={pointLongitude}
-        pointBottomLabel={pointBottomLabel}
-        pointColor={pointColor}
-        clusterExpandOnClick={false}
-      />
+      <div>
+        <MapLibre />
+      </div>
     </PageLayout>
   );
 };

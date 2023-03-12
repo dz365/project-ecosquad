@@ -2,8 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import PageLayout from "./PageLayout";
 import { getUser } from "../service/test.service";
-import { data, MapPointDataRecord } from "./SampleData";
-import { VisLeafletMap } from "@unovis/react";
 import { ProfileModel } from "../models/ProfileModel";
 import { useNavigate } from "react-router-dom";
 
@@ -24,20 +22,6 @@ const ProfilePage = () => {
       });
     });
   }, [user?.sub]);
-
-  const style = `https://api.maptiler.com/maps/outdoor-v2/style.json?key=S045gSdAQ3IN2GgxxGWu`;
-  const attribution = [
-    `<a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>`,
-    `<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>`,
-  ];
-
-  const pointLatitude = useCallback((d: MapPointDataRecord) => d.latitude, []);
-  const pointLongitude = useCallback(
-    (d: MapPointDataRecord) => d.longitude,
-    []
-  );
-  const pointBottomLabel = useCallback((d: MapPointDataRecord) => d.id, []);
-  const pointColor = "#286e47";
 
   const onEditClick = () => {
     navigate("/updateprofile");
@@ -102,16 +86,6 @@ const ProfilePage = () => {
             <div className="text-gray-500">{profile?.about}</div>
           </div>
         )}
-        <VisLeafletMap
-          style={style}
-          attribution={attribution}
-          data={data}
-          pointLatitude={pointLatitude}
-          pointLongitude={pointLongitude}
-          pointBottomLabel={pointBottomLabel}
-          pointColor={pointColor}
-          clusterExpandOnClick={false}
-        />
       </div>
     </PageLayout>
   );
