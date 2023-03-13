@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import PageLayout from "./PageLayout";
 import { getUser } from "../service/test.service";
 import { ProfileModel } from "../models/ProfileModel";
 import { useNavigate } from "react-router-dom";
 import MapLibre from "../components/Maps/MapLibre";
+import AddPostButton from "../components/AddPostButton";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -88,6 +89,7 @@ const ProfilePage = () => {
           </div>
         )}
         <MapLibre />
+        <AddPostButton />
       </div>
     </PageLayout>
   );

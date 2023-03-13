@@ -1,4 +1,4 @@
-import maplibregl, { GeoJSONSource, NavigationControl } from "maplibre-gl";
+import maplibregl, { GeoJSONSource } from "maplibre-gl";
 import maplibreGl, { Map } from "maplibre-gl";
 import { useEffect, useRef } from "react";
 
@@ -6,31 +6,27 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 const MapLibre = () => {
   const mapContainer = useRef(null);
-  const map = useRef<Map>();
+  const mapRef = useRef<Map>();
 
   useEffect(() => {
-    if (map.current) return;
-    const newMap = new maplibreGl.Map({
+    if (mapRef.current) return;
+
+    const map = new maplibreGl.Map({
       container: mapContainer.current!,
       style: `https://api.maptiler.com/maps/outdoor-v2/style.json?key=${process.env.REACT_APP_MAP_TILER_KEY}`,
       center: [-79.3832, 43.6532],
       zoom: 15,
     });
 
-    newMap.on("load", () => {
-      newMap.dragRotate.disable();
-      newMap.touchZoomRotate.disableRotation();
-      newMap.addControl(new maplibreGl.NavigationControl({}));
-
-      new maplibregl.Marker({ color: "#FF0000" })
-        .setLngLat([139.7525, 75.6846])
-        .setDraggable(true)
-        .addTo(newMap);
+    map.on("load", () => {
+      map.dragRotate.disable();
+      map.touchZoomRotate.disableRotation();
+      map.addControl(new maplibreGl.NavigationControl({}));
 
       // Add a new source from our GeoJSON data and
       // set the 'cluster' option to true. GL-JS will
       // add the point_count property to your source data.
-      newMap.addSource("earthquakes", {
+      map.addSource("earthquakes", {
         type: "geojson",
         data: "https://maplibre.org/maplibre-gl-js-docs/assets/earthquakes.geojson",
         cluster: true,
@@ -38,7 +34,7 @@ const MapLibre = () => {
         clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
       });
 
-      newMap.addLayer({
+      map.addLayer({
         id: "clusters",
         type: "circle",
         source: "earthquakes",
@@ -70,7 +66,7 @@ const MapLibre = () => {
         },
       });
 
-      newMap.addLayer({
+      map.addLayer({
         id: "cluster-count",
         type: "symbol",
         source: "earthquakes",
@@ -82,7 +78,7 @@ const MapLibre = () => {
         },
       });
 
-      newMap.addLayer({
+      map.addLayer({
         id: "unclustered-point",
         type: "circle",
         source: "earthquakes",
@@ -96,12 +92,12 @@ const MapLibre = () => {
       });
 
       // inspect a cluster on click
-      newMap.on("click", "clusters", function (e: any) {
-        var features: any = newMap.queryRenderedFeatures(e.point, {
+      map.on("click", "clusters", function (e: any) {
+        var features: any = map.queryRenderedFeatures(e.point, {
           layers: ["clusters"],
         });
         var clusterId = features[0].properties.cluster_id;
-        const source: GeoJSONSource = newMap.getSource(
+        const source: GeoJSONSource = map.getSource(
           "earthquakes"
         ) as GeoJSONSource;
         source.getClusterExpansionZoom(
@@ -109,7 +105,7 @@ const MapLibre = () => {
           function (err: any, zoom: any) {
             if (err) return;
 
-            newMap.easeTo({
+            map.easeTo({
               center: features[0].geometry.coordinates,
               zoom: zoom,
             });
@@ -121,7 +117,7 @@ const MapLibre = () => {
       // the unclustered-point layer, open a popup at
       // the location of the feature, with
       // description HTML from its properties.
-      newMap.on("click", "unclustered-point", function (e: any) {
+      map.on("click", "unclustered-point", function (e: any) {
         var coordinates = e.features[0].geometry.coordinates;
         var mag = e.features[0].properties.mag;
         var tsunami;
@@ -132,7 +128,7 @@ const MapLibre = () => {
           tsunami = "no";
         }
 
-        // Ensure that if the newMap is zoomed out such that
+        // Ensure that if the map is zoomed out such that
         // multiple copies of the feature are visible, the
         // popup appears over the copy being pointed to.
         while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
@@ -142,18 +138,18 @@ const MapLibre = () => {
         new maplibregl.Popup()
           .setLngLat(coordinates)
           .setHTML("magnitude: " + mag + "<br>Was there a tsunami?: " + tsunami)
-          .addTo(newMap);
+          .addTo(map);
       });
 
-      newMap.on("mouseenter", "clusters", function () {
-        newMap.getCanvas().style.cursor = "pointer";
+      map.on("mouseenter", "clusters", function () {
+        map.getCanvas().style.cursor = "pointer";
       });
-      newMap.on("mouseleave", "clusters", function () {
-        newMap.getCanvas().style.cursor = "";
+      map.on("mouseleave", "clusters", function () {
+        map.getCanvas().style.cursor = "";
       });
     });
 
-    map.current = newMap;
+    mapRef.current = map;
   }, []);
 
   return (
