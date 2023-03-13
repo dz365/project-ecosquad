@@ -1,13 +1,13 @@
 import maplibregl, { GeoJSONSource } from "maplibre-gl";
 import maplibreGl, { Map } from "maplibre-gl";
-import { useEffect, useRef } from "react";
-
+import { useEffect, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
+import SideBar from "../SideBar";
 
 const MapLibre = () => {
   const mapContainer = useRef(null);
   const mapRef = useRef<Map>();
-
+  const [infoBarState, setInfoBarState] = useState<"" | "show" | "hide">("");
   useEffect(() => {
     if (mapRef.current) return;
 
@@ -73,7 +73,6 @@ const MapLibre = () => {
         filter: ["has", "point_count"],
         layout: {
           "text-field": "{point_count_abbreviated}",
-          "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
           "text-size": 12,
         },
       });
@@ -113,38 +112,33 @@ const MapLibre = () => {
         );
       });
 
-      // When a click event occurs on a feature in
-      // the unclustered-point layer, open a popup at
-      // the location of the feature, with
-      // description HTML from its properties.
-      map.on("click", "unclustered-point", function (e: any) {
-        var coordinates = e.features[0].geometry.coordinates;
-        var mag = e.features[0].properties.mag;
-        var tsunami;
-
-        if (e.features[0].properties.tsunami === 1) {
-          tsunami = "yes";
-        } else {
-          tsunami = "no";
-        }
-
-        // Ensure that if the map is zoomed out such that
-        // multiple copies of the feature are visible, the
-        // popup appears over the copy being pointed to.
-        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-        }
-
-        new maplibregl.Popup()
-          .setLngLat(coordinates)
-          .setHTML("magnitude: " + mag + "<br>Was there a tsunami?: " + tsunami)
-          .addTo(map);
+      // When user clicks a point, show the info bar.
+      map.on("click", "unclustered-point", (e: any) => {
+        e.preventDefault();
+        setInfoBarState("show");
       });
 
-      map.on("mouseenter", "clusters", function () {
+      // When user clicks the map not on a point, hide the info bar.
+      map.on("click", (e: any) => {
+        // Make sure click was not from a point.
+        if (!e.defaultPrevented) {
+          setInfoBarState("hide");
+        }
+      });
+
+      map.on("mouseenter", "clusters", () => {
         map.getCanvas().style.cursor = "pointer";
       });
-      map.on("mouseleave", "clusters", function () {
+
+      map.on("mouseleave", "clusters", () => {
+        map.getCanvas().style.cursor = "";
+      });
+
+      map.on("mouseenter", "unclustered-point", () => {
+        map.getCanvas().style.cursor = "pointer";
+      });
+
+      map.on("mouseleave", "unclustered-point", () => {
         map.getCanvas().style.cursor = "";
       });
     });
@@ -155,6 +149,24 @@ const MapLibre = () => {
   return (
     <div className="relative overflow-hidden w-full h-full">
       <div ref={mapContainer} className="h-full"></div>
+      <SideBar width="384px" zIndex={20} reveal={infoBarState}>
+        <button
+          className="absolute top-[calc(50%-64px)] -right-8 w-16 h-16 bg-white rounded-full text-right"
+          onClick={() => {
+            setInfoBarState(infoBarState === "show" ? "hide" : "show");
+          }}
+        >
+          <div
+            className="ml-5 w-8 h-8 bg-contain bg-no-repeat bg-right"
+            style={{
+              backgroundImage:
+                "url('icons/chevron-" +
+                (infoBarState === "show" ? "left" : "right") +
+                ".svg')",
+            }}
+          ></div>
+        </button>
+      </SideBar>
     </div>
   );
 };
