@@ -12,7 +12,7 @@ const Navbar = () => {
   return (
     <>
       <button
-        className="fixed top-4 left-4 z-10 w-8 h-8 bg-no-repeat bg-center"
+        className="fixed top-4 left-4 z-20 w-8 h-8 bg-no-repeat bg-center"
         style={{ backgroundImage: "url('/icons/menu.svg')" }}
         onClick={() => setMenuState("show")}
       ></button>

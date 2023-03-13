@@ -149,7 +149,7 @@ const MapLibre = () => {
   return (
     <div className="relative overflow-hidden w-full h-full">
       <div ref={mapContainer} className="h-full"></div>
-      <SideBar width="384px" zIndex={20} reveal={infoBarState}>
+      <SideBar width="384px" zIndex={10} reveal={infoBarState}>
         <button
           className="absolute top-[calc(50%-64px)] -right-8 w-16 h-16 bg-white rounded-full text-right"
           onClick={() => {
