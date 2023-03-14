@@ -3,10 +3,6 @@ import { DataTypes } from "sequelize";
 import { User } from "./users.js";
 
 export const Post = sequelize.define("Post", {
-  title: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
   description: {
     type: DataTypes.STRING,
     defaultValue: "",
@@ -21,12 +17,23 @@ export const Post = sequelize.define("Post", {
     allowNull: false,
   },
   discoveryTime: {
-    type: DataTypes.TIME,
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
     allowNull: false,
   },
-  discoveryType: {
+  type: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  filesMetadata: {
+    type: DataTypes.ARRAY(DataTypes.JSON),
+    defaultValue: [],
+    allowNull: false,
+  },
+  tags: {
+    type: DataTypes.ARRAY(DataTypes.STRING),
+    defaultValue: [],
+    allowNull: true,
   },
 });
 
