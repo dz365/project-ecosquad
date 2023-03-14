@@ -121,7 +121,7 @@ const MapLibre = () => {
       // When user clicks the map not on a point, hide the info bar.
       map.on("click", (e: any) => {
         // Make sure click was not from a point.
-        if (!e.defaultPrevented && infoBarState !== "") {
+        if (!e.defaultPrevented) {
           setInfoBarState("hide");
         }
       });
