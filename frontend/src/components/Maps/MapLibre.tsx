@@ -2,12 +2,12 @@ import maplibregl, { GeoJSONSource } from "maplibre-gl";
 import maplibreGl, { Map } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
-import SideBar from "../SideBar";
 
 const MapLibre = () => {
   const mapContainer = useRef(null);
   const mapRef = useRef<Map>();
   const [infoBarState, setInfoBarState] = useState<"" | "show" | "hide">("");
+
   useEffect(() => {
     if (mapRef.current) return;
 
@@ -121,7 +121,7 @@ const MapLibre = () => {
       // When user clicks the map not on a point, hide the info bar.
       map.on("click", (e: any) => {
         // Make sure click was not from a point.
-        if (!e.defaultPrevented) {
+        if (!e.defaultPrevented && infoBarState !== "") {
           setInfoBarState("hide");
         }
       });
@@ -149,24 +149,28 @@ const MapLibre = () => {
   return (
     <div className="relative overflow-hidden w-full h-full">
       <div ref={mapContainer} className="h-full"></div>
-      <SideBar width="384px" zIndex={10} reveal={infoBarState}>
+      <div
+        className={`fixed z-10 w-full h-4/6 top-full md:top-0 md:-left-96 md:w-96 md:h-screen bg-white ${
+          infoBarState === "show" && "animate-slideup md:animate-slidein"
+        } ${
+          infoBarState === "hide" && "animate-slidedown md:animate-slideout"
+        }`}
+      >
         <button
-          className="absolute top-[calc(50%-64px)] -right-8 w-16 h-16 bg-white rounded-full text-right"
+          className="absolute -top-8 right-[calc(50%-32px)] md:top-[calc(50%-32px)] md:-right-8 w-16 h-16 bg-white rounded-full text-right"
           onClick={() => {
             setInfoBarState(infoBarState === "show" ? "hide" : "show");
           }}
         >
           <div
-            className="ml-5 w-8 h-8 bg-contain bg-no-repeat bg-right"
-            style={{
-              backgroundImage:
-                "url('icons/chevron-" +
-                (infoBarState === "show" ? "left" : "right") +
-                ".svg')",
-            }}
+            className={`m-auto mb-6 md:mb-0 md:ml-6 w-8 h-8 bg-contain bg-center bg-no-repeat ${
+              infoBarState === "show"
+                ? "bg-downarrow md:bg-leftarrow"
+                : "bg-uparrow md:bg-rightarrow"
+            }`}
           ></div>
         </button>
-      </SideBar>
+      </div>
     </div>
   );
 };

@@ -19,7 +19,7 @@ const UpdateProfilePage = () => {
   };
 
   useEffect(() => {
-    setAvatarURL("/icons/default_avatar.svg");
+    setAvatarURL("/default_avatar.svg");
 
     getAccessTokenSilently().then((token) => {
       getUser(token, user!.sub!).then((res) => {
@@ -62,10 +62,7 @@ const UpdateProfilePage = () => {
 
   return (
     <PageLayout>
-      <div
-        className="bg-green-100 min-h-screen pt-8 flex items-center justify-center bg-center"
-        style={{ backgroundImage: "url(/background.svg)" }}
-      >
+      <div className="bg-green-100 min-h-screen pt-8 flex items-center justify-center bg-background bg-center">
         <form
           onSubmit={onSubmit}
           className="flex flex-col gap-8 rounded-lg bg-white p-8 drop-shadow-lg"
@@ -80,10 +77,7 @@ const UpdateProfilePage = () => {
               className="w-24 h-24 rounded-full bg-contain border"
             />
             <div className="absolute top-0 right-0 flex items-center gap-1">
-              <div
-                className="w-4 h-4 bg-cover opacity-75"
-                style={{ backgroundImage: "url(icons/pencil.png)" }}
-              ></div>
+              <div className="w-4 h-4 bg-pencil bg-cover opacity-75"></div>
               <div className="text-xs text-gray-700">edit</div>
             </div>
 

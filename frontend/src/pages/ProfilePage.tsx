@@ -44,15 +44,12 @@ const ProfilePage = () => {
               alt="avatar"
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null; // prevents looping
-                currentTarget.src = "./icons/default_avatar.svg";
+                currentTarget.src = "/default_avatar.svg";
               }}
               className="w-16 h-16 rounded-full border p-1"
             />
             <div
-              className="w-5 h-5 cursor-pointer opacity-50 bg-no-repeat bg-center"
-              style={{
-                backgroundImage: "url('./icons/chevron-down-solid.svg')",
-              }}
+              className="w-5 h-5 cursor-pointer opacity-50 bg-downarrow bg-no-repeat bg-center"
               onClick={toggleHideProfile}
             ></div>
           </div>
@@ -66,8 +63,7 @@ const ProfilePage = () => {
               edit
             </button>
             <div
-              className="w-5 h-5 m-auto mb-4 cursor-pointer opacity-50 bg-no-repeat bg-center"
-              style={{ backgroundImage: "url('./icons/chevron-up-solid.svg')" }}
+              className="w-5 h-5 m-auto mb-4 cursor-pointer opacity-50 bg-uparrow bg-no-repeat bg-center"
               onClick={toggleHideProfile}
             ></div>
             <div className="flex flex-col items-center place-items-center">
@@ -77,7 +73,7 @@ const ProfilePage = () => {
                 alt="avatar"
                 onError={({ currentTarget }) => {
                   currentTarget.onerror = null; // prevents looping
-                  currentTarget.src = "./icons/default_avatar.svg";
+                  currentTarget.src = "/default_avatar.svg";
                 }}
                 className="w-20 h-20 rounded-full border p-1"
               />

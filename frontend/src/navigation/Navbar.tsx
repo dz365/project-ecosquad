@@ -1,7 +1,6 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import SideBar from "../components/SideBar";
 import SignOutButton from "./SignoutButton";
 
 const Navbar = () => {
@@ -12,19 +11,21 @@ const Navbar = () => {
   return (
     <>
       <button
-        className="fixed top-4 left-4 z-20 w-8 h-8 bg-no-repeat bg-center"
-        style={{ backgroundImage: "url('/icons/menu.svg')" }}
+        className="fixed top-4 left-4 z-20 w-8 h-8 bg-menu bg-no-repeat bg-center"
         onClick={() => setMenuState("show")}
       ></button>
-      <SideBar width="288px" zIndex={30} reveal={menuState}>
+      <div
+        className={`fixed top-0 -left-72 w-72 z-30 h-screen bg-white ${
+          menuState === "show" && "animate-slidein"
+        } ${menuState === "hide" && "animate-slideout"}`}
+      >
         <div className="h-screen py-4 px-8 flex flex-col items-center gap-8 bg-green-600  text-green-50">
           <div className="self-stretch flex justify-between items-center">
             <div className="bg-gray-50 rounded-full p-3">
-              <img src="/icons/logo.png" className="w-8" />
+              <img src="/logo.png" className="w-8" />
             </div>
             <button
-              className="w-8 h-8 bg-no-repeat bg-center"
-              style={{ backgroundImage: "url('/icons/xmark.svg')" }}
+              className="w-8 h-8 bg-xmark bg-no-repeat bg-center"
               onClick={() => setMenuState("hide")}
             ></button>
           </div>
@@ -39,7 +40,7 @@ const Navbar = () => {
             </>
           )}
         </div>
-      </SideBar>
+      </div>
     </>
   );
 };

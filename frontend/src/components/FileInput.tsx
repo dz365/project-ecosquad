@@ -10,10 +10,7 @@ const FileInput: React.FC<FileInput> = ({
 }) => {
   return (
     <label className="w-full h-28 bg-gray-200 opacity-80 rounded-lg flex flex-col items-center justify-center cursor-pointer">
-      <div
-        className="w-12 h-12 bg-contain bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('icons/cloud-arrow-up-solid.svg')" }}
-      ></div>
+      <div className="w-12 h-12 bg-upload bg-contain bg-center bg-no-repeat"></div>
       <span className="text-sm text-gray-600">Browse and upload files</span>
       <input
         type="file"
