@@ -4,13 +4,11 @@ import { Post } from "../models/posts.js";
 
 export const postsRouter = Router();
 
-const postFiles = multer({ dest: "/posts" });
+const postFiles = multer({ dest: "./posts" });
 
 // create a new post
 postsRouter.post("/", postFiles.array("files"), async (req, res) => {
   try {
-    console.log(req.files);
-
     const post = await Post.create({
       description: req.body.description,
       longitude: req.body.longitude,
@@ -18,12 +16,11 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
       discoveryTime: req.body.discoveryTime,
       type: req.body.type,
       filesMetadata: req.files,
-      tags: req.body.tags,
+      tags: JSON.parse(req.body.tags),
       UserId: req.body.userId,
     });
     return res.json(post);
   } catch (e) {
-    console.log(e);
     return res.status(422).json({ error: "Post creation failed." });
   }
 });
