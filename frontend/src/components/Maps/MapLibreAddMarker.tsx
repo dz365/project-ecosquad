@@ -1,5 +1,6 @@
 import maplibregl, {
   GeoJSONSource,
+  LngLat,
   Marker,
   NavigationControl,
 } from "maplibre-gl";
@@ -8,7 +9,11 @@ import { useEffect, useRef, useState } from "react";
 
 import "maplibre-gl/dist/maplibre-gl.css";
 
-const MapLibreAddMarker = () => {
+interface MapLibreAddMarker {
+  setLngLat: (e: LngLat) => void;
+}
+
+const MapLibreAddMarker: React.FC<MapLibreAddMarker> = ({ setLngLat }) => {
   const mapContainer = useRef(null);
   const map = useRef<Map>();
 
@@ -26,14 +31,18 @@ const MapLibreAddMarker = () => {
       newMap.touchZoomRotate.disableRotation();
       newMap.addControl(new maplibreGl.NavigationControl({}));
 
-      let marker: Marker;
-      newMap.on("click", (e) => {
-        if (marker) return;
-        marker = new maplibregl.Marker({ color: "#FF0000" })
-          .setLngLat(e.lngLat)
-          .setDraggable(true);
-        marker.addTo(newMap);
+      const marker = new maplibregl.Marker({
+        color: "#FF0000",
+        draggable: true,
       });
+
+      newMap.on("click", (e) => {
+        marker.setLngLat(e.lngLat);
+        marker.addTo(newMap);
+        setLngLat(e.lngLat);
+      });
+
+      marker.on("dragend", () => setLngLat(marker.getLngLat()));
     });
 
     map.current = newMap;

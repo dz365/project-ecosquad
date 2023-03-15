@@ -1,17 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FileInput from "../components/FileInput";
 import TextAreaInput from "../components/controlled/TextareaInput";
 import TextInput from "../components/controlled/TextInput";
 import PageLayout from "./PageLayout";
 import SubmitInput from "../components/controlled/SubmitInput";
 import MapLibreAddMarker from "../components/Maps/MapLibreAddMarker";
+import { useAuth0 } from "@auth0/auth0-react";
+import { LngLat } from "maplibre-gl";
+import { createPost } from "../service/test.service";
+import { useNavigate } from "react-router-dom";
 
 const AddPostPage = () => {
-  const [title, setTitle] = useState("");
+  const navigate = useNavigate();
+
+  const [lnglat, setLngLat] = useState<LngLat>();
   const [description, setDescription] = useState("");
   const [files, setFiles] = useState<FileList>();
   const [tags, setTags] = useState<string[]>([]);
   const [tagInputText, setTagInputText] = useState("");
+
+  const { user, getAccessTokenSilently } = useAuth0();
+
   interface LabelText {
     text: string;
   }
@@ -21,7 +30,20 @@ const AddPostPage = () => {
 
   const onSubmitForm = (e: any) => {
     e.preventDefault();
+
+    getAccessTokenSilently().then((token) => {
+      const formData = new FormData(e.target);
+      formData.set("longitude", lnglat!.lng.toString());
+      formData.set("latitude", lnglat!.lat.toString());
+      formData.set("UserId", user!.sub!.toString());
+      formData.set("tags", JSON.stringify(tags));
+
+      createPost(token, formData)
+        .then(() => navigate("/"))
+        .catch((err) => console.log(err));
+    });
   };
+
   const preventEnterKeyAction = (e: any) => {
     if (e.key === "Enter") e.preventDefault();
   };
@@ -43,7 +65,7 @@ const AddPostPage = () => {
     <PageLayout>
       <div className="pb-2 flex flex-col md:flex-row md:p-0">
         <div className="w-full h-96 md:w-8/12 md:h-screen">
-          <MapLibreAddMarker />
+          <MapLibreAddMarker setLngLat={setLngLat} />
         </div>
         <div className="z-10 md:w-4/12 md:h-screen p-4 md:overflow-y-auto">
           <form
@@ -51,22 +73,6 @@ const AddPostPage = () => {
             onKeyDown={preventEnterKeyAction}
             onSubmit={onSubmitForm}
           >
-            <label className="flex flex-col gap-2">
-              <LabelText text="Title" />
-              <TextInput
-                name="title"
-                value={title}
-                onChangeHandler={(e) => setTitle(e.target.value)}
-              />
-            </label>
-            <label className="flex flex-col gap-2">
-              <LabelText text="Description" />
-              <TextAreaInput
-                name="description"
-                value={description}
-                onChangeHandler={(e) => setDescription(e.target.value)}
-              />
-            </label>
             <label className="flex flex-col gap-2">
               <LabelText text="Upload Files" />
               <FileInput
@@ -85,9 +91,17 @@ const AddPostPage = () => {
                 </div>
               )}
             </label>
+            <label className="flex flex-col gap-2">
+              <LabelText text="Description" />
+              <TextAreaInput
+                name="description"
+                value={description}
+                onChangeHandler={(e) => setDescription(e.target.value)}
+              />
+            </label>
             <label className="flex flex-col gap-4">
               <LabelText text="Time Recorded" />
-              <input name="time" type="datetime-local" />
+              <input name="discoveryTime" type="datetime-local" />
             </label>
             <label className="flex gap-4">
               <LabelText text="Post Type" />

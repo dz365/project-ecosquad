@@ -44,7 +44,7 @@ const UpdateProfilePage = () => {
       const formData = new FormData(e.target);
 
       formData.append("email", user!.email!);
-      formData.append("privateProfile", +privateProfile + "");
+      formData.set("privateProfile", privateProfile.toString());
 
       getUser(token, user!.sub!)
         .then(() => {

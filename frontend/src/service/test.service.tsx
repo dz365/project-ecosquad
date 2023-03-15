@@ -58,4 +58,21 @@ const updateUser = async (
     .then((res) => res.data);
 };
 
-export { testAPIEndpoint, getUser, getUserAvatar, createUser, updateUser };
+const createPost = async (accessToken: string, formData: FormData) => {
+  return axios
+    .postForm(`${serverURL}/posts`, formData, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+    .then((res) => res.data);
+};
+
+export {
+  testAPIEndpoint,
+  getUser,
+  getUserAvatar,
+  createUser,
+  updateUser,
+  createPost,
+};
