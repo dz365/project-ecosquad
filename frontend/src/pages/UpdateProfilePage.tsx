@@ -19,8 +19,6 @@ const UpdateProfilePage = () => {
   };
 
   useEffect(() => {
-    setAvatarURL("/default_avatar.svg");
-
     getAccessTokenSilently().then((token) => {
       getUser(token, user!.sub!).then((res) => {
         setName(res.name);
@@ -72,8 +70,17 @@ const UpdateProfilePage = () => {
           </div>
           <label className="px-14 relative place-self-center cursor-pointer flex flex-col items-center">
             <img
-              src={avatarURL}
+              src={
+                avatarURL === ""
+                  ? `${process.env.REACT_APP_API_SERVER_URL}/users/${user!
+                      .sub!}/avatar`
+                  : avatarURL
+              }
               alt="avatar"
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null; // prevents looping
+                currentTarget.src = "/default_avatar.svg";
+              }}
               className="w-24 h-24 rounded-full bg-contain border"
             />
             <div className="absolute top-0 right-0 flex items-center gap-1">
