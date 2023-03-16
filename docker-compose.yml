@@ -1,5 +1,15 @@
 version: "1.0"
 services:
+  backend:
+    env_file:
+      - .env
+    restart: always
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: ecosquad-backend
+    ports:
+      - 3001:3001
   postgres:
     restart: always
     image: postgres:12
