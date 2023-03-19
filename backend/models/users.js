@@ -2,6 +2,10 @@ import { sequelize } from "../datasource.js";
 import { DataTypes } from "sequelize";
 
 export const User = sequelize.define("User", {
+  id: {
+    type: DataTypes.STRING,
+    primaryKey: true,
+  },
   name: {
     type: DataTypes.STRING,
     allowNull: false,
