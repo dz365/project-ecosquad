@@ -5,35 +5,20 @@ import { User } from "./users.js";
 export const Post = sequelize.define("Post", {
   description: {
     type: DataTypes.STRING,
-    defaultValue: "",
     allowNull: false,
   },
-  longitude: {
-    type: DataTypes.FLOAT,
-    allowNull: false,
-  },
-  latitude: {
-    type: DataTypes.FLOAT,
-    allowNull: false,
-  },
-  discoveryTime: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
+  geometry: {
+    type: DataTypes.GEOMETRY("POINT"),
     allowNull: false,
   },
   type: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  filesMetadata: {
-    type: DataTypes.ARRAY(DataTypes.JSON),
-    defaultValue: [],
-    allowNull: false,
-  },
   tags: {
     type: DataTypes.ARRAY(DataTypes.STRING),
     defaultValue: [],
-    allowNull: true,
+    allowNull: false,
   },
 });
 

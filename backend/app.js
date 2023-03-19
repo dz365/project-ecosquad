@@ -5,7 +5,7 @@ import { usersRouter } from "./routers/users_router.js";
 import { postsRouter } from "./routers/posts_router.js";
 
 const app = express();
-const port = 3000;
+const port = 3001;
 
 app.use(bodyParser.json());
 

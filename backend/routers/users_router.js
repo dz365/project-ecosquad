@@ -34,7 +34,7 @@ usersRouter.get("/:id", async (req, res) => {
   return res.json(user);
 });
 
-// update a specific user's profile (except their profile picture)
+// update a specific user's profile
 usersRouter.patch("/:id", avatar.single("avatar"), async (req, res) => {
   const user = await User.findByPk(req.params.id);
   const name = req.body.name;
