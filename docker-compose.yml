@@ -1,5 +1,15 @@
 version: "1.0"
 services:
+  frontend:
+    env_file:
+      - .env
+    restart: always
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: ecosquad-frontend
+    ports:
+      - 3000:3000
   backend:
     env_file:
       - .env
