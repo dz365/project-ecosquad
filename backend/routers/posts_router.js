@@ -27,19 +27,23 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
       fileMetadatas.push({ metadata: file, PostId: post.id });
     });
 
-    let files = [];
+    let fileIds = [];
 
     if (fileMetadatas.length !== 0) {
       await File.bulkCreate(fileMetadatas);
-      files = await File.findAll({
+      const files = await File.findAll({
         attributes: ["id"],
         where: {
           PostId: post.id,
         },
       });
+
+      files.forEach((file) => {
+        fileIds.push(file.id);
+      });
     }
 
-    return res.json({ post, files });
+    return res.json({ post, fileIds });
   } catch (e) {
     return res.status(422).json({ error: "Post creation failed." });
   }
@@ -48,6 +52,11 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
 // get a single post
 postsRouter.get("/:id", async (req, res) => {
   const post = await Post.findByPk(req.params.id);
+
+  if (!post) {
+    return res.status(404).json({ error: "Post not found." });
+  }
+
   const files = await File.findAll({
     attributes: ["id"],
     where: {
@@ -55,11 +64,13 @@ postsRouter.get("/:id", async (req, res) => {
     },
   });
 
-  if (!post) {
-    return res.status(404).json({ error: "Post not found." });
-  }
+  let fileIds = [];
 
-  return res.json({ post, files });
+  files.forEach((file) => {
+    fileIds.push(file.id);
+  });
+
+  return res.json({ post, fileIds });
 });
 
 // update a specific post
@@ -114,9 +125,15 @@ postsRouter.patch("/:id", postFiles.array("files"), async (req, res) => {
     },
   });
 
+  let fileIds = [];
+
+  files.forEach((file) => {
+    fileIds.push(file.id);
+  });
+
   await post.update(update);
   await post.reload();
-  return res.json({ post, files });
+  return res.json({ post, fileIds });
 });
 
 // delete a specific post and all the related tags and files
