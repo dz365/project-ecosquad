@@ -11,6 +11,9 @@ services:
     ports:
       - 3000:3000
   backend:
+    depends_on:
+      postgres:
+        condition: service_healthy
     env_file:
       - .env
     restart: always
@@ -21,8 +24,13 @@ services:
     ports:
       - 3001:3001
   postgres:
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: always
-    image: postgres:12
+    image: postgis/postgis
     ports:
       # Different port in case host has Postgres installed already
       - 5433:5432
@@ -33,6 +41,6 @@ services:
     # so that your data stays intact.
     volumes:
       - postgres-volume:/var/lib/postgresql/data
-      - ./postgres12/:/docker-entrypoint-initdb.d/
+      - ./database/:/docker-entrypoint-initdb.d/
 volumes:
   postgres-volume:
