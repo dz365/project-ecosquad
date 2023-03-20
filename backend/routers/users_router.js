@@ -57,7 +57,7 @@ usersRouter.get("/:id/avatar", async (req, res) => {
   res.sendFile(user.avatarMetadata.path, { root: path.resolve() });
 });
 
-// update a specific user's profile (except their profile picture)
+// update a specific user's profile
 usersRouter.patch(
   "/:id",
   validateAccessToken,

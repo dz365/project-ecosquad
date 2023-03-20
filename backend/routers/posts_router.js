@@ -1,6 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
 import { Post } from "../models/posts.js";
+import { File } from "../models/files.js";
 
 export const postsRouter = Router();
 
@@ -11,15 +12,38 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
   try {
     const post = await Post.create({
       description: req.body.description,
-      longitude: req.body.longitude,
-      latitude: req.body.longitude,
-      discoveryTime: req.body.discoveryTime,
+      geometry: {
+        type: "Point",
+        coordinates: JSON.parse(req.body.coordinates),
+      },
       type: req.body.type,
-      filesMetadata: req.files,
       tags: JSON.parse(req.body.tags),
       UserId: req.body.userId,
     });
-    return res.json(post);
+
+    let fileMetadatas = [];
+
+    req.files.forEach((file) => {
+      fileMetadatas.push({ metadata: file, PostId: post.id });
+    });
+
+    let fileIds = [];
+
+    if (fileMetadatas.length !== 0) {
+      await File.bulkCreate(fileMetadatas);
+      const files = await File.findAll({
+        attributes: ["id"],
+        where: {
+          PostId: post.id,
+        },
+      });
+
+      files.forEach((file) => {
+        fileIds.push(file.id);
+      });
+    }
+
+    return res.json({ post, fileIds });
   } catch (e) {
     return res.status(422).json({ error: "Post creation failed." });
   }
@@ -33,19 +57,35 @@ postsRouter.get("/:id", async (req, res) => {
     return res.status(404).json({ error: "Post not found." });
   }
 
-  return res.json(post);
+  const files = await File.findAll({
+    attributes: ["id"],
+    where: {
+      PostId: post.id,
+    },
+  });
+
+  let fileIds = [];
+
+  files.forEach((file) => {
+    fileIds.push(file.id);
+  });
+
+  return res.json({ post, fileIds });
 });
 
 // update a specific post
 postsRouter.patch("/:id", postFiles.array("files"), async (req, res) => {
   const post = await Post.findByPk(req.params.id);
   const description = req.body.description;
-  const longitude = req.body.longitude;
-  const latitude = req.body.longitude;
-  const discoveryTime = req.body.discoveryTime;
+  const coordinates = req.body.coordinates
+    ? JSON.parse(req.body.coordinates)
+    : null;
   const type = req.body.type;
-  const filesMetadata = req.files;
-  const tags = req.body.tags;
+  const tags = req.body.tags ? JSON.parse(req.body.tags) : null;
+  const deletedFileIds = req.body.deletedFiles
+    ? JSON.parse(req.body.deletedFiles)
+    : null;
+  const addedFileMetadatas = req.files;
   const update = {};
 
   if (!post) {
@@ -53,16 +93,47 @@ postsRouter.patch("/:id", postFiles.array("files"), async (req, res) => {
   }
 
   if (description) update.description = description;
-  if (longitude) update.longitude = longitude;
-  if (latitude) update.latitude = latitude;
-  if (discoveryTime) update.discoveryTime = discoveryTime;
   if (type) update.type = type;
-  if (filesMetadata) update.filesMetadata = filesMetadata;
   if (tags) update.tags = tags;
+  if (coordinates) {
+    update.geometry = { type: "Point", coordinates: coordinates };
+  }
+
+  if (deletedFileIds) {
+    await File.destroy({
+      where: {
+        id: deletedFileIds,
+        PostId: post.id,
+      },
+    });
+  }
+
+  if (addedFileMetadatas) {
+    let fileMetadatas = [];
+
+    addedFileMetadatas.forEach((file) => {
+      fileMetadatas.push({ metadata: file, PostId: post.id });
+    });
+
+    await File.bulkCreate(fileMetadatas);
+  }
+
+  const files = await File.findAll({
+    attributes: ["id"],
+    where: {
+      PostId: post.id,
+    },
+  });
+
+  let fileIds = [];
+
+  files.forEach((file) => {
+    fileIds.push(file.id);
+  });
 
   await post.update(update);
   await post.reload();
-  return res.json(post);
+  return res.json({ post, fileIds });
 });
 
 // delete a specific post and all the related tags and files
@@ -70,6 +141,11 @@ postsRouter.delete("/:id", async (req, res) => {
   const post = await Post.findByPk(req.params.id);
 
   if (post) {
+    await File.destroy({
+      where: {
+        PostId: post.id,
+      },
+    });
     await post.destroy();
   } else {
     return res.status(404).json({ error: "Post not found" });
