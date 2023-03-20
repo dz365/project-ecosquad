@@ -1,4 +1,12 @@
 import axios from "axios";
+import { MeiliSearch } from "meilisearch";
+
+const client = new MeiliSearch({
+  host: process.env.REACT_APP_MEILISEARCH_HOST!,
+  apiKey: process.env.REACT_APP_MEILISEARCH_KEY!,
+});
+
+const searchIndex = client.index("posts");
 
 const serverURL = process.env.REACT_APP_API_SERVER_URL;
 const testAPIEndpoint = async (accessToken: string) => {
@@ -68,6 +76,10 @@ const createPost = async (accessToken: string, formData: FormData) => {
     .then((res) => res.data);
 };
 
+const getPosts = async () => {
+  return searchIndex.getDocuments().then((res) => res);
+};
+
 export {
   testAPIEndpoint,
   getUser,
@@ -75,4 +87,5 @@ export {
   createUser,
   updateUser,
   createPost,
+  getPosts,
 };

@@ -2,8 +2,11 @@ import { Router } from "express";
 import multer from "multer";
 import { Post } from "../models/posts.js";
 import { File } from "../models/files.js";
+import { validateAccessToken } from "../middleware/auth.js";
+import { searchIndex } from "../meilisearch.js";
 
 export const postsRouter = Router();
+//postsRouter.use(validateAccessToken);
 
 const postFiles = multer({ dest: "./posts" });
 
@@ -42,6 +45,21 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
         fileIds.push(file.id);
       });
     }
+
+    const newSearchDoc = [
+      {
+        id: post.id,
+        type: "Feature",
+        geometry: post.geometry,
+        properties: {
+          description: post.description,
+          type: post.type,
+          tags: post.tags,
+        },
+      },
+    ];
+
+    await searchIndex.addDocuments(newSearchDoc);
 
     return res.json({ post, fileIds });
   } catch (e) {
