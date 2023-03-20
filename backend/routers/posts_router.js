@@ -27,7 +27,17 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
       fileMetadatas.push({ metadata: file, PostId: post.id });
     });
 
-    const files = fileMetadatas ? await File.bulkCreate(fileMetadatas) : [];
+    let files = [];
+
+    if (fileMetadatas.length !== 0) {
+      await File.bulkCreate(fileMetadatas);
+      files = await File.findAll({
+        attributes: ["id"],
+        where: {
+          PostId: post.id,
+        },
+      });
+    }
 
     return res.json({ post, files });
   } catch (e) {
@@ -40,6 +50,7 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
 postsRouter.get("/:id", async (req, res) => {
   const post = await Post.findByPk(req.params.id);
   const files = await File.findAll({
+    attributes: ["id"],
     where: {
       PostId: post.id,
     },
@@ -98,6 +109,7 @@ postsRouter.patch("/:id", postFiles.array("files"), async (req, res) => {
   }
 
   const files = await File.findAll({
+    attributes: ["id"],
     where: {
       PostId: post.id,
     },
