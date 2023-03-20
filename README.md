@@ -32,7 +32,7 @@ Users will also get the chance to explore what other users are sharing and if in
 | Meilisearch | 3      | Search and filter options to view posts displayed on the interactive map. |
 | SendGrid    | 2      | Periodically sending email for followed topics                            |
 | Auth0       | 1      | Authorization and authentication purposes                                 |
-| Unovis      | 1      | Interactive map that users can add posts and filter posts                 |
+| MapLibre    | 1      | Interactive map that users can add posts and filter posts                 |
 
 Currently, no bonus complexity points are planned. However, if we decide on having new features that require additional complexity, then they will be included below.
 

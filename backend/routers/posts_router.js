@@ -5,7 +5,7 @@ import { File } from "../models/files.js";
 
 export const postsRouter = Router();
 
-const postFiles = multer({ dest: "/posts" });
+const postFiles = multer({ dest: "./posts" });
 
 // create a new post
 postsRouter.post("/", postFiles.array("files"), async (req, res) => {
@@ -41,7 +41,6 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
 
     return res.json({ post, files });
   } catch (e) {
-    console.log(e);
     return res.status(422).json({ error: "Post creation failed." });
   }
 });
