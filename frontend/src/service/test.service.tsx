@@ -80,6 +80,17 @@ const getPosts = async () => {
   return searchIndex.getDocuments().then((res: any) => res);
 };
 
+const getPost = async (accessToken: string, id: number) => {
+  return axios({
+    url: `${serverURL}/posts/${id}`,
+    method: "GET",
+    headers: {
+      "content-type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  }).then((res) => res.data);
+};
+
 export {
   testAPIEndpoint,
   getUser,
@@ -87,5 +98,6 @@ export {
   createUser,
   updateUser,
   createPost,
+  getPost,
   getPosts,
 };

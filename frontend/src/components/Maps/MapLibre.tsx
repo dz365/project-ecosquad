@@ -2,7 +2,7 @@ import { GeoJSONSource } from "maplibre-gl";
 import maplibreGl, { Map } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { getPosts } from "../../service/test.service";
+import { getPost, getPosts } from "../../service/test.service";
 import Biosphere from "./biosphere.png";
 import Lithosphere from "./lithosphere.png";
 import Atmosphere from "./atmosphere.png";
@@ -10,12 +10,13 @@ import Hydrosphere from "./hydrosphere.png";
 import Weather from "./weather.png";
 import Space from "./space.png";
 import Other from "./other.png";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const MapLibre = () => {
   const mapContainer = useRef(null);
   const mapRef = useRef<Map>();
   const [infoBarState, setInfoBarState] = useState<"" | "show" | "hide">("");
-
+  const { getAccessTokenSilently } = useAuth0();
   useEffect(() => {
     getPosts().then((posts) => {
       if (mapRef.current) {
@@ -54,11 +55,16 @@ const MapLibre = () => {
         map.loadImage(Other, function (error, image: any) {
           if (error) throw error;
           map.addImage("other", image);
+
           map.addLayer({
             id: "other",
             type: "symbol",
             source: "earthquakes",
-            filter: ["!", ["has", "point_count"]],
+            filter: [
+              "all",
+              ["!", ["has", "point_count"]],
+              ["==", ["get", "type"], "other"],
+            ],
             layout: {
               "icon-image": "other",
               "icon-overlap": "always",
@@ -266,7 +272,12 @@ const MapLibre = () => {
         // When user clicks a point, show the info bar.
         map.on("click", "unclustered-point", (e: any) => {
           e.preventDefault();
+          const id = e.features[0].id;
+          console.log();
           setInfoBarState("show");
+          getAccessTokenSilently().then((token) => {
+            getPost(token, id).then((res) => console.log(res));
+          });
         });
 
         // When user clicks the map not on a point, hide the info bar.
@@ -309,19 +320,15 @@ const MapLibre = () => {
         }`}
       >
         <button
-          className="absolute -top-8 right-[calc(50%-32px)] md:top-[calc(50%-32px)] md:-right-8 w-16 h-16 bg-white rounded-full text-right"
+          className={`p-2 absolute -top-8 right-[calc(50%-32px)] md:top-[calc(50%-16px)] md:-right-8 w-16  md:w-8 h-8  md:h-16 bg-white bg-center bg-no-repeat bg-[length:32px_32px] bg-contain rounded-t-lg md:rounded-none md:rounded-r-lg ${
+            infoBarState === "show"
+              ? "bg-downarrow md:bg-leftarrow"
+              : "bg-uparrow md:bg-rightarrow"
+          } `}
           onClick={() => {
             setInfoBarState(infoBarState === "show" ? "hide" : "show");
           }}
-        >
-          <div
-            className={`m-auto mb-6 md:mb-0 md:ml-6 w-8 h-8 bg-contain bg-center bg-no-repeat ${
-              infoBarState === "show"
-                ? "bg-downarrow md:bg-leftarrow"
-                : "bg-uparrow md:bg-rightarrow"
-            }`}
-          ></div>
-        </button>
+        />
       </div>
     </div>
   );
