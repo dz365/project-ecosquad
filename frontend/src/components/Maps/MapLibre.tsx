@@ -17,6 +17,11 @@ const MapLibre = () => {
   const mapRef = useRef<Map>();
   const [infoBarState, setInfoBarState] = useState<"" | "show" | "hide">("");
   const { getAccessTokenSilently } = useAuth0();
+
+  const [description, setDescription] = useState("");
+  const [type, setType] = useState("");
+  const [tags, setTags] = useState([]);
+  const [fileIds, setFileIds] = useState([]);
   useEffect(() => {
     getPosts().then((posts) => {
       if (mapRef.current) {
@@ -276,7 +281,13 @@ const MapLibre = () => {
           console.log();
           setInfoBarState("show");
           getAccessTokenSilently().then((token) => {
-            getPost(token, id).then((res) => console.log(res));
+            getPost(token, id).then((res) => {
+              console.log(res.post.tags);
+              setDescription(res.post.description);
+              setType(res.post.type);
+              setTags(res.post.tags);
+              setFileIds(res.fileIds);
+            });
           });
         });
 
@@ -320,7 +331,7 @@ const MapLibre = () => {
         }`}
       >
         <button
-          className={`p-2 absolute -top-8 right-[calc(50%-32px)] md:top-[calc(50%-16px)] md:-right-8 w-16  md:w-8 h-8  md:h-16 bg-white bg-center bg-no-repeat bg-[length:32px_32px] bg-contain rounded-t-lg md:rounded-none md:rounded-r-lg ${
+          className={`p-2 absolute -top-8 right-[calc(50%-32px)] md:top-[calc(50%-16px)] md:-right-8 w-16  md:w-8 h-8  md:h-16 bg-white bg-center bg-no-repeat bg-[length:32px_32px] rounded-t-lg md:rounded-none md:rounded-r-lg ${
             infoBarState === "show"
               ? "bg-downarrow md:bg-leftarrow"
               : "bg-uparrow md:bg-rightarrow"
@@ -329,6 +340,37 @@ const MapLibre = () => {
             setInfoBarState(infoBarState === "show" ? "hide" : "show");
           }}
         />
+        {fileIds.length > 0 && (
+          <div className="w-96 h-48 flex items-center justify-center">
+            <iframe
+              src={`${process.env.REACT_APP_API_SERVER_URL}/files/${fileIds[0]}`}
+              className="border-none"
+            ></iframe>
+          </div>
+        )}
+        <div>
+          <p className="text-xl text-green-600">Description</p>
+          <p>{description}</p>
+        </div>
+        <div>
+          <p className="text-xl text-green-600">Type</p>
+          <p>{type}</p>
+        </div>
+        <div>
+          <p className="text-xl text-green-600">Tags</p>
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag, i) => (
+                <div
+                  key={i + tag}
+                  className="flex gap-2 bg-gray-100 text-gray-600 p-2 rounded-lg"
+                >
+                  {tag}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

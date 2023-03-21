@@ -69,7 +69,7 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
 
 // get a single post
 postsRouter.get("/:id", async (req, res) => {
-  const post = await Post.findByPk(req.params.id);
+  const post = await Post.findByPk(+req.params.id);
 
   if (!post) {
     return res.status(404).json({ error: "Post not found." });

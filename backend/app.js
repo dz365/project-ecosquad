@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import { usersRouter } from "./routers/users_router.js";
 import { postsRouter } from "./routers/posts_router.js";
 import { authError } from "./middleware/auth_error.js";
+import { fileRouter } from "./routers/file_router.js";
 
 const app = express();
 
@@ -17,6 +18,7 @@ await sequelize.sync({ alter: { drop: false } });
 
 app.use("/users", usersRouter);
 app.use("/posts", postsRouter);
+app.use("/files", fileRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
