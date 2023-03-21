@@ -164,6 +164,7 @@ postsRouter.delete("/:id", async (req, res) => {
         PostId: post.id,
       },
     });
+    await searchIndex.deleteDocument(post.id);
     await post.destroy();
   } else {
     return res.status(404).json({ error: "Post not found" });

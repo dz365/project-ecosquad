@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import FileInput from "../components/FileInput";
 import TextAreaInput from "../components/controlled/TextareaInput";
-import TextInput from "../components/controlled/TextInput";
 import PageLayout from "./PageLayout";
 import SubmitInput from "../components/controlled/SubmitInput";
 import MapLibreAddMarker from "../components/Maps/MapLibreAddMarker";
@@ -99,15 +98,19 @@ const AddPostPage = () => {
                 onChangeHandler={(e) => setDescription(e.target.value)}
               />
             </label>
-            <label className="flex flex-col gap-4">
-              <LabelText text="Time Recorded" />
-              <input name="discoveryTime" type="datetime-local" />
-            </label>
             <label className="flex gap-4">
               <LabelText text="Post Type" />
               <select name="type" className="p-2 rounded-md bg-gray-100">
-                <option value="animal">Animal</option>
-                <option value="plant">Plant</option>
+                <option disabled selected>
+                  - Select a type -
+                </option>
+                <option value="lithosphere">Lithosphere</option>
+                <option value="hydrosphere">Hydrosphere</option>
+                <option value="biosphere">Biosphere</option>
+                <option value="atmosphere">Atmosphere</option>
+                <option value="weather">Weather</option>
+                <option value="space">Space</option>
+                <option value="other">Other</option>
               </select>
             </label>
             <label className="flex flex-col gap-2">

@@ -1,19 +1,20 @@
-import maplibregl, { Feature, GeoJSONSource } from "maplibre-gl";
+import { GeoJSONSource } from "maplibre-gl";
 import maplibreGl, { Map } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { getPosts } from "../../service/test.service";
-import GeoJsonProperties from "maplibre-gl";
-import Geometry from "maplibre-gl";
+import Biosphere from "./biosphere.png";
+import Lithosphere from "./lithosphere.png";
+import Atmosphere from "./atmosphere.png";
+import Hydrosphere from "./hydrosphere.png";
+import Weather from "./weather.png";
+import Space from "./space.png";
+import Other from "./other.png";
+
 const MapLibre = () => {
   const mapContainer = useRef(null);
   const mapRef = useRef<Map>();
   const [infoBarState, setInfoBarState] = useState<"" | "show" | "hide">("");
-
-  const [mockData, setMockData] = useState<any>({
-    type: "FeatureCollection",
-    features: [],
-  });
 
   useEffect(() => {
     getPosts().then((posts) => {
@@ -48,6 +49,140 @@ const MapLibre = () => {
           cluster: true,
           clusterMaxZoom: 14, // Max zoom to cluster points on
           clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
+        });
+
+        map.loadImage(Other, function (error, image: any) {
+          if (error) throw error;
+          map.addImage("other", image);
+          map.addLayer({
+            id: "other",
+            type: "symbol",
+            source: "earthquakes",
+            filter: ["!", ["has", "point_count"]],
+            layout: {
+              "icon-image": "other",
+              "icon-overlap": "always",
+            },
+          });
+        });
+
+        map.loadImage(Biosphere, function (error, image: any) {
+          if (error) throw error;
+          map.addImage("biosphere", image);
+          map.addLayer({
+            id: "biosphere",
+            type: "symbol",
+            source: "earthquakes",
+            filter: [
+              "all",
+              ["!", ["has", "point_count"]],
+              ["==", ["get", "type"], "biosphere"],
+            ],
+            layout: {
+              "icon-image": "biosphere",
+              "icon-overlap": "always",
+            },
+          });
+        });
+
+        map.loadImage(Lithosphere, function (error, image: any) {
+          if (error) throw error;
+          map.addImage("lithosphere", image);
+          map.addLayer({
+            id: "lithosphere",
+            type: "symbol",
+            source: "earthquakes",
+            filter: [
+              "all",
+              ["!", ["has", "point_count"]],
+              ["==", ["get", "type"], "lithosphere"],
+            ],
+            layout: {
+              "icon-image": "lithosphere",
+              "icon-overlap": "always",
+            },
+          });
+        });
+
+        map.loadImage(Atmosphere, function (error, image: any) {
+          if (error) throw error;
+          map.addImage("atmosphere", image);
+          map.addLayer({
+            id: "atmosphere",
+            type: "symbol",
+            source: "earthquakes",
+            filter: [
+              "all",
+              ["!", ["has", "point_count"]],
+              ["==", ["get", "type"], "atmosphere"],
+            ],
+            layout: {
+              "icon-image": "atmosphere",
+              "icon-overlap": "always",
+            },
+          });
+        });
+
+        map.loadImage(Hydrosphere, function (error, image: any) {
+          if (error) throw error;
+          map.addImage("hydrosphere", image);
+          map.addLayer({
+            id: "hydrosphere",
+            type: "symbol",
+            source: "earthquakes",
+            filter: [
+              "all",
+              ["!", ["has", "point_count"]],
+              ["==", ["get", "type"], "hydrosphere"],
+            ],
+            layout: {
+              "icon-image": "hydrosphere",
+              "icon-overlap": "always",
+            },
+          });
+        });
+
+        map.loadImage(Weather, function (error, image: any) {
+          if (error) throw error;
+          map.addImage("weather", image);
+          map.addLayer({
+            id: "weather",
+            type: "symbol",
+            source: "earthquakes",
+            filter: [
+              "all",
+              ["!", ["has", "point_count"]],
+              ["==", ["get", "type"], "weather"],
+            ],
+            layout: {
+              "icon-image": "weather",
+              "icon-overlap": "always",
+            },
+            paint: {
+              "icon-color": "#1a7a08",
+              "icon-halo-color": "#e4be8b",
+              "icon-halo-width": 4,
+            },
+          });
+        });
+
+        map.loadImage(Space, function (error, image: any) {
+          if (error) throw error;
+          map.addImage("space", image);
+          map.addLayer({
+            id: "space",
+            type: "symbol",
+            source: "earthquakes",
+            filter: [
+              "all",
+              ["!", ["has", "point_count"]],
+              ["==", ["get", "type"], "space"],
+            ],
+            layout: {
+              "icon-image": "space",
+              "icon-overlap": "always",
+            },
+          });
         });
 
         map.addLayer({

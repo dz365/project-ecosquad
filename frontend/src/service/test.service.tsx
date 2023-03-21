@@ -77,7 +77,7 @@ const createPost = async (accessToken: string, formData: FormData) => {
 };
 
 const getPosts = async () => {
-  return searchIndex.getDocuments().then((res) => res);
+  return searchIndex.getDocuments().then((res: any) => res);
 };
 
 export {
