@@ -22,9 +22,7 @@ services:
       - 3001:3001
   postgres:
     restart: always
-    build:
-      context: ./database
-      dockerfile: Dockerfile
+    image: postgis/postgis
     ports:
       # Different port in case host has Postgres installed already
       - 5433:5432
