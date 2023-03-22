@@ -2,7 +2,7 @@ import { GeoJSONSource } from "maplibre-gl";
 import maplibreGl, { Map } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { getPost, getPosts } from "../../service/test.service";
+import { getPost, getPosts, searchPost } from "../../service/test.service";
 import Biosphere from "./biosphere.png";
 import Lithosphere from "./lithosphere.png";
 import Atmosphere from "./atmosphere.png";
@@ -22,6 +22,7 @@ const MapLibre = () => {
   const [type, setType] = useState("");
   const [tags, setTags] = useState([]);
   const [fileIds, setFileIds] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   useEffect(() => {
     getPosts().then((posts) => {
       if (mapRef.current) {
@@ -320,8 +321,26 @@ const MapLibre = () => {
     });
   }, []);
 
+  useEffect(() => {
+    if (!mapRef.current) return;
+    searchPost(searchQuery).then((res) => {
+      (mapRef.current!.getSource("earthquakes") as GeoJSONSource).setData({
+        type: "FeatureCollection",
+        features: res.hits as GeoJSON.Feature<
+          GeoJSON.Point,
+          GeoJSON.GeoJsonProperties
+        >[],
+      });
+    });
+  }, [searchQuery]);
+
   return (
     <div className="relative overflow-hidden w-full h-full">
+      <input
+        className="absolute top-4 left-16 z-10"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
       <div ref={mapContainer} className="h-full"></div>
       <div
         className={`fixed z-10 w-full h-4/6 top-full md:top-0 md:-left-96 md:w-96 md:h-screen bg-white ${
