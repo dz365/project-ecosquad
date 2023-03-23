@@ -10,9 +10,10 @@ module.exports = {
         rightarrow: "url('./assets/icons/chevron-right.svg')",
         plus: "url('./assets/icons/plus.svg')",
         upload: "url('./assets/icons/cloud-arrow-up.svg')",
-        menu: "url('./assets/icons/menu.svg')",
+        menu: "url('./assets/icons/menu.png')",
         xmark: "url('./assets/icons/xmark.svg')",
         pencil: "url('./assets/icons/pencil.png')",
+        search: "url('./assets/icons/magnifying-glass.svg')",
         background: "url('./assets/background.svg')",
       },
       animation: {

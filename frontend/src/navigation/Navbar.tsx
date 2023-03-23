@@ -3,7 +3,16 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import SignOutButton from "./SignoutButton";
 
-const Navbar = () => {
+interface Navbar {
+  iconSize?: "sm" | "md" | "lg";
+}
+const Navbar: React.FC<Navbar> = ({ iconSize = "md" }) => {
+  const sizes = {
+    sm: "w-5 h-5",
+    md: "w-8 h-8",
+    lg: "w-10 h-10",
+  };
+
   const [menuState, setMenuState] = useState<"" | "show" | "hide">("");
 
   const { isAuthenticated } = useAuth0();
@@ -11,7 +20,7 @@ const Navbar = () => {
   return (
     <>
       <button
-        className="fixed top-4 left-4 z-20 w-8 h-8 bg-menu bg-no-repeat bg-center"
+        className={`${sizes[iconSize]} bg-menu bg-contain`}
         onClick={() => setMenuState("show")}
       ></button>
       <div

@@ -5,7 +5,9 @@ import SignUpButton from "../navigation/SignupButton";
 const LandingPage = () => {
   return (
     <div className="min-h-screen">
-      <Navbar />
+      <div className="fixed top-4 left-4">
+        <Navbar />
+      </div>
       <div className="bg-white flex justify-between p-4">
         <div></div>
         <div className="flex gap-4">
