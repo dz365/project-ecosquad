@@ -19,10 +19,11 @@ const Navbar: React.FC<Navbar> = ({ iconSize = "md" }) => {
 
   return (
     <>
-      <button
-        className={`${sizes[iconSize]} bg-menu bg-contain`}
-        onClick={() => setMenuState("show")}
-      ></button>
+      <button onClick={() => setMenuState("show")}>
+        <div
+          className={`${sizes[iconSize]} bg-menu bg-contain bg-center bg-no-repeat`}
+        ></div>
+      </button>
       <div
         className={`fixed top-0 -left-72 w-72 z-30 h-screen bg-white ${
           menuState === "show" && "animate-slidein"

@@ -4,7 +4,6 @@ import { getPosts, getUser, searchPost } from "../service/test.service";
 import { ProfileModel } from "../models/ProfileModel";
 import { useNavigate } from "react-router-dom";
 import MapLibre from "../components/Maps/MapLibre";
-import AddPostButton from "../components/AddPostButton";
 import SearchComponent from "../components/SearchComponent";
 
 const ProfilePage = () => {
@@ -106,7 +105,6 @@ const ProfilePage = () => {
         </div>
       )}
       {posts && <MapLibre data={posts} />}
-      <AddPostButton />
     </div>
   );
 };

@@ -1,6 +1,5 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import MapLibre from "../components/Maps/MapLibre";
-import AddPostButton from "../components/AddPostButton";
 import { useEffect, useState } from "react";
 import { getPosts, searchPost } from "../service/test.service";
 import SearchComponent from "../components/SearchComponent";
@@ -32,7 +31,6 @@ const ExplorePage = () => {
         <SearchComponent searchHandler={searchHandler} />
       </div>
       {data && <MapLibre data={data} />}
-      <AddPostButton />
     </div>
   );
 };

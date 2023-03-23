@@ -36,7 +36,7 @@ const MapLibre: React.FC<MapLibre> = ({ data }) => {
     map.on("load", () => {
       map.dragRotate.disable();
       map.touchZoomRotate.disableRotation();
-      map.addControl(new maplibreGl.NavigationControl({}));
+      map.addControl(new maplibreGl.NavigationControl({}), "bottom-right");
 
       // Add a new source from our GeoJSON data and
       // set the 'cluster' option to true. GL-JS will
