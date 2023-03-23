@@ -6,20 +6,20 @@ import { getPost } from "../../service/test.service";
 import { useAuth0 } from "@auth0/auth0-react";
 import { IconSymbols } from "./MapSymbols";
 
-interface MapLibre {
+type MapLibre = {
   data: any;
-}
+  pointClickHandler: (e: any) => void;
+  mapClickHandler: (e: any) => void;
+};
 
-const MapLibre: React.FC<MapLibre> = ({ data }) => {
+const MapLibre: React.FC<MapLibre> = ({
+  data,
+  pointClickHandler,
+  mapClickHandler,
+}) => {
   const mapContainer = useRef(null);
   const mapRef = useRef<Map>();
-  const [infoBarState, setInfoBarState] = useState<"" | "show" | "hide">("");
   const { getAccessTokenSilently } = useAuth0();
-
-  const [description, setDescription] = useState("");
-  const [type, setType] = useState("");
-  const [tags, setTags] = useState([]);
-  const [fileIds, setFileIds] = useState([]);
 
   useEffect(() => {
     if (mapRef.current) return;
@@ -155,15 +155,10 @@ const MapLibre: React.FC<MapLibre> = ({ data }) => {
       // When user clicks a point, show the info bar.
       map.on("click", "unclustered-point", (e: any) => {
         e.preventDefault();
+        pointClickHandler(e);
         const id = e.features[0].id;
-        setInfoBarState("show");
         getAccessTokenSilently().then((token) => {
-          getPost(token, id).then((res) => {
-            setDescription(res.post.description);
-            setType(res.post.type);
-            setTags(res.post.tags);
-            setFileIds(res.fileIds);
-          });
+          getPost(token, id).then((res) => {});
         });
       });
 
@@ -171,7 +166,7 @@ const MapLibre: React.FC<MapLibre> = ({ data }) => {
       map.on("click", (e: any) => {
         // Make sure click was not from a point.
         if (!e.defaultPrevented) {
-          setInfoBarState("hide");
+          mapClickHandler(e);
         }
       });
 
@@ -201,55 +196,6 @@ const MapLibre: React.FC<MapLibre> = ({ data }) => {
   return (
     <div className="relative overflow-hidden w-full h-full">
       <div ref={mapContainer} className="h-full"></div>
-      <div
-        className={`fixed z-10 w-full h-4/6 top-full md:top-0 md:-left-96 md:w-96 md:h-screen bg-white ${
-          infoBarState === "show" && "animate-slideup md:animate-slidein"
-        } ${
-          infoBarState === "hide" && "animate-slidedown md:animate-slideout"
-        }`}
-      >
-        <button
-          className={`p-2 absolute -top-8 right-[calc(50%-32px)] md:top-[calc(50%-16px)] md:-right-8 w-16  md:w-8 h-8  md:h-16 bg-white bg-center bg-no-repeat bg-[length:32px_32px] rounded-t-lg md:rounded-none md:rounded-r-lg ${
-            infoBarState === "show"
-              ? "bg-downarrow md:bg-leftarrow"
-              : "bg-uparrow md:bg-rightarrow"
-          } `}
-          onClick={() => {
-            setInfoBarState(infoBarState === "show" ? "hide" : "show");
-          }}
-        />
-        {fileIds.length > 0 && (
-          <div className="w-96 h-48 flex items-center justify-center">
-            <iframe
-              src={`${process.env.REACT_APP_API_SERVER_URL}/files/${fileIds[0]}`}
-              className="border-none"
-            ></iframe>
-          </div>
-        )}
-        <div>
-          <p className="text-xl text-green-600">Description</p>
-          <p>{description}</p>
-        </div>
-        <div>
-          <p className="text-xl text-green-600">Type</p>
-          <p>{type}</p>
-        </div>
-        <div>
-          <p className="text-xl text-green-600">Tags</p>
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag, i) => (
-                <div
-                  key={i + tag}
-                  className="flex gap-2 bg-gray-100 text-gray-600 p-2 rounded-lg"
-                >
-                  {tag}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 };

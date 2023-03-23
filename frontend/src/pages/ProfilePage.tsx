@@ -104,7 +104,13 @@ const ProfilePage = () => {
           <div className="text-gray-500">{profile?.about}</div>
         </div>
       )}
-      {posts && <MapLibre data={posts} />}
+      {posts && (
+        <MapLibre
+          data={posts}
+          pointClickHandler={() => {}}
+          mapClickHandler={() => {}}
+        />
+      )}
     </div>
   );
 };
