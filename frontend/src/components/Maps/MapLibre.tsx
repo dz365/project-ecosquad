@@ -3,14 +3,8 @@ import maplibreGl, { Map } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { getPost } from "../../service/test.service";
-import Biosphere from "./biosphere.png";
-import Lithosphere from "./lithosphere.png";
-import Atmosphere from "./atmosphere.png";
-import Hydrosphere from "./hydrosphere.png";
-import Weather from "./weather.png";
-import Space from "./space.png";
-import Other from "./other.png";
 import { useAuth0 } from "@auth0/auth0-react";
+import { IconSymbols } from "./MapSymbols";
 
 interface MapLibre {
   data: any;
@@ -39,6 +33,8 @@ const MapLibre: React.FC<MapLibre> = ({ data }) => {
       zoom: 0,
     });
 
+    mapRef.current = map;
+
     map.on("load", () => {
       map.dragRotate.disable();
       map.touchZoomRotate.disableRotation();
@@ -55,140 +51,41 @@ const MapLibre: React.FC<MapLibre> = ({ data }) => {
         clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
       });
 
-      map.loadImage(Other, function (error, image: any) {
-        if (error) throw error;
-        map.addImage("other", image);
-
+      Promise.all(
+        IconSymbols.map(
+          (icons) =>
+            new Promise<void>((resolve, reject) => {
+              map.loadImage(icons.icon, (err, image: any) => {
+                map.addImage(icons.id, image);
+                resolve();
+              });
+            })
+        )
+      ).then(() => {
         map.addLayer({
-          id: "other",
+          id: "unclustered-point",
           type: "symbol",
           source: "earthquakes",
-          filter: [
-            "all",
-            ["!", ["has", "point_count"]],
-            ["==", ["get", "type"], "other"],
-          ],
+          minzoom: 0,
+          filter: ["!", ["has", "point_count"]],
           layout: {
-            "icon-image": "other",
-            "icon-overlap": "always",
-          },
-        });
-      });
-
-      map.loadImage(Biosphere, function (error, image: any) {
-        if (error) throw error;
-        map.addImage("biosphere", image);
-        map.addLayer({
-          id: "biosphere",
-          type: "symbol",
-          source: "earthquakes",
-          filter: [
-            "all",
-            ["!", ["has", "point_count"]],
-            ["==", ["get", "type"], "biosphere"],
-          ],
-          layout: {
-            "icon-image": "biosphere",
-            "icon-overlap": "always",
-          },
-        });
-      });
-
-      map.loadImage(Lithosphere, function (error, image: any) {
-        if (error) throw error;
-        map.addImage("lithosphere", image);
-        map.addLayer({
-          id: "lithosphere",
-          type: "symbol",
-          source: "earthquakes",
-          filter: [
-            "all",
-            ["!", ["has", "point_count"]],
-            ["==", ["get", "type"], "lithosphere"],
-          ],
-          layout: {
-            "icon-image": "lithosphere",
-            "icon-overlap": "always",
-          },
-        });
-      });
-
-      map.loadImage(Atmosphere, function (error, image: any) {
-        if (error) throw error;
-        map.addImage("atmosphere", image);
-        map.addLayer({
-          id: "atmosphere",
-          type: "symbol",
-          source: "earthquakes",
-          filter: [
-            "all",
-            ["!", ["has", "point_count"]],
-            ["==", ["get", "type"], "atmosphere"],
-          ],
-          layout: {
-            "icon-image": "atmosphere",
-            "icon-overlap": "always",
-          },
-        });
-      });
-
-      map.loadImage(Hydrosphere, function (error, image: any) {
-        if (error) throw error;
-        map.addImage("hydrosphere", image);
-        map.addLayer({
-          id: "hydrosphere",
-          type: "symbol",
-          source: "earthquakes",
-          filter: [
-            "all",
-            ["!", ["has", "point_count"]],
-            ["==", ["get", "type"], "hydrosphere"],
-          ],
-          layout: {
-            "icon-image": "hydrosphere",
-            "icon-overlap": "always",
-          },
-        });
-      });
-
-      map.loadImage(Weather, function (error, image: any) {
-        if (error) throw error;
-        map.addImage("weather", image);
-        map.addLayer({
-          id: "weather",
-          type: "symbol",
-          source: "earthquakes",
-          filter: [
-            "all",
-            ["!", ["has", "point_count"]],
-            ["==", ["get", "type"], "weather"],
-          ],
-          layout: {
-            "icon-image": "weather",
-            "icon-overlap": "always",
-          },
-          paint: {
-            "icon-color": "#1a7a08",
-            "icon-halo-color": "#e4be8b",
-            "icon-halo-width": 4,
-          },
-        });
-      });
-
-      map.loadImage(Space, function (error, image: any) {
-        if (error) throw error;
-        map.addImage("space", image);
-        map.addLayer({
-          id: "space",
-          type: "symbol",
-          source: "earthquakes",
-          filter: [
-            "all",
-            ["!", ["has", "point_count"]],
-            ["==", ["get", "type"], "space"],
-          ],
-          layout: {
-            "icon-image": "space",
+            "icon-image": [
+              "match",
+              ["get", "type"],
+              "lithosphere",
+              "lithosphere",
+              "atmosphere",
+              "atmosphere",
+              "hydrosphere",
+              "hydrosphere",
+              "biosphere",
+              "biosphere",
+              "weather",
+              "weather",
+              "space",
+              "space",
+              "other",
+            ],
             "icon-overlap": "always",
           },
         });
@@ -234,19 +131,6 @@ const MapLibre: React.FC<MapLibre> = ({ data }) => {
         layout: {
           "text-field": "{point_count_abbreviated}",
           "text-size": 12,
-        },
-      });
-
-      map.addLayer({
-        id: "unclustered-point",
-        type: "circle",
-        source: "earthquakes",
-        filter: ["!", ["has", "point_count"]],
-        paint: {
-          "circle-color": "#11b4da",
-          "circle-radius": 8,
-          "circle-stroke-width": 1,
-          "circle-stroke-color": "#fff",
         },
       });
 
@@ -312,7 +196,6 @@ const MapLibre: React.FC<MapLibre> = ({ data }) => {
         map.getCanvas().style.cursor = "";
       });
     });
-    mapRef.current = map;
   }, []);
 
   useEffect(() => {
