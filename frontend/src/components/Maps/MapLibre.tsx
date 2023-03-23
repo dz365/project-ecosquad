@@ -22,9 +22,7 @@ const MapLibre: React.FC<MapLibre> = ({ data }) => {
   const [fileIds, setFileIds] = useState([]);
 
   useEffect(() => {
-    if (mapRef.current) {
-      return;
-    }
+    if (mapRef.current) return;
 
     const map = new maplibreGl.Map({
       container: mapContainer.current!,
@@ -140,9 +138,7 @@ const MapLibre: React.FC<MapLibre> = ({ data }) => {
           layers: ["clusters"],
         });
         var clusterId = features[0].properties.cluster_id;
-        const source: GeoJSONSource = map.getSource(
-          "earthquakes"
-        ) as GeoJSONSource;
+        const source = map.getSource("earthquakes") as GeoJSONSource;
         source.getClusterExpansionZoom(
           clusterId,
           function (err: any, zoom: any) {
@@ -160,7 +156,6 @@ const MapLibre: React.FC<MapLibre> = ({ data }) => {
       map.on("click", "unclustered-point", (e: any) => {
         e.preventDefault();
         const id = e.features[0].id;
-        console.log();
         setInfoBarState("show");
         getAccessTokenSilently().then((token) => {
           getPost(token, id).then((res) => {

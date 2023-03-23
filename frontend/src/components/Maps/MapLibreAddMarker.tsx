@@ -1,9 +1,4 @@
-import maplibregl, {
-  GeoJSONSource,
-  LngLat,
-  Marker,
-  NavigationControl,
-} from "maplibre-gl";
+import maplibregl, { LngLat } from "maplibre-gl";
 import maplibreGl, { Map } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 
