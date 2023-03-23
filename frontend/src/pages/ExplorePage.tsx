@@ -28,7 +28,7 @@ const ExplorePage = () => {
 
   return (
     <div className="h-screen w-full">
-      <div className="fixed top-2 left-4 z-20">
+      <div className="fixed top-2 left-4 z-20 w-full">
         <SearchComponent searchHandler={searchHandler} />
       </div>
       {data && <MapLibre data={data} />}

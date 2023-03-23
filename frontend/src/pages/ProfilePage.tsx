@@ -54,7 +54,7 @@ const ProfilePage = () => {
 
   return (
     <div className="w-full h-screen">
-      <div className="fixed top-2 left-4 z-20">
+      <div className="fixed top-2 left-4 z-20 w-full">
         <SearchComponent searchHandler={searchHandler} />
       </div>
       {hideProfile && (

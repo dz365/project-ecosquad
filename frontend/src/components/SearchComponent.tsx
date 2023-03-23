@@ -12,7 +12,7 @@ const SearchComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
   }, [searchQuery]);
 
   return (
-    <div className="w-96 h-12 flex items-center justify-between gap-4 bg-white rounded-lg px-4 py-2 shadow">
+    <div className="w-11/12 md:w-96 h-12 flex items-center justify-between gap-4 bg-white rounded-lg px-4 py-2 shadow">
       <Navbar iconSize={"sm"} />
       <input
         className="outline-none grow text-sm px-2"
