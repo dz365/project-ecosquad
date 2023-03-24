@@ -64,7 +64,7 @@ const AddPostPage: React.FC<AddPostForm> = ({ lnglat }) => {
   };
 
   return (
-    <div className="w-full md:h-screen flex flex-col p-4 md:overflow-y-auto">
+    <div className="w-full h-full flex flex-col p-4 overflow-y-auto">
       <form
         className="flex flex-col gap-4"
         onKeyDown={preventEnterKeyAction}
