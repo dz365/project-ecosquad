@@ -53,9 +53,6 @@ const ProfilePage = () => {
 
   return (
     <div className="w-full h-screen">
-      <div className="fixed top-2 left-4 z-20 w-full">
-        <SearchComponent searchHandler={searchHandler} />
-      </div>
       {hideProfile && (
         <div className="absolute top-4 left-20 z-10 bg-gray-50 rounded-xl p-1 flex flex-col place-items-center">
           <img
@@ -103,13 +100,6 @@ const ProfilePage = () => {
           <div className="text-sky-600">About</div>
           <div className="text-gray-500">{profile?.about}</div>
         </div>
-      )}
-      {posts && (
-        <MapLibre
-          data={posts}
-          pointClickHandler={() => {}}
-          mapClickHandler={() => {}}
-        />
       )}
     </div>
   );

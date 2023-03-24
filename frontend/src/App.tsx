@@ -20,10 +20,6 @@ function App() {
         path="/updateprofile"
         element={<AuthenticationGuard component={UpdateProfilePage} />}
       />
-      <Route
-        path="/addpost"
-        element={<AuthenticationGuard component={AddPostPage} />}
-      />
       <Route path="/callback" element={<CallbackPage />} />
       <Route path="*" element={<NotExistingPage />} />
     </Routes>

@@ -35,7 +35,7 @@ const Navbar: React.FC<Navbar> = ({ iconSize = "md" }) => {
               <img src="/logo.png" className="w-8" />
             </div>
             <button
-              className="w-8 h-8 bg-xmark bg-no-repeat bg-center"
+              className="w-8 h-8 bg-xmark-light bg-no-repeat bg-center"
               onClick={() => setMenuState("hide")}
             ></button>
           </div>
