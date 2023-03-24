@@ -1,10 +1,10 @@
-import Biosphere from "./biosphere.png";
-import Lithosphere from "./lithosphere.png";
-import Atmosphere from "./atmosphere.png";
-import Hydrosphere from "./hydrosphere.png";
-import Weather from "./weather.png";
-import Space from "./space.png";
-import Other from "./other.png";
+import Biosphere from "../../assets/map-symbols/biosphere.png";
+import Lithosphere from "../../assets/map-symbols/lithosphere.png";
+import Atmosphere from "../../assets/map-symbols/atmosphere.png";
+import Hydrosphere from "../../assets/map-symbols/hydrosphere.png";
+import Weather from "../../assets/map-symbols/weather.png";
+import Space from "../../assets/map-symbols/space.png";
+import Other from "../../assets/map-symbols/other.png";
 
 export const IconSymbols = [
   {
