@@ -15,6 +15,7 @@ module.exports = {
         "xmark-dark": "url('./assets/icons/xmark-dark.svg')",
         pencil: "url('./assets/icons/pencil.png')",
         search: "url('./assets/icons/magnifying-glass.svg')",
+        logout: "url('./assets/icons/logout.svg')",
         background: "url('./assets/background.svg')",
       },
       animation: {

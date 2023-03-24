@@ -9,13 +9,17 @@ import AddPostPage from "./AddPostPage";
 import { LngLat } from "maplibre-gl";
 import MapLibreAddMarker from "../components/Maps/MapLibreAddMarker";
 import Navbar from "../navigation/Navbar";
+import { useAuth0 } from "@auth0/auth0-react";
+import ProfileCard from "../components/ProfileCard";
 
 const ExplorePage = () => {
+  const { user } = useAuth0();
+
   const [data, setData] = useState<any>();
   const [sidebarState, setSidebarState] = useState<SidebarState>("hide");
   const [sidebarContent, setSidebarContent] = useState<any>("");
   const [addPostMode, setAddPostMode] = useState(false);
-
+  const [displayProfileCard, setDisplayProfileCard] = useState(false);
   const [lngLat, setLngLat] = useState<LngLat>();
 
   const searchHandler = (searchQuery: string) => {
@@ -61,36 +65,61 @@ const ExplorePage = () => {
 
   return (
     <div className="h-screen w-full">
-      <div className="fixed top-2 left-4 z-20 w-full">
-        <div className="w-11/12 md:w-96 h-12 flex items-center justify-around gap-4 bg-white rounded-lg px-4 py-2 shadow">
-          <Navbar iconSize={"sm"} />
-          <SearchComponent searchHandler={searchHandler} />
-          <div className="w-px h-full border-l"></div>
-          <button
-            className={`rotate-45 ${!addPostMode && "bg-green-600 p-px"}`}
-            onClick={addPostHandler}
-          >
-            <div
-              className={`-rotate-45 w-4 h-4 bg-center bg-no-repeat ${
-                addPostMode ? "bg-xmark-dark" : "bg-plus"
-              }`}
-            ></div>
-          </button>
+      <div
+        className="h-screen w-full"
+        onClick={() => setDisplayProfileCard(false)}
+      >
+        <div className="fixed top-2 left-4 z-20 w-full">
+          <div className="w-11/12 md:w-96 h-12 flex items-center justify-around gap-4 bg-white rounded-lg px-4 py-2 shadow">
+            <Navbar iconSize={"sm"} />
+            <SearchComponent searchHandler={searchHandler} />
+            <div className="w-px h-full border-l"></div>
+            <button
+              className={`rotate-45 ${!addPostMode && "bg-green-600 p-px"}`}
+              onClick={addPostHandler}
+            >
+              <div
+                className={`-rotate-45 w-4 h-4 bg-center bg-no-repeat ${
+                  addPostMode ? "bg-xmark-dark" : "bg-plus"
+                }`}
+              ></div>
+            </button>
+          </div>
         </div>
-      </div>
-      {data && !addPostMode && (
-        <MapLibre
-          data={data}
-          pointClickHandler={pointClickHandler}
-          mapClickHandler={mapClickHandler}
+        {data && !addPostMode && (
+          <MapLibre
+            data={data}
+            pointClickHandler={pointClickHandler}
+            mapClickHandler={mapClickHandler}
+          />
+        )}
+        {addPostMode && <MapLibreAddMarker setLngLat={setLngLat} />}
+        <Sidebar
+          show={sidebarState}
+          showHandler={(state: SidebarState) => setSidebarState(state)}
+          content={
+            addPostMode ? <AddPostPage lnglat={lngLat} /> : sidebarContent
+          }
         />
-      )}
-      {addPostMode && <MapLibreAddMarker setLngLat={setLngLat} />}
-      <Sidebar
-        show={sidebarState}
-        showHandler={(state: SidebarState) => setSidebarState(state)}
-        content={addPostMode ? <AddPostPage lnglat={lngLat} /> : sidebarContent}
-      />
+      </div>
+      <div className="z-20 fixed top-2 right-4 flex flex-col items-end gap-5">
+        <button
+          className="bg-white rounded-full cursor-pointer shadow"
+          onClick={() => setDisplayProfileCard(!displayProfileCard)}
+        >
+          <img
+            src={`${process.env.REACT_APP_API_SERVER_URL}/users/${user!
+              .sub!}/avatar`}
+            alt="avatar"
+            onError={({ currentTarget }) => {
+              currentTarget.onerror = null; // prevents looping
+              currentTarget.src = "/default_avatar.svg";
+            }}
+            className="w-12 h-12 rounded-full border"
+          />
+        </button>
+        {displayProfileCard && <ProfileCard />}
+      </div>
     </div>
   );
 };
