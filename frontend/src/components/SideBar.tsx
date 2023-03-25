@@ -7,16 +7,16 @@ interface Sidebar {
 }
 const Sidebar: React.FC<Sidebar> = ({ show, showHandler, content }) => {
   const animation = {
-    expand: "animate-slideup md:animate-slidein",
-    shrink: "animate-slidedown md:animate-slideout",
+    expand: "animate-slideup sm:animate-slidein",
+    shrink: "animate-slidedown sm:animate-slideout",
     hide: "hidden",
   };
   return (
     <div
-      className={`fixed z-10 w-full h-4/6 md:top-0 md:-left-96 md:w-96 md:h-screen bg-white ${animation[show]}`}
+      className={`fixed z-10 w-full h-4/6 sm:top-0 sm:-left-96 sm:w-96 sm:h-screen p-4 sm:pt-20  bg-white ${animation[show]}`}
     >
       <button
-        className="absolute -top-6 right-[calc(50%-24px)] md:top-[calc(50%-24px)] md:-right-6 bg-white rounded-t-lg md:rounded-none md:rounded-r-lg"
+        className="absolute -top-6 right-[calc(50%-24px)] sm:top-[calc(50%-24px)] sm:-right-6 bg-white rounded-t-lg sm:rounded-none sm:rounded-r-lg"
         onClick={() => {
           showHandler(show === "expand" ? "shrink" : "expand");
         }}
@@ -24,9 +24,9 @@ const Sidebar: React.FC<Sidebar> = ({ show, showHandler, content }) => {
         <div
           className={`${
             show
-              ? "bg-downarrow md:bg-leftarrow"
-              : "bg-uparrow md:bg-rightarrow"
-          } bg-[length:16px_16px] bg-center bg-no-repeat w-12 h-6 md:w-6 md:h-12`}
+              ? "bg-downarrow sm:bg-leftarrow"
+              : "bg-uparrow sm:bg-rightarrow"
+          } bg-[length:16px_16px] bg-center bg-no-repeat w-12 h-6 sm:w-6 sm:h-12`}
         ></div>
       </button>
       {content}

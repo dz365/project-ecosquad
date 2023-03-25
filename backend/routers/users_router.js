@@ -4,23 +4,10 @@ import { Follow } from "../models/follows.js";
 import multer from "multer";
 import path from "path";
 import { validateAccessToken } from "../middleware/auth.js";
-import { MAP_TILER_KEY } from "../api_keys.js";
+import { reverseGeoSearch } from "../reverseGeosearch.js";
 export const usersRouter = Router();
 
 const avatar = multer({ dest: "./avatars/" });
-
-const reverseGeoSearch = async (longitude, latitude) => {
-  const geocoding = await fetch(
-    `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${MAP_TILER_KEY}`
-  ).then((res) => res.json());
-
-  const location = geocoding.features.find(
-    (feature) =>
-      feature.place_type[0] !== "address" &&
-      feature.place_type[0] !== "postal_code"
-  );
-  return location?.place_name ?? "";
-};
 
 // create a new user
 usersRouter.post(

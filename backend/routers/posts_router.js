@@ -4,6 +4,7 @@ import { Post } from "../models/posts.js";
 import { File } from "../models/files.js";
 import { validateAccessToken } from "../middleware/auth.js";
 import { searchIndex } from "../meilisearch.js";
+import { reverseGeoSearch } from "../reverseGeosearch.js";
 
 export const postsRouter = Router();
 //postsRouter.use(validateAccessToken);
@@ -13,11 +14,16 @@ const postFiles = multer({ dest: "./posts" });
 // create a new post
 postsRouter.post("/", postFiles.array("files"), async (req, res) => {
   try {
+    const coordinates = JSON.parse(req.body.coordinates);
+    const longitude = coordinates[0];
+    const latitude = coordinates[1];
+    const location = await reverseGeoSearch(longitude, latitude);
+
     const post = await Post.create({
       description: req.body.description,
       geometry: {
         type: "Point",
-        coordinates: JSON.parse(req.body.coordinates),
+        coordinates: coordinates,
       },
       type: req.body.type,
       tags: JSON.parse(req.body.tags),
@@ -52,9 +58,11 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
         type: "Feature",
         geometry: post.geometry,
         properties: {
+          user: post.UserId,
           description: post.description,
           type: post.type,
           tags: post.tags,
+          location: location,
         },
       },
     ];

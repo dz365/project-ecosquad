@@ -35,10 +35,9 @@ const AddPostForm: React.FC<AddPostForm> = ({ lnglat }) => {
       if (!lnglat) return;
 
       const formData = new FormData(e.target);
-      formData.set("longitude", lnglat!.lng.toString());
-      formData.set("latitude", lnglat!.lat.toString());
-      formData.set("UserId", user!.sub!.toString());
+      formData.set("userId", user!.sub!.toString());
       formData.set("tags", JSON.stringify(tags));
+      formData.set("coordinates", JSON.stringify(lnglat.toArray()));
 
       createPost(token, formData)
         .then(() => navigate("/"))
@@ -51,10 +50,12 @@ const AddPostForm: React.FC<AddPostForm> = ({ lnglat }) => {
   };
 
   const tagInputKeyDown = (e: any) => {
-    if (e.key !== "Enter" || e.target.value === "") return;
+    if (e.key !== "Enter") return;
+    if (e.target.value.trim() === "") return;
     addNewTag(e.target.value);
   };
   const addNewTag = (tag: string) => {
+    if (tag.trim() === "") return;
     setTags((prevTags) => [...prevTags, tag]);
     setTagInputText("");
   };
@@ -72,6 +73,7 @@ const AddPostForm: React.FC<AddPostForm> = ({ lnglat }) => {
       <label className="flex flex-col gap-2">
         <LabelText text="Upload Files" />
         <FileInput
+          accept="image/*,video/*,audio/*"
           multiple={true}
           name="files"
           onChangeHandler={(e) => setFiles(e.target.files)}
@@ -80,8 +82,13 @@ const AddPostForm: React.FC<AddPostForm> = ({ lnglat }) => {
         {files?.length! > 0 && (
           <div className="flex flex-col border rounded-lg p-2">
             {Array.from(files!).map((file, i) => (
-              <span key={i + file.name} className="text-sm text-gray-500">
-                {file.name}
+              <span
+                key={i + file.name}
+                className={`text-sm text-gray-500 ${
+                  i % 2 == 1 && "text-gray-400"
+                }`}
+              >
+                {i + 1}: {file.name}
               </span>
             ))}
           </div>
@@ -101,9 +108,10 @@ const AddPostForm: React.FC<AddPostForm> = ({ lnglat }) => {
         <select
           name="type"
           className="p-2 rounded-md bg-gray-100"
-          defaultValue={"default"}
+          defaultValue=""
+          required
         >
-          <option disabled value="default">
+          <option disabled hidden value="">
             - Select a type -
           </option>
           <option value="lithosphere">Lithosphere</option>
@@ -124,7 +132,7 @@ const AddPostForm: React.FC<AddPostForm> = ({ lnglat }) => {
                 key={i + tag}
                 className="flex gap-2 bg-gray-100 text-gray-600 p-2 rounded-lg"
               >
-                <span> {tag} </span>
+                <span>{tag}</span>
                 <div className="cursor-pointer" onClick={() => deleteTag(i)}>
                   &#10005;
                 </div>

@@ -1,9 +1,11 @@
 interface FileInput {
+  accept: string;
   multiple: boolean;
   name: string;
   onChangeHandler: (e: any) => void;
 }
 const FileInput: React.FC<FileInput> = ({
+  accept,
   multiple,
   name,
   onChangeHandler,
@@ -14,6 +16,7 @@ const FileInput: React.FC<FileInput> = ({
       <span className="text-sm text-gray-600">Browse and upload files</span>
       <input
         type="file"
+        accept={accept}
         multiple={multiple}
         name={name}
         onChange={(e) => onChangeHandler(e)}
