@@ -25,7 +25,8 @@ const UpdateProfilePage = () => {
         .then((res) => {
           setName(res.name);
           setAbout(res.about);
-          setInitLngLat(res.geometry.coordinates);
+          const coordinates = res.geometry.coordinates;
+          setInitLngLat(new LngLat(coordinates[0], coordinates[1]));
           setPrivateProfile(res.privateProfile);
         })
         .catch(() => setIsNewUser(true));
@@ -49,7 +50,7 @@ const UpdateProfilePage = () => {
       formData.set("id", user!.sub!);
       formData.set("email", user!.email!);
       formData.set("privateProfile", privateProfile.toString());
-      formData.set("coordinates", JSON.stringify(lngLat!.toArray()));
+      formData.set("coordinates", JSON.stringify(lngLat.toArray()));
 
       (isNewUser
         ? createUser(token, formData)
