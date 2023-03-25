@@ -74,7 +74,10 @@ usersRouter.get("/:id/avatar", async (req, res) => {
   }
 
   if (!user.avatarMetadata) {
-    return res.status(404).json({ error: "User does not have an avatar" });
+    const imgPath = "./avatars/default.png";
+    res.setHeader("Content-Type", "image/png");
+    res.sendFile(imgPath, { root: path.resolve() });
+    return;
   }
   res.setHeader("Content-Type", user.avatarMetadata.mimetype);
   res.sendFile(user.avatarMetadata.path, { root: path.resolve() });

@@ -30,10 +30,6 @@ const ProfileCard = () => {
             src={`${process.env.REACT_APP_API_SERVER_URL}/users/${user!
               .sub!}/avatar`}
             alt="avatar"
-            onError={({ currentTarget }) => {
-              currentTarget.onerror = null; // prevents looping
-              currentTarget.src = "/default_avatar.svg";
-            }}
             className="w-14 h-14 rounded-full border"
           />
           <div>

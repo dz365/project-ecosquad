@@ -91,7 +91,7 @@ const UpdateProfilePage = () => {
                   alt="avatar"
                   onError={({ currentTarget }) => {
                     currentTarget.onerror = null; // prevents looping
-                    currentTarget.src = "/default_avatar.svg";
+                    currentTarget.src = "/default_avatar.png";
                   }}
                   className="w-24 h-24 rounded-full bg-contain border"
                 />
