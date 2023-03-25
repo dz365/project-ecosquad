@@ -21,7 +21,11 @@ const ExplorePage = () => {
   const [addPostMode, setAddPostMode] = useState(false);
   const [displayProfileCard, setDisplayProfileCard] = useState(false);
   const [lngLat, setLngLat] = useState<LngLat>();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
 
+  const resizeListener = () => {
+    setIsMobile(window.innerWidth < 640);
+  };
   const searchHandler = (searchQuery: string) => {
     searchPost(searchQuery).then((res) => {
       setData({
@@ -61,6 +65,9 @@ const ExplorePage = () => {
         features: posts.results,
       });
     });
+
+    window.addEventListener("resize", resizeListener);
+    return () => window.removeEventListener("resize", resizeListener);
   }, []);
 
   return (
@@ -70,7 +77,7 @@ const ExplorePage = () => {
         onClick={() => setDisplayProfileCard(false)}
       >
         <div className="fixed top-2 left-4 z-20 w-full">
-          <div className="w-11/12 md:w-96 h-12 flex items-center justify-around gap-4 bg-white rounded-lg px-4 py-2 shadow">
+          <div className="w-11/12 sm:w-96 h-12 flex items-center justify-around gap-4 bg-white rounded-lg px-4 py-2 shadow">
             <Navbar iconSize={"sm"} />
             <SearchComponent searchHandler={searchHandler} />
             <div className="w-px h-full border-l"></div>
@@ -102,24 +109,34 @@ const ExplorePage = () => {
           }
         />
       </div>
-      <div className="z-20 fixed top-2 right-4 flex flex-col items-end gap-5">
-        <button
-          className="bg-white rounded-full cursor-pointer shadow"
-          onClick={() => setDisplayProfileCard(!displayProfileCard)}
+
+      <button
+        className={`z-20 fixed ${
+          isMobile ? "bottom-2 left-4" : "top-2 right-4"
+        } bg-white rounded-full cursor-pointer shadow`}
+        onClick={() => setDisplayProfileCard(!displayProfileCard)}
+      >
+        <img
+          src={`${process.env.REACT_APP_API_SERVER_URL}/users/${user!
+            .sub!}/avatar`}
+          alt="avatar"
+          onError={({ currentTarget }) => {
+            currentTarget.onerror = null; // prevents looping
+            currentTarget.src = "/default_avatar.svg";
+          }}
+          className="w-12 h-12 rounded-full border"
+        />
+      </button>
+
+      {displayProfileCard && (
+        <div
+          className={`z-20 fixed ${
+            isMobile ? "bottom-20 left-4" : "top-20 right-4"
+          }`}
         >
-          <img
-            src={`${process.env.REACT_APP_API_SERVER_URL}/users/${user!
-              .sub!}/avatar`}
-            alt="avatar"
-            onError={({ currentTarget }) => {
-              currentTarget.onerror = null; // prevents looping
-              currentTarget.src = "/default_avatar.svg";
-            }}
-            className="w-12 h-12 rounded-full border"
-          />
-        </button>
-        {displayProfileCard && <ProfileCard />}
-      </div>
+          <ProfileCard />
+        </div>
+      )}
     </div>
   );
 };
