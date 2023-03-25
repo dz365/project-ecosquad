@@ -23,7 +23,7 @@ const ProfileCard = () => {
   };
 
   return (
-    <div className="flex flex-col gap-3 bg-[#f3f6fc] p-2 rounded-lg w-72 shadow">
+    <div className="flex flex-col gap-3 bg-blue-gray p-2 rounded-lg w-72 shadow">
       <div className="bg-white rounded-lg p-2 flex flex-col gap-4">
         <div className="flex items-center gap-4">
           <img

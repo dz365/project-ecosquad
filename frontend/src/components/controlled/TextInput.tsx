@@ -12,7 +12,7 @@ const TextInput: React.FC<InputModel> = ({
       name={name}
       placeholder={placeholder}
       value={value}
-      onChange={(e) => onChangeHandler(e)}
+      onChange={(e) => onChangeHandler(e.target.value)}
       className="border text-gray-700 rounded-lg px-2 py-1"
     />
   );

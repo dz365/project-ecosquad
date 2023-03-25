@@ -3,6 +3,9 @@ module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      colors: {
+        "blue-gray": "#f3f6fc",
+      },
       backgroundImage: {
         uparrow: "url('./assets/icons/chevron-up.svg')",
         downarrow: "url('./assets/icons/chevron-down.svg')",

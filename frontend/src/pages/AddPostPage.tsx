@@ -93,7 +93,7 @@ const AddPostPage: React.FC<AddPostForm> = ({ lnglat }) => {
           <TextAreaInput
             name="description"
             value={description}
-            onChangeHandler={(e) => setDescription(e.target.value)}
+            onChangeHandler={setDescription}
           />
         </label>
         <label className="flex gap-4">
