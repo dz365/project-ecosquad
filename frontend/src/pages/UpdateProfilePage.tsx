@@ -1,6 +1,6 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { LngLat } from "maplibre-gl";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TextAreaInput from "../components/controlled/TextareaInput";
 import TextInput from "../components/controlled/TextInput";
@@ -10,6 +10,7 @@ import { createUser, getUser, updateUser } from "../service/test.service";
 
 const UpdateProfilePage = () => {
   const navigate = useNavigate();
+  const [isNewUser, setIsNewUser] = useState(false);
   const [avatarURL, setAvatarURL] = useState("");
   const [name, setName] = useState("");
   const [about, setAbout] = useState("");
@@ -20,12 +21,14 @@ const UpdateProfilePage = () => {
 
   useEffect(() => {
     getAccessTokenSilently().then((token) => {
-      getUser(token, user!.sub!).then((res) => {
-        setName(res.name);
-        setAbout(res.about);
-        setInitLngLat(res.geometry.coordinates);
-        setPrivateProfile(res.privateProfile);
-      });
+      getUser(token, user!.sub!)
+        .then((res) => {
+          setName(res.name);
+          setAbout(res.about);
+          setInitLngLat(res.geometry.coordinates);
+          setPrivateProfile(res.privateProfile);
+        })
+        .catch(() => setIsNewUser(true));
     });
   }, [user?.sub]);
 
@@ -43,20 +46,20 @@ const UpdateProfilePage = () => {
 
     getAccessTokenSilently().then((token) => {
       const formData = new FormData(e.target);
-      formData.append("email", user!.email!);
+      formData.set("id", user!.sub!);
+      formData.set("email", user!.email!);
       formData.set("privateProfile", privateProfile.toString());
       formData.set("coordinates", JSON.stringify(lngLat!.toArray()));
 
-      getUser(token, user!.sub!)
+      (isNewUser
+        ? createUser(token, formData)
+        : updateUser(token, formData, user!.sub!)
+      )
         .then(() => {
-          updateUser(token, formData, user!.sub!);
-        })
-        .catch(() => {
-          formData.append("id", user!.sub!);
-          createUser(token, formData);
-        })
-        .finally(() => {
           navigate("/");
+        })
+        .catch((err) => {
+          console.log(err);
         });
     });
   };

@@ -1,8 +1,11 @@
+import { useAuth0 } from "@auth0/auth0-react";
 import Navbar from "../navigation/Navbar";
 import SignInButton from "../navigation/SigninButton";
 import SignUpButton from "../navigation/SignupButton";
 
 const LandingPage = () => {
+  const { error } = useAuth0();
+
   return (
     <div className="min-h-screen">
       <div className="fixed top-4 left-4">
@@ -15,6 +18,12 @@ const LandingPage = () => {
           <SignUpButton />
         </div>
       </div>
+      {error && (
+        <div>
+          <p>An unexpected error has occured</p>
+          <p>{error.message}</p>
+        </div>
+      )}
     </div>
   );
 };

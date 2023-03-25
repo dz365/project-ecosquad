@@ -1,6 +1,5 @@
 import { Route, Routes } from "react-router-dom";
 import AuthenticationGuard from "./AuthenticationGuard";
-import CallbackPage from "./pages/CallbackPage";
 import HomePage from "./pages/HomePage";
 import NotExistingPage from "./pages/NotExistingPage";
 import UpdateProfilePage from "./pages/UpdateProfilePage";
@@ -14,7 +13,6 @@ function App() {
         path="/updateprofile"
         element={<AuthenticationGuard component={UpdateProfilePage} />}
       />
-      <Route path="/callback" element={<CallbackPage />} />
       <Route path="*" element={<NotExistingPage />} />
     </Routes>
   );

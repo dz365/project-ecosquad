@@ -31,17 +31,6 @@ const getUser = async (accessToken: string, userId: string) => {
   }).then((res) => res.data);
 };
 
-const getUserAvatar = async (accessToken: string, userId: string) => {
-  return axios({
-    url: `${serverURL}/users/${userId}/avatar`,
-    method: "GET",
-    headers: {
-      "content-type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
-  }).then((res) => res.data);
-};
-
 const createUser = async (accessToken: string, formData: FormData) => {
   return axios
     .postForm(`${serverURL}/users`, formData, {
@@ -98,7 +87,6 @@ const searchPost = async (query: string) => {
 export {
   testAPIEndpoint,
   getUser,
-  getUserAvatar,
   createUser,
   updateUser,
   createPost,

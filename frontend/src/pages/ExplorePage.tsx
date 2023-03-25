@@ -1,20 +1,21 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import MapLibre from "../components/Maps/MapLibre";
 import { useEffect, useState } from "react";
-import { getPosts, searchPost } from "../service/test.service";
+import { getPosts, getUser, searchPost } from "../service/test.service";
 import SearchComponent from "../components/SearchComponent";
 import Sidebar from "../components/SideBar";
 import { SidebarState } from "../models/SidebarState";
-import AddPostPage from "./AddPostPage";
+import AddPostForm from "../components/AddPostForm";
 import { LngLat } from "maplibre-gl";
 import MapLibreAddMarker from "../components/Maps/MapLibreAddMarker";
 import Navbar from "../navigation/Navbar";
 import { useAuth0 } from "@auth0/auth0-react";
 import ProfileCard from "../components/ProfileCard";
+import { useNavigate } from "react-router-dom";
 
 const ExplorePage = () => {
-  const { user } = useAuth0();
-
+  const { user, getAccessTokenSilently } = useAuth0();
+  const navigate = useNavigate();
   const [data, setData] = useState<any>();
   const [sidebarState, setSidebarState] = useState<SidebarState>("hide");
   const [sidebarContent, setSidebarContent] = useState<any>("");
@@ -66,6 +67,9 @@ const ExplorePage = () => {
       });
     });
 
+    getAccessTokenSilently().then((token) => {
+      getUser(token, user!.sub!).catch(() => navigate("/updateprofile"));
+    });
     window.addEventListener("resize", resizeListener);
     return () => window.removeEventListener("resize", resizeListener);
   }, []);
@@ -110,7 +114,7 @@ const ExplorePage = () => {
           show={sidebarState}
           showHandler={(state: SidebarState) => setSidebarState(state)}
           content={
-            addPostMode ? <AddPostPage lnglat={lngLat} /> : sidebarContent
+            addPostMode ? <AddPostForm lnglat={lngLat} /> : sidebarContent
           }
         />
       </div>
