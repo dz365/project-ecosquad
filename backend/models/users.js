@@ -28,4 +28,12 @@ export const User = sequelize.define("User", {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+  geometry: {
+    type: DataTypes.GEOMETRY("POINT"),
+    allowNull: false,
+  },
+  region: {
+    type: DataTypes.STRING,
+    defaultValue: "",
+  },
 });

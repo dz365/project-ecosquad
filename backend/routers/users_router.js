@@ -4,7 +4,7 @@ import { Follow } from "../models/follows.js";
 import multer from "multer";
 import path from "path";
 import { validateAccessToken } from "../middleware/auth.js";
-
+import { MAP_TILER_KEY } from "../api_keys.js";
 export const usersRouter = Router();
 
 const avatar = multer({ dest: "./pictures/avatars/" });
@@ -16,6 +16,13 @@ usersRouter.post(
   avatar.single("avatar"),
   async (req, res) => {
     try {
+      const coordinates = JSON.parse(req.body.coordinates);
+      const longitude = coordinates[0];
+      const latitude = coordinates[1];
+      const region = await fetch(
+        `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${MAP_TILER_KEY}&types=region`
+      ).then((res) => res.json());
+
       const user = await User.create({
         id: req.body.id,
         name: req.body.name,
@@ -23,6 +30,11 @@ usersRouter.post(
         avatarMetadata: req.file,
         about: req.body.about,
         privateProfile: req.body.privateProfile,
+        geometry: {
+          type: "Point",
+          coordinates: JSON.parse(req.body.coordinates),
+        },
+        region: region.features[0].place_name,
       });
       return res.json(user);
     } catch (e) {
@@ -68,6 +80,10 @@ usersRouter.patch(
     const avatarMetadata = req.file;
     const about = req.body.about;
     const privateProfile = req.body.privateProfile;
+    const coordinates = req.body.coordinates
+      ? JSON.parse(req.body.coordinates)
+      : null;
+
     const update = {};
 
     if (!user) {
@@ -78,6 +94,19 @@ usersRouter.patch(
     if (avatarMetadata) update.avatarMetadata = avatarMetadata;
     if (about) update.about = about;
     if (privateProfile) update.privateProfile = privateProfile;
+
+    if (coordinates) {
+      const longitude = coordinates[0];
+      const latitude = coordinates[1];
+      const region = await fetch(
+        `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${MAP_TILER_KEY}&types=region`
+      ).then((res) => res.json());
+      update.geometry = {
+        type: "Point",
+        coordinates: coordinates,
+      };
+      update.region = region.features[0].place_name;
+    }
 
     await user.update(update);
     await user.reload();

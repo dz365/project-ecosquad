@@ -5,10 +5,8 @@ import { useNavigate } from "react-router-dom";
 import TextAreaInput from "../components/controlled/TextareaInput";
 import TextInput from "../components/controlled/TextInput";
 import MapLibreAddMarker from "../components/Maps/MapLibreAddMarker";
-import ToggleSwitch from "../components/ToggleSwitch/ToggleSwitch";
 import Navbar from "../navigation/Navbar";
 import { createUser, getUser, updateUser } from "../service/test.service";
-import PageLayout from "./PageLayout";
 
 const UpdateProfilePage = () => {
   const navigate = useNavigate();
@@ -16,18 +14,16 @@ const UpdateProfilePage = () => {
   const [name, setName] = useState("");
   const [about, setAbout] = useState("");
   const [privateProfile, setPrivateProfile] = useState(true);
+  const [initLngLat, setInitLngLat] = useState<LngLat>();
   const [lngLat, setLngLat] = useState<LngLat>();
   const { user, getAccessTokenSilently } = useAuth0();
-
-  const togglePrivateProfile = () => {
-    setPrivateProfile(!privateProfile);
-  };
 
   useEffect(() => {
     getAccessTokenSilently().then((token) => {
       getUser(token, user!.sub!).then((res) => {
         setName(res.name);
         setAbout(res.about);
+        setInitLngLat(res.geometry.coordinates);
         setPrivateProfile(res.privateProfile);
       });
     });
@@ -43,11 +39,13 @@ const UpdateProfilePage = () => {
   const onSubmit = (e: any) => {
     e.preventDefault();
 
+    if (!lngLat) return;
+
     getAccessTokenSilently().then((token) => {
       const formData = new FormData(e.target);
-
       formData.append("email", user!.email!);
       formData.set("privateProfile", privateProfile.toString());
+      formData.set("coordinates", JSON.stringify(lngLat!.toArray()));
 
       getUser(token, user!.sub!)
         .then(() => {
@@ -119,7 +117,10 @@ const UpdateProfilePage = () => {
               </label>
             </div>
             <div className="w-72 h-72 md:w-96 md:h-96">
-              <MapLibreAddMarker setLngLat={setLngLat} />
+              <MapLibreAddMarker
+                setLngLat={setLngLat}
+                initMarkerLngLat={initLngLat}
+              />
             </div>
           </div>
           <input

@@ -100,7 +100,12 @@ const ExplorePage = () => {
             mapClickHandler={mapClickHandler}
           />
         )}
-        {addPostMode && <MapLibreAddMarker setLngLat={setLngLat} />}
+        {addPostMode && (
+          <MapLibreAddMarker
+            setLngLat={setLngLat}
+            initMarkerLngLat={undefined}
+          />
+        )}
         <Sidebar
           show={sidebarState}
           showHandler={(state: SidebarState) => setSidebarState(state)}
