@@ -7,7 +7,20 @@ import { validateAccessToken } from "../middleware/auth.js";
 import { MAP_TILER_KEY } from "../api_keys.js";
 export const usersRouter = Router();
 
-const avatar = multer({ dest: "./pictures/avatars/" });
+const avatar = multer({ dest: "./avatars/" });
+
+const reverseGeoSearch = async (longitude, latitude) => {
+  const geocoding = await fetch(
+    `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${MAP_TILER_KEY}`
+  ).then((res) => res.json());
+
+  const location = geocoding.features.find(
+    (feature) =>
+      feature.place_type[0] !== "address" &&
+      feature.place_type[0] !== "postal_code"
+  );
+  return location?.place_name ?? "";
+};
 
 // create a new user
 usersRouter.post(
@@ -19,9 +32,7 @@ usersRouter.post(
       const coordinates = JSON.parse(req.body.coordinates);
       const longitude = coordinates[0];
       const latitude = coordinates[1];
-      const region = await fetch(
-        `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${MAP_TILER_KEY}&types=region`
-      ).then((res) => res.json());
+      const location = await reverseGeoSearch(longitude, latitude);
 
       const user = await User.create({
         id: req.body.id,
@@ -34,7 +45,7 @@ usersRouter.post(
           type: "Point",
           coordinates: JSON.parse(req.body.coordinates),
         },
-        region: region.features[0].place_name,
+        location: location,
       });
       return res.json(user);
     } catch (e) {
@@ -98,14 +109,13 @@ usersRouter.patch(
     if (coordinates) {
       const longitude = coordinates[0];
       const latitude = coordinates[1];
-      const region = await fetch(
-        `https://api.maptiler.com/geocoding/${longitude},${latitude}.json?key=${MAP_TILER_KEY}&types=region`
-      ).then((res) => res.json());
+      const location = await reverseGeoSearch(longitude, latitude);
+
       update.geometry = {
         type: "Point",
         coordinates: coordinates,
       };
-      update.region = region.features[0].place_name;
+      update.location = location;
     }
 
     await user.update(update);

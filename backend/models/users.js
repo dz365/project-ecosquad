@@ -32,7 +32,7 @@ export const User = sequelize.define("User", {
     type: DataTypes.GEOMETRY("POINT"),
     allowNull: false,
   },
-  region: {
+  location: {
     type: DataTypes.STRING,
     defaultValue: "",
   },
