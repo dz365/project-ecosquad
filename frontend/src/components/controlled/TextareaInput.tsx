@@ -5,6 +5,7 @@ const TextAreaInput: React.FC<InputModel> = ({
   placeholder,
   value,
   onChangeHandler,
+  required,
 }) => {
   return (
     <textarea
@@ -12,6 +13,7 @@ const TextAreaInput: React.FC<InputModel> = ({
       placeholder={placeholder}
       value={value}
       onChange={(e) => onChangeHandler(e.target.value)}
+      required={required}
       className="border text-gray-700 rounded-lg px-2 py-1"
     />
   );

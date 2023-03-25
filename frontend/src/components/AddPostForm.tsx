@@ -93,6 +93,7 @@ const AddPostForm: React.FC<AddPostForm> = ({ lnglat }) => {
           name="description"
           value={description}
           onChangeHandler={setDescription}
+          required={true}
         />
       </label>
       <label className="flex gap-4">

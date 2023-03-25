@@ -27,7 +27,7 @@ const MapLibreAddMarker: React.FC<MapLibreAddMarker> = ({
     map.on("load", () => {
       map.dragRotate.disable();
       map.touchZoomRotate.disableRotation();
-      map.addControl(new maplibreGl.NavigationControl({}));
+      map.addControl(new maplibreGl.NavigationControl({}), "bottom-right");
 
       const marker = new maplibregl.Marker({
         color: "#FF0000",

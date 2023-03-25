@@ -109,7 +109,12 @@ const UpdateProfilePage = () => {
               </label>
               <label className="flex flex-col">
                 <span className="text-green-900">Name</span>
-                <TextInput name="name" value={name} onChangeHandler={setName} />
+                <TextInput
+                  name="name"
+                  value={name}
+                  onChangeHandler={setName}
+                  required={true}
+                />
               </label>
               <label className="flex flex-col">
                 <span className="text-green-900">About</span>
@@ -117,6 +122,7 @@ const UpdateProfilePage = () => {
                   name="about"
                   value={about}
                   onChangeHandler={setAbout}
+                  required={false}
                 />
               </label>
             </div>
