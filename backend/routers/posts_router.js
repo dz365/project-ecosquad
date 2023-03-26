@@ -52,22 +52,20 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
       });
     }
 
-    const newSearchDoc = [
-      {
-        id: post.id,
-        type: "Feature",
-        geometry: post.geometry,
-        properties: {
-          user: post.UserId,
-          description: post.description,
-          type: post.type,
-          tags: post.tags,
-          location: location,
-        },
+    const newSearchDoc = {
+      id: post.id,
+      type: "Feature",
+      geometry: post.geometry,
+      properties: {
+        user: post.UserId,
+        description: post.description,
+        type: post.type,
+        tags: post.tags,
+        location: location,
       },
-    ];
+    };
 
-    await searchIndex.addDocuments(newSearchDoc);
+    await searchIndex.addDocuments([newSearchDoc]);
 
     return res.json({ post, fileIds });
   } catch (e) {
@@ -100,7 +98,7 @@ postsRouter.get("/:id", async (req, res) => {
 });
 
 // update a specific post
-postsRouter.patch("/:id", postFiles.array("files"), async (req, res) => {
+postsRouter.patch("/:id", async (req, res) => {
   const post = await Post.findByPk(req.params.id);
   const description = req.body.description;
   const coordinates = req.body.coordinates
@@ -108,10 +106,6 @@ postsRouter.patch("/:id", postFiles.array("files"), async (req, res) => {
     : null;
   const type = req.body.type;
   const tags = req.body.tags ? JSON.parse(req.body.tags) : null;
-  const deletedFileIds = req.body.deletedFiles
-    ? JSON.parse(req.body.deletedFiles)
-    : null;
-  const addedFileMetadatas = req.files;
   const update = {};
 
   if (!post) {
@@ -125,25 +119,6 @@ postsRouter.patch("/:id", postFiles.array("files"), async (req, res) => {
     update.geometry = { type: "Point", coordinates: coordinates };
   }
 
-  if (deletedFileIds) {
-    await File.destroy({
-      where: {
-        id: deletedFileIds,
-        PostId: post.id,
-      },
-    });
-  }
-
-  if (addedFileMetadatas) {
-    let fileMetadatas = [];
-
-    addedFileMetadatas.forEach((file) => {
-      fileMetadatas.push({ metadata: file, PostId: post.id });
-    });
-
-    await File.bulkCreate(fileMetadatas);
-  }
-
   const files = await File.findAll({
     attributes: ["id"],
     where: {
@@ -151,7 +126,7 @@ postsRouter.patch("/:id", postFiles.array("files"), async (req, res) => {
     },
   });
 
-  let fileIds = [];
+  const fileIds = [];
 
   files.forEach((file) => {
     fileIds.push(file.id);
@@ -159,6 +134,20 @@ postsRouter.patch("/:id", postFiles.array("files"), async (req, res) => {
 
   await post.update(update);
   await post.reload();
+  
+  const updateSearchDoc = {
+    id: post.id,
+    geometry: post.geometry,
+    properties: {
+      user: post.UserId,
+      description: post.description,
+      type: post.type,
+      tags: post.tags,
+      location: await reverseGeoSearch(coordinates[0], coordinates[1]),
+    },
+  };
+
+  await searchIndex.updateDocuments([updateSearchDoc]);
   return res.json({ post, fileIds });
 });
 

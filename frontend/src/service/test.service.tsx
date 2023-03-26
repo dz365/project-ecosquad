@@ -80,6 +80,21 @@ const getPost = async (accessToken: string, id: number) => {
   }).then((res) => res.data);
 };
 
+const updatePost = async (
+  accessToken: string,
+  postId: number,
+  formData: FormData
+) => {
+  return axios
+    .patch(`${serverURL}/posts/${postId}`, formData, {
+      headers: {
+        "content-type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+    .then((res) => res.data);
+};
+
 const searchPost = async (query: string) => {
   return searchIndex.search(query).then((res: any) => res);
 };
@@ -93,4 +108,5 @@ export {
   getPost,
   getPosts,
   searchPost,
+  updatePost,
 };

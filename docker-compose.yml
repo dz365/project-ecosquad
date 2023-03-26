@@ -20,6 +20,9 @@ services:
     image: ecosquad-backend
     ports:
       - 3001:3001
+    volumes:
+      - posts:/posts
+      - avatars:/avatars
   postgres:
     restart: always
     build:
@@ -38,3 +41,5 @@ services:
       - ./database/:/docker-entrypoint-initdb.d/
 volumes:
   postgres-volume:
+  posts:
+  avatars:

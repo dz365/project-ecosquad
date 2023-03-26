@@ -5,7 +5,7 @@ import { getPosts, getUser, searchPost } from "../service/test.service";
 import SearchComponent from "../components/SearchComponent";
 import Sidebar from "../components/SideBar";
 import { SidebarState } from "../models/SidebarState";
-import AddPostForm from "../components/AddPostForm";
+import PostForm from "../components/PostForm";
 import { LngLat } from "maplibre-gl";
 import MapLibreAddMarker from "../components/Maps/MapLibreAddMarker";
 import Navbar from "../navigation/Navbar";
@@ -20,6 +20,8 @@ const ExplorePage = () => {
   const [sidebarState, setSidebarState] = useState<SidebarState>("hide");
   const [sidebarContent, setSidebarContent] = useState<any>("");
   const [addPostMode, setAddPostMode] = useState(false);
+  const [postId, setPostId] = useState<number>();
+  const [initLngLat, setInitLngLat] = useState<LngLat>();
   const [displayProfileCard, setDisplayProfileCard] = useState(false);
   const [lngLat, setLngLat] = useState<LngLat>();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
@@ -51,22 +53,43 @@ const ExplorePage = () => {
     setSidebarState("hide");
     setAddPostMode(false);
     setLngLat(undefined);
+    setInitLngLat(undefined);
+    setPostId(undefined);
     updateData();
   };
 
   const addPostHandler = () => {
+    setLngLat(undefined);
+    setInitLngLat(undefined);
+    setPostId(undefined);
     if (addPostMode) {
       setSidebarContent("");
       setSidebarState("hide");
     } else {
-      setLngLat(undefined);
       setSidebarState("expand");
     }
     setAddPostMode(!addPostMode);
   };
 
+  const editPostForm = (pointData: any) => {
+    setSidebarState("expand");
+    setAddPostMode(true);
+    setPostId(pointData.id);
+    const coordinates = pointData.geometry.coordinates;
+    setInitLngLat(new LngLat(coordinates[0], coordinates[1]));
+  };
+
   const pointClickHandler = (e: any) => {
-    setSidebarContent("");
+    let content: any = "";
+    const pointData = e.features[0];
+    if (pointData.properties.user === user?.sub) {
+      content = (
+        <button className="border" onClick={() => editPostForm(pointData)}>
+          edit
+        </button>
+      );
+    }
+    setSidebarContent(content);
     setSidebarState("expand");
   };
 
@@ -119,7 +142,7 @@ const ExplorePage = () => {
         {addPostMode && (
           <MapLibreAddMarker
             setLngLat={setLngLat}
-            initMarkerLngLat={undefined}
+            initMarkerLngLat={initLngLat}
           />
         )}
         <Sidebar
@@ -127,9 +150,10 @@ const ExplorePage = () => {
           showHandler={(state: SidebarState) => setSidebarState(state)}
           content={
             addPostMode ? (
-              <AddPostForm
+              <PostForm
                 lnglat={lngLat}
                 postFormSubmitHandler={resetSidebar}
+                postId={postId}
               />
             ) : (
               sidebarContent

@@ -59,9 +59,7 @@ const UpdateProfilePage = () => {
         .then(() => {
           navigate("/");
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch(() => {});
     });
   };
 

@@ -1,23 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FileInput from "./FileInput";
 import TextAreaInput from "./controlled/TextareaInput";
 import SubmitInput from "./controlled/SubmitInput";
 import { useAuth0 } from "@auth0/auth0-react";
 import { LngLat } from "maplibre-gl";
-import { createPost } from "../service/test.service";
+import { createPost, getPost, updatePost } from "../service/test.service";
 
-type AddPostForm = {
+type PostForm = {
   lnglat: LngLat | undefined;
   postFormSubmitHandler: () => void;
+  postId?: number;
 };
 
-const AddPostForm: React.FC<AddPostForm> = ({
+const PostForm: React.FC<PostForm> = ({
   lnglat,
   postFormSubmitHandler,
+  postId = undefined,
 }) => {
   const [description, setDescription] = useState("");
   const [files, setFiles] = useState<FileList>();
   const [tags, setTags] = useState<string[]>([]);
+  const [type, setType] = useState("");
   const [tagInputText, setTagInputText] = useState("");
 
   const { user, getAccessTokenSilently } = useAuth0();
@@ -29,6 +32,17 @@ const AddPostForm: React.FC<AddPostForm> = ({
     return <span className="text-xl text-green-600">{text}</span>;
   };
 
+  useEffect(() => {
+    if (!postId) return;
+    getAccessTokenSilently().then((token) => {
+      getPost(token, postId).then((res) => {
+        setDescription(res.post.description);
+        setTags(res.post.tags);
+        setType(res.post.type);
+      });
+    });
+  }, [postId]);
+
   const onSubmitForm = (e: any) => {
     e.preventDefault();
 
@@ -36,13 +50,19 @@ const AddPostForm: React.FC<AddPostForm> = ({
       if (!lnglat) return;
 
       const formData = new FormData(e.target);
-      formData.set("userId", user!.sub!.toString());
       formData.set("tags", JSON.stringify(tags));
       formData.set("coordinates", JSON.stringify(lnglat.toArray()));
 
-      createPost(token, formData)
-        .then(postFormSubmitHandler)
-        .catch((err) => console.log(err));
+      if (postId) {
+        updatePost(token, postId, formData)
+          .then(postFormSubmitHandler)
+          .catch((err) => console.log(err));
+      } else {
+        formData.set("userId", user!.sub!.toString());
+        createPost(token, formData)
+          .then(postFormSubmitHandler)
+          .catch((err) => console.log(err));
+      }
     });
   };
 
@@ -71,30 +91,38 @@ const AddPostForm: React.FC<AddPostForm> = ({
       onKeyDown={preventEnterKeyAction}
       onSubmit={onSubmitForm}
     >
-      <label className="flex flex-col gap-2">
-        <LabelText text="Upload Files" />
-        <FileInput
-          accept="image/*,video/*,audio/*"
-          multiple={true}
-          name="files"
-          onChangeHandler={(e) => setFiles(e.target.files)}
-        />
+      {postId && (
+        <p>
+          Unfortunately we don't currently support editing your post files after
+          upload. If you do wish to do so, you must create a new post.
+        </p>
+      )}
+      {!postId && (
+        <label className="flex flex-col gap-2">
+          <LabelText text="Upload Files" />
+          <FileInput
+            accept="image/*,video/*,audio/*"
+            multiple={true}
+            name="files"
+            onChangeHandler={(e) => setFiles(e.target.files)}
+          />
 
-        {files?.length! > 0 && (
-          <div className="flex flex-col border rounded-lg p-2">
-            {Array.from(files!).map((file, i) => (
-              <span
-                key={i + file.name}
-                className={`text-sm text-gray-500 ${
-                  i % 2 == 1 && "text-gray-400"
-                }`}
-              >
-                {i + 1}: {file.name}
-              </span>
-            ))}
-          </div>
-        )}
-      </label>
+          {files?.length! > 0 && (
+            <div className="flex flex-col border rounded-lg p-2">
+              {Array.from(files!).map((file, i) => (
+                <span
+                  key={i + file.name}
+                  className={`text-sm text-gray-500 ${
+                    i % 2 == 1 && "text-gray-400"
+                  }`}
+                >
+                  {i + 1}: {file.name}
+                </span>
+              ))}
+            </div>
+          )}
+        </label>
+      )}
       <label className="flex flex-col gap-2">
         <LabelText text="Description" />
         <TextAreaInput
@@ -109,7 +137,8 @@ const AddPostForm: React.FC<AddPostForm> = ({
         <select
           name="type"
           className="p-2 rounded-md bg-gray-100"
-          defaultValue=""
+          value={type}
+          onChange={(e) => setType(e.target.value)}
           required
         >
           <option disabled hidden value="">
@@ -159,10 +188,10 @@ const AddPostForm: React.FC<AddPostForm> = ({
         </div>
       </label>
       <div className="flex justify-center mt-16">
-        <SubmitInput text="Add Post" />
+        <SubmitInput text={postId ? "Update post" : "Add post"} />
       </div>
     </form>
   );
 };
 
-export default AddPostForm;
+export default PostForm;
