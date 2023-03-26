@@ -134,7 +134,7 @@ postsRouter.patch("/:id", async (req, res) => {
 
   await post.update(update);
   await post.reload();
-  
+
   const updateSearchDoc = {
     id: post.id,
     geometry: post.geometry,
