@@ -1,4 +1,4 @@
-import maplibregl, { LngLat } from "maplibre-gl";
+import maplibregl, { LngLat, LngLatBounds } from "maplibre-gl";
 import maplibreGl, { Map } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 
@@ -35,12 +35,12 @@ const MapLibreAddMarker: React.FC<MapLibreAddMarker> = ({
       });
 
       map.on("click", (e) => {
-        marker.setLngLat(e.lngLat);
-        setLngLat(e.lngLat);
+        marker.setLngLat(e.lngLat.wrap());
+        setLngLat(e.lngLat.wrap());
         marker.addTo(map);
       });
 
-      marker.on("dragend", () => setLngLat(marker.getLngLat()));
+      marker.on("dragend", () => setLngLat(marker.getLngLat().wrap()));
       setMap(map);
     });
 

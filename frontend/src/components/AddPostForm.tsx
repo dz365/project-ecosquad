@@ -5,15 +5,16 @@ import SubmitInput from "./controlled/SubmitInput";
 import { useAuth0 } from "@auth0/auth0-react";
 import { LngLat } from "maplibre-gl";
 import { createPost } from "../service/test.service";
-import { useNavigate } from "react-router-dom";
 
 type AddPostForm = {
   lnglat: LngLat | undefined;
+  postFormSubmitHandler: () => void;
 };
 
-const AddPostForm: React.FC<AddPostForm> = ({ lnglat }) => {
-  const navigate = useNavigate();
-
+const AddPostForm: React.FC<AddPostForm> = ({
+  lnglat,
+  postFormSubmitHandler,
+}) => {
   const [description, setDescription] = useState("");
   const [files, setFiles] = useState<FileList>();
   const [tags, setTags] = useState<string[]>([]);
@@ -40,7 +41,7 @@ const AddPostForm: React.FC<AddPostForm> = ({ lnglat }) => {
       formData.set("coordinates", JSON.stringify(lnglat.toArray()));
 
       createPost(token, formData)
-        .then(() => navigate("/"))
+        .then(postFormSubmitHandler)
         .catch((err) => console.log(err));
     });
   };

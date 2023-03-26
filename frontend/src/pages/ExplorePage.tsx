@@ -27,6 +27,16 @@ const ExplorePage = () => {
   const resizeListener = () => {
     setIsMobile(window.innerWidth < 640);
   };
+
+  const updateData = () => {
+    getPosts().then((posts) => {
+      setData({
+        type: "FeatureCollection",
+        features: posts.results,
+      });
+      console.log(posts.results);
+    });
+  };
   const searchHandler = (searchQuery: string) => {
     searchPost(searchQuery).then((res) => {
       setData({
@@ -36,13 +46,20 @@ const ExplorePage = () => {
     });
   };
 
+  const resetSidebar = () => {
+    setSidebarContent("");
+    setSidebarState("hide");
+    setAddPostMode(false);
+    setLngLat(undefined);
+    updateData();
+  };
+
   const addPostHandler = () => {
     if (addPostMode) {
       setSidebarContent("");
       setSidebarState("hide");
     } else {
       setLngLat(undefined);
-
       setSidebarState("expand");
     }
     setAddPostMode(!addPostMode);
@@ -60,12 +77,7 @@ const ExplorePage = () => {
   };
 
   useEffect(() => {
-    getPosts().then((posts) => {
-      setData({
-        type: "FeatureCollection",
-        features: posts.results,
-      });
-    });
+    updateData();
 
     getAccessTokenSilently().then((token) => {
       getUser(token, user!.sub!).catch(() => navigate("/updateprofile"));
@@ -114,7 +126,14 @@ const ExplorePage = () => {
           show={sidebarState}
           showHandler={(state: SidebarState) => setSidebarState(state)}
           content={
-            addPostMode ? <AddPostForm lnglat={lngLat} /> : sidebarContent
+            addPostMode ? (
+              <AddPostForm
+                lnglat={lngLat}
+                postFormSubmitHandler={resetSidebar}
+              />
+            ) : (
+              sidebarContent
+            )
           }
         />
       </div>
