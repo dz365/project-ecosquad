@@ -5,6 +5,7 @@ import { File } from "../models/files.js";
 import { validateAccessToken } from "../middleware/auth.js";
 import { searchIndex } from "../meilisearch.js";
 import { reverseGeoSearch } from "../reverseGeosearch.js";
+import { emitNewPostMessage } from "../socket.js";
 
 export const postsRouter = Router();
 //postsRouter.use(validateAccessToken);
@@ -66,6 +67,8 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
     };
 
     await searchIndex.addDocuments([newSearchDoc]);
+
+    emitNewPostMessage(post.id, post.geometry.coordinates);
 
     return res.json({ post, fileIds });
   } catch (e) {

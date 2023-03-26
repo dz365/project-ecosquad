@@ -12,6 +12,9 @@ import Navbar from "../navigation/Navbar";
 import { useAuth0 } from "@auth0/auth0-react";
 import ProfileCard from "../components/ProfileCard";
 import { useNavigate } from "react-router-dom";
+import io from "socket.io-client";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ExplorePage = () => {
   const { user, getAccessTokenSilently } = useAuth0();
@@ -102,6 +105,29 @@ const ExplorePage = () => {
   useEffect(() => {
     updateData();
 
+    const socket = io(process.env.REACT_APP_API_SERVER_URL!);
+    socket.on("new post", (postId, coordinates) => {
+      toast.info(
+        <div>
+          <p>
+            A new post has been created at {coordinates[0]}, {coordinates[1]}
+          </p>
+          <button onClick={() => console.log("clicked")}>click here</button>
+        </div>,
+        {
+          toastId: "new post",
+          position: "top-center",
+          autoClose: 30000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        }
+      );
+    });
+
     getAccessTokenSilently().then((token) => {
       getUser(token, user!.sub!).catch(() => navigate("/updateprofile"));
     });
@@ -111,6 +137,7 @@ const ExplorePage = () => {
 
   return (
     <div className="h-screen w-full">
+      <ToastContainer />
       <div
         className="h-screen w-full"
         onClick={() => setDisplayProfileCard(false)}
