@@ -20,6 +20,10 @@ export const Post = sequelize.define("Post", {
     defaultValue: [],
     allowNull: false,
   },
+  location: {
+    type: DataTypes.STRING,
+    defaultValue: "",
+  },
 });
 
 Post.belongsTo(User);

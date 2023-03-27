@@ -29,6 +29,7 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
       type: req.body.type,
       tags: JSON.parse(req.body.tags),
       UserId: req.body.userId,
+      location: location,
     });
 
     let fileMetadatas = [];
@@ -89,19 +90,12 @@ postsRouter.get("/:id", async (req, res) => {
   }
 
   const files = await File.findAll({
-    attributes: ["id"],
     where: {
       PostId: post.id,
     },
   });
 
-  let fileIds = [];
-
-  files.forEach((file) => {
-    fileIds.push(file.id);
-  });
-
-  return res.json({ post, fileIds });
+  return res.json({ post, files });
 });
 
 // update a specific post
@@ -124,6 +118,7 @@ postsRouter.patch("/:id", async (req, res) => {
   if (tags) update.tags = tags;
   if (coordinates) {
     update.geometry = { type: "Point", coordinates: coordinates };
+    update.location = await reverseGeoSearch(longitude, latitude);
   }
 
   const files = await File.findAll({
