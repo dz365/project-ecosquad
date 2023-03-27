@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import searchIndex from "../MeilisearchClient";
 import { PostTypes } from "../models/PostTypes";
-import TextInput from "./controlled/TextInput";
+
 interface SearchComponent {
   searchHandler: (e: any) => void;
 }
@@ -12,11 +13,30 @@ const SearchComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
   const [showFilters, setShowFilters] = useState(false);
   const [lng, setLng] = useState("");
   const [lat, setLat] = useState("");
-  const [locationFilter, setLocationFilter] = useState("");
+  const [distanceFilter, setDistanceFilter] = useState<number>();
 
   useEffect(() => {
-    searchHandler(searchQuery);
-  }, [searchQuery]);
+    let filter = "";
+
+    if (typeFilter.length > 0) filter += `properties.type IN [${typeFilter}] `;
+    if (lng && lat && distanceFilter) {
+      if (filter !== "") filter += "AND ";
+      filter += `_geoRadius(${lat}, ${lng}, ${distanceFilter})`;
+    }
+
+    searchIndex
+      .search(searchQuery, {
+        filter: filter,
+      })
+      .then((res) => searchHandler(res));
+  }, [searchQuery, typeFilter, lng, lat, distanceFilter]);
+
+  const resetFilters = () => {
+    setTypeFilter([]);
+    setLat("");
+    setLng("");
+    setDistanceFilter(undefined);
+  };
 
   const handleTypeFilterChange = (event: any) => {
     const value = event.target.value;
@@ -29,8 +49,19 @@ const SearchComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
   };
 
   const handleCoordinateChange = (type: lnglat, value: string) => {
-    if (/^$|^\d+(\.\d+)?$/.test(value)) {
-      type === "lat" ? setLat(value) : setLng(value);
+    if (!isNaN(+value)) {
+      if (value === "" || value.endsWith(".")) {
+        return type === "lat" ? setLat(value) : setLng(value);
+      }
+      let intValue = +value;
+      if (type === "lat") {
+        if (intValue < -90) intValue = -90;
+        if (intValue > 90) intValue = 90;
+      } else {
+        if (intValue < -180) intValue = -180;
+        if (intValue > 180) intValue = 180;
+      }
+      type === "lat" ? setLat("" + intValue) : setLng("" + intValue);
     }
   };
 
@@ -51,75 +82,107 @@ const SearchComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
         </button>
       </label>
       {showFilters && (
-        <div className="absolute top-10 bg-white rounded-lg p-4 flex flex-col sm:flex-row gap-8">
-          <div className="flex flex-col">
-            <span className="text-green-600">Types</span>
-            {PostTypes.map((type) => (
-              <label key={type.value + "-checkbox"} className="flex gap-2">
-                <input
-                  type="checkbox"
-                  value={type.value}
-                  checked={typeFilter.includes(type.value)}
-                  onChange={handleTypeFilterChange}
-                />
-                <span>{type.label}</span>
-              </label>
-            ))}
+        <div className="absolute top-10 bg-white rounded-lg p-4 flex flex-col gap-2">
+          <div className="flex justify-between">
+            <span>Advanced Search</span>
+            <button
+              className="border text-sm px-2 py-1 rounded-lg"
+              onClick={() => resetFilters()}
+            >
+              Clear filters
+            </button>
           </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-green-600">Distance</span>
-            <div className="flex gap-2">
-              <label className="flex gap-2">
-                <input
-                  name="lng"
-                  placeholder="Longitude"
-                  value={lng}
-                  onChange={(e) =>
-                    handleCoordinateChange("lng", e.target.value)
-                  }
-                  required={true}
-                  className="w-20"
-                />
-                <input
-                  name="lat"
-                  placeholder="Latitude"
-                  value={lat}
-                  onChange={(e) =>
-                    handleCoordinateChange("lat", e.target.value)
-                  }
-                  required={true}
-                  className="w-20"
-                />
-              </label>
+
+          <div className="flex flex-col sm:flex-row gap-8">
+            <div className="flex flex-col">
+              <span className="text-green-600">Types</span>
+              {PostTypes.map((type) => (
+                <label key={type.value + "-checkbox"} className="flex gap-2">
+                  <input
+                    type="checkbox"
+                    value={type.value}
+                    checked={typeFilter.includes(type.value)}
+                    onChange={handleTypeFilterChange}
+                  />
+                  <span>{type.label}</span>
+                </label>
+              ))}
             </div>
             <div className="flex flex-col gap-2">
-              <label className="flex gap-2">
-                <input
-                  type="radio"
-                  value="1km"
-                  checked={locationFilter === "1km"}
-                  onChange={(e) => setLocationFilter(e.target.value)}
-                />
-                Within 1km
-              </label>
-              <label className="flex gap-2">
-                <input
-                  type="radio"
-                  value="5km"
-                  checked={locationFilter === "5km"}
-                  onChange={(e) => setLocationFilter(e.target.value)}
-                />
-                Within 5km
-              </label>
-              <label className="flex gap-2">
-                <input
-                  type="radio"
-                  value="10km"
-                  checked={locationFilter === "10km"}
-                  onChange={(e) => setLocationFilter(e.target.value)}
-                />
-                Within 10km
-              </label>
+              <span className="text-green-600">Distance</span>
+              <div className="flex gap-2">
+                <label className="flex gap-2">
+                  <input
+                    name="lng"
+                    placeholder="Longitude"
+                    maxLength={8}
+                    value={lng}
+                    onChange={(e) =>
+                      handleCoordinateChange("lng", e.target.value)
+                    }
+                    required={true}
+                    className="w-20 text-sm border px-1 py-px rounded-lg"
+                  />
+                  <input
+                    name="lat"
+                    placeholder="Latitude"
+                    value={lat}
+                    maxLength={8}
+                    onChange={(e) =>
+                      handleCoordinateChange("lat", e.target.value)
+                    }
+                    required={true}
+                    className="w-20 text-sm border px-1 py-px rounded-lg"
+                  />
+                </label>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="flex gap-2">
+                  <input
+                    type="radio"
+                    value={1000}
+                    checked={distanceFilter === 1000}
+                    onChange={(e) => setDistanceFilter(1000)}
+                  />
+                  Within 1km
+                </label>
+                <label className="flex gap-2">
+                  <input
+                    type="radio"
+                    value={5000}
+                    checked={distanceFilter === 5000}
+                    onChange={(e) => setDistanceFilter(5000)}
+                  />
+                  Within 5km
+                </label>
+                <label className="flex gap-2">
+                  <input
+                    type="radio"
+                    value={10000}
+                    checked={distanceFilter === 10000}
+                    onChange={(e) => setDistanceFilter(10000)}
+                  />
+                  Within 10km
+                </label>
+                <label className="flex gap-2">
+                  <input
+                    type="radio"
+                    value={50000}
+                    checked={distanceFilter === 50000}
+                    onChange={(e) => setDistanceFilter(50000)}
+                  />
+                  Within 50km
+                </label>
+                <label className="flex gap-2">
+                  <input
+                    type="radio"
+                    value={100000}
+                    checked={distanceFilter === 100000}
+                    onChange={(e) => setDistanceFilter(100000)}
+                  />
+                  Within 100km
+                </label>
+              </div>
             </div>
           </div>
         </div>

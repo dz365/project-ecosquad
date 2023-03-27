@@ -42,12 +42,10 @@ const ExplorePage = () => {
       console.log(posts.results);
     });
   };
-  const searchHandler = (searchQuery: string) => {
-    searchPost(searchQuery).then((res) => {
-      setData({
-        type: "FeatureCollection",
-        features: res.hits,
-      });
+  const searchHandler = (searchData: any) => {
+    setData({
+      type: "FeatureCollection",
+      features: searchData.hits,
     });
   };
 
