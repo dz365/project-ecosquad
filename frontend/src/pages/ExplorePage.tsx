@@ -2,7 +2,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import MapLibre from "../components/Maps/MapLibre";
 import { useEffect, useState } from "react";
 import { getPosts, getUser, searchPost } from "../service/test.service";
-import SearchComponent from "../components/SearchComponent";
+import SearchBarComponent from "../components/SearchBarComponent";
 import Sidebar from "../components/SideBar";
 import { SidebarState } from "../models/SidebarState";
 import PostForm from "../components/PostForm";
@@ -139,23 +139,11 @@ const ExplorePage = () => {
         className="h-screen w-full"
         onClick={() => setDisplayProfileCard(false)}
       >
-        <div className="fixed top-2 left-4 z-20 w-full">
-          <div className="w-11/12 sm:w-96 h-12 flex items-center justify-around gap-4 bg-white rounded-lg px-4 py-2 shadow">
-            <Navbar iconSize={"sm"} />
-            <SearchComponent searchHandler={searchHandler} />
-            <div className="w-px h-full border-l"></div>
-            <button
-              className={`rotate-45 ${!addPostMode && "bg-green-600 p-px"}`}
-              onClick={addPostHandler}
-            >
-              <div
-                className={`-rotate-45 w-4 h-4 bg-center bg-no-repeat ${
-                  addPostMode ? "bg-xmark-dark" : "bg-plus"
-                }`}
-              ></div>
-            </button>
-          </div>
-        </div>
+        <SearchBarComponent
+          addPostMode={addPostMode}
+          addPostHandler={addPostHandler}
+          searchHandler={searchHandler}
+        />
         {data && !addPostMode && (
           <MapLibre
             data={data}
