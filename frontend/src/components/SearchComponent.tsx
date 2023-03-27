@@ -8,6 +8,8 @@ interface SearchComponent {
 
 const SearchComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
   type lnglat = "lng" | "lat";
+  const distances = [1000, 5000, 10000, 50000, 100000];
+
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -16,6 +18,7 @@ const SearchComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
   const [distanceFilter, setDistanceFilter] = useState<number>();
 
   useEffect(() => {
+    console.log(distanceFilter);
     let filter = "";
 
     if (typeFilter.length > 0) filter += `properties.type IN [${typeFilter}] `;
@@ -137,51 +140,20 @@ const SearchComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
                 </label>
               </div>
               <div className="flex flex-col gap-2">
-                <label className="flex gap-2">
-                  <input
-                    type="radio"
-                    value={1000}
-                    checked={distanceFilter === 1000}
-                    onChange={(e) => setDistanceFilter(1000)}
-                  />
-                  Within 1km
-                </label>
-                <label className="flex gap-2">
-                  <input
-                    type="radio"
-                    value={5000}
-                    checked={distanceFilter === 5000}
-                    onChange={(e) => setDistanceFilter(5000)}
-                  />
-                  Within 5km
-                </label>
-                <label className="flex gap-2">
-                  <input
-                    type="radio"
-                    value={10000}
-                    checked={distanceFilter === 10000}
-                    onChange={(e) => setDistanceFilter(10000)}
-                  />
-                  Within 10km
-                </label>
-                <label className="flex gap-2">
-                  <input
-                    type="radio"
-                    value={50000}
-                    checked={distanceFilter === 50000}
-                    onChange={(e) => setDistanceFilter(50000)}
-                  />
-                  Within 50km
-                </label>
-                <label className="flex gap-2">
-                  <input
-                    type="radio"
-                    value={100000}
-                    checked={distanceFilter === 100000}
-                    onChange={(e) => setDistanceFilter(100000)}
-                  />
-                  Within 100km
-                </label>
+                {distances.map((distance) => (
+                  <label
+                    className="flex gap-2"
+                    key={`distance-filter-${distance}`}
+                  >
+                    <input
+                      type="radio"
+                      value={distance}
+                      checked={distanceFilter === distance}
+                      onChange={() => setDistanceFilter(distance)}
+                    />
+                    <span>Within {distance / 1000}km</span>
+                  </label>
+                ))}
               </div>
             </div>
           </div>
