@@ -17,6 +17,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const ExplorePage = () => {
+  const socket = io(process.env.REACT_APP_API_SERVER_URL!);
+
   const { user, getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
   const [data, setData] = useState<any>();
@@ -28,6 +30,7 @@ const ExplorePage = () => {
   const [displayProfileCard, setDisplayProfileCard] = useState(false);
   const [lngLat, setLngLat] = useState<LngLat>();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+  const [userLocation, setUserLocation] = useState<LngLat>();
 
   const resizeListener = () => {
     setIsMobile(window.innerWidth < 640);
@@ -102,13 +105,28 @@ const ExplorePage = () => {
   useEffect(() => {
     updateData();
 
-    const socket = io(process.env.REACT_APP_API_SERVER_URL!);
+    getAccessTokenSilently().then((token) => {
+      getUser(token, user!.sub!)
+        .then((res) => {
+          const coordinates = res.geometry.coordinates;
+          setUserLocation(new LngLat(coordinates[0], coordinates[1]));
+        })
+        .catch(() => navigate("/updateprofile"));
+    });
+    window.addEventListener("resize", resizeListener);
+    return () => window.removeEventListener("resize", resizeListener);
+  }, []);
+
+  useEffect(() => {
+    if (!userLocation) return;
     socket.on("new post", (postId, coordinates) => {
+      const distanceInMeters = userLocation!.distanceTo(
+        new LngLat(coordinates[0], coordinates[1])
+      );
+      const distanceInKm = Math.round(distanceInMeters / 1000);
       toast.info(
         <div>
-          <p>
-            A new post has been created at {coordinates[0]}, {coordinates[1]}
-          </p>
+          <p>A new post has been created {distanceInKm}km away from you</p>
           <button onClick={() => console.log("clicked")}>click here</button>
         </div>,
         {
@@ -124,14 +142,7 @@ const ExplorePage = () => {
         }
       );
     });
-
-    getAccessTokenSilently().then((token) => {
-      getUser(token, user!.sub!).catch(() => navigate("/updateprofile"));
-    });
-    window.addEventListener("resize", resizeListener);
-    return () => window.removeEventListener("resize", resizeListener);
-  }, []);
-
+  }, [userLocation]);
   return (
     <div className="h-screen w-full">
       <ToastContainer />
