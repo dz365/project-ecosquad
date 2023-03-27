@@ -19,7 +19,7 @@ module.exports = {
         pencil: "url('./assets/icons/pencil.png')",
         search: "url('./assets/icons/magnifying-glass.svg')",
         logout: "url('./assets/icons/logout.svg')",
-        background: "url('./assets/background.svg')",
+        "vertical-dots": "url('./assets/icons/ellipsis-vertical-solid.svg')",
       },
       animation: {
         slidein: "slidein 1s forwards",
