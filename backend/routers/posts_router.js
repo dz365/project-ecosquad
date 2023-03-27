@@ -55,6 +55,10 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
 
     const newSearchDoc = {
       id: post.id,
+      _geo: {
+        lat: latitude,
+        lng: longitude,
+      },
       type: "Feature",
       geometry: post.geometry,
       properties: {
@@ -140,13 +144,20 @@ postsRouter.patch("/:id", async (req, res) => {
 
   const updateSearchDoc = {
     id: post.id,
+    _geo: {
+      lat: post.geometry.coordinates[0],
+      lng: post.geometry.coordinates[1],
+    },
     geometry: post.geometry,
     properties: {
       user: post.UserId,
       description: post.description,
       type: post.type,
       tags: post.tags,
-      location: await reverseGeoSearch(coordinates[0], coordinates[1]),
+      location: await reverseGeoSearch(
+        post.geometry.coordinates[0],
+        post.geometry.coordinates[1]
+      ),
     },
   };
 
