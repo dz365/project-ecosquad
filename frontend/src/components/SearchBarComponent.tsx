@@ -55,50 +55,20 @@ const SearchBarComponent: React.FC<SearchComponent> = ({
     <div className="fixed top-2 left-4 z-20 w-full">
       <div className="w-11/12 sm:w-96 h-12 flex items-center justify-around gap-4 bg-white rounded-lg px-4 py-2 shadow">
         <Navbar iconSize={"sm"} />
-        <div className="relative flex flex-col">
-          <label className="flex gap-4">
-            <input
-              className="outline-none w-full text-sm px-2"
-              placeholder="Search Ecosquad"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button>
-              <div className="bg-search w-4 h-4 bg-center bg-no-repeat"></div>
+        <div className="flex gap-4">
+          <input
+            className="outline-none w-full text-sm px-2"
+            placeholder="Search Ecosquad"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button>
+            <div className="bg-search w-4 h-4 bg-center bg-no-repeat"></div>
+          </button>
+          {!addPostMode && (
+            <button onClick={() => setShowFilters(!showFilters)}>
+              <div className="bg-vertical-dots w-4 h-4 bg-center bg-no-repeat"></div>
             </button>
-            {!addPostMode && (
-              <button onClick={() => setShowFilters(!showFilters)}>
-                <div className="bg-vertical-dots w-4 h-4 bg-center bg-no-repeat"></div>
-              </button>
-            )}
-          </label>
-          {showFilters && (
-            <div className="absolute top-10 bg-white rounded-lg p-4 flex flex-col gap-2">
-              <div className="flex justify-between">
-                <span>Advanced Search</span>
-                <button
-                  className="border text-sm px-2 py-1 rounded-lg"
-                  onClick={() => resetFilters()}
-                >
-                  Clear filters
-                </button>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-8">
-                <TypeFilter
-                  filteredTypes={typeFilters}
-                  setFilteredTypes={setTypeFilters}
-                />
-                <DistanceFilter
-                  lng={lng}
-                  lat={lat}
-                  setLng={setLng}
-                  setLat={setLat}
-                  distanceFilter={distanceFilter}
-                  setDistanceFilter={setDistanceFilter}
-                />
-              </div>
-            </div>
           )}
         </div>
         <div className="w-px h-full border-l"></div>
@@ -112,6 +82,34 @@ const SearchBarComponent: React.FC<SearchComponent> = ({
             }`}
           ></div>
         </button>
+        {showFilters && (
+          <div className="absolute top-16 bg-white rounded-lg p-4 flex flex-col gap-2">
+            <div className="flex gap-8 justify-between">
+              <span className="text-blue-600">Advanced Search</span>
+              <button
+                className="border text-sm px-2 py-1 rounded-lg"
+                onClick={() => resetFilters()}
+              >
+                Clear filters
+              </button>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-8">
+              <TypeFilter
+                filteredTypes={typeFilters}
+                setFilteredTypes={setTypeFilters}
+              />
+              <DistanceFilter
+                lng={lng}
+                lat={lat}
+                setLng={setLng}
+                setLat={setLat}
+                distanceFilter={distanceFilter}
+                setDistanceFilter={setDistanceFilter}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
