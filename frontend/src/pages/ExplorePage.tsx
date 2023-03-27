@@ -39,7 +39,6 @@ const ExplorePage = () => {
         type: "FeatureCollection",
         features: posts.results,
       });
-      console.log(posts.results);
     });
   };
   const searchHandler = (searchData: any) => {

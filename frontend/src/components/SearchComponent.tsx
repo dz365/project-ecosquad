@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import searchIndex from "../MeilisearchClient";
 import { PostTypes } from "../models/PostTypes";
+import TypeFilter from "./SearchFilters/TypeFilter";
 
 interface SearchComponent {
   searchHandler: (e: any) => void;
@@ -11,17 +12,17 @@ const SearchComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
   const distances = [1000, 5000, 10000, 50000, 100000];
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [typeFilter, setTypeFilter] = useState<string[]>([]);
+  const [typeFilters, setTypeFilters] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [lng, setLng] = useState("");
   const [lat, setLat] = useState("");
   const [distanceFilter, setDistanceFilter] = useState<number>();
 
   useEffect(() => {
-    console.log(distanceFilter);
     let filter = "";
 
-    if (typeFilter.length > 0) filter += `properties.type IN [${typeFilter}] `;
+    if (typeFilters.length > 0)
+      filter += `properties.type IN [${typeFilters}] `;
     if (lng && lat && distanceFilter) {
       if (filter !== "") filter += "AND ";
       filter += `_geoRadius(${lat}, ${lng}, ${distanceFilter})`;
@@ -32,23 +33,13 @@ const SearchComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
         filter: filter,
       })
       .then((res) => searchHandler(res));
-  }, [searchQuery, typeFilter, lng, lat, distanceFilter]);
+  }, [searchQuery, typeFilters, lng, lat, distanceFilter]);
 
   const resetFilters = () => {
-    setTypeFilter([]);
+    setTypeFilters([]);
     setLat("");
     setLng("");
     setDistanceFilter(undefined);
-  };
-
-  const handleTypeFilterChange = (event: any) => {
-    const value = event.target.value;
-    const isChecked = event.target.checked;
-    if (isChecked) {
-      setTypeFilter([...typeFilter, value]);
-    } else {
-      setTypeFilter(typeFilter.filter((type) => type !== value));
-    }
   };
 
   const handleCoordinateChange = (type: lnglat, value: string) => {
@@ -97,20 +88,10 @@ const SearchComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-8">
-            <div className="flex flex-col">
-              <span className="text-green-600">Types</span>
-              {PostTypes.map((type) => (
-                <label key={type.value + "-checkbox"} className="flex gap-2">
-                  <input
-                    type="checkbox"
-                    value={type.value}
-                    checked={typeFilter.includes(type.value)}
-                    onChange={handleTypeFilterChange}
-                  />
-                  <span>{type.label}</span>
-                </label>
-              ))}
-            </div>
+            <TypeFilter
+              filteredTypes={typeFilters}
+              setFilteredTypes={setTypeFilters}
+            />
             <div className="flex flex-col gap-2">
               <span className="text-green-600">Distance</span>
               <div className="flex gap-2">
