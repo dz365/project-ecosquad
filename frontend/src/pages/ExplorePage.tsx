@@ -1,14 +1,12 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import MapLibre from "../components/Maps/MapLibre";
 import { useEffect, useState } from "react";
-import { getPosts, getUser, searchPost } from "../service/test.service";
+import { getPosts, getUser } from "../service/test.service";
 import SearchBarComponent from "../components/SearchBarComponent";
 import Sidebar from "../components/SideBar";
-import { SidebarState } from "../models/SidebarState";
 import PostForm from "../components/PostForm";
 import { LngLat } from "maplibre-gl";
 import MapLibreAddMarker from "../components/Maps/MapLibreAddMarker";
-import Navbar from "../navigation/Navbar";
 import { useAuth0 } from "@auth0/auth0-react";
 import ProfileCard from "../components/ProfileCard";
 import { useNavigate } from "react-router-dom";
@@ -23,7 +21,7 @@ const ExplorePage = () => {
   const { user, getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
   const [data, setData] = useState<any>();
-  const [sidebarState, setSidebarState] = useState<SidebarState>("hide");
+  const [sidebarState, setSidebarState] = useState(true);
   const [sidebarContent, setSidebarContent] = useState<any>("");
   const [addPostMode, setAddPostMode] = useState(false);
   const [postId, setPostId] = useState<number>();
@@ -54,7 +52,6 @@ const ExplorePage = () => {
 
   const resetSidebar = () => {
     setSidebarContent("");
-    setSidebarState("hide");
     setAddPostMode(false);
     setLngLat(undefined);
     setInitLngLat(undefined);
@@ -68,15 +65,14 @@ const ExplorePage = () => {
     setPostId(undefined);
     if (addPostMode) {
       setSidebarContent("");
-      setSidebarState("hide");
     } else {
-      setSidebarState("expand");
+      setSidebarState(true);
     }
     setAddPostMode(!addPostMode);
   };
 
   const editPostForm = (postId: number, lngLat: LngLat) => {
-    setSidebarState("expand");
+    setSidebarState(true);
     setAddPostMode(true);
     setPostId(postId);
     setInitLngLat(lngLat);
@@ -90,13 +86,7 @@ const ExplorePage = () => {
         editPostHandler={editPostForm}
       />
     );
-    setSidebarState("expand");
-  };
-
-  const mapClickHandler = (e: any) => {
-    if (addPostMode) return;
-    setSidebarContent("");
-    setSidebarState("hide");
+    setSidebarState(true);
   };
 
   useEffect(() => {
@@ -153,11 +143,7 @@ const ExplorePage = () => {
           searchHandler={searchHandler}
         />
         {data && !addPostMode && (
-          <MapLibre
-            data={data}
-            pointClickHandler={pointClickHandler}
-            mapClickHandler={mapClickHandler}
-          />
+          <MapLibre data={data} pointClickHandler={pointClickHandler} />
         )}
         {addPostMode && (
           <MapLibreAddMarker
@@ -167,7 +153,7 @@ const ExplorePage = () => {
         )}
         <Sidebar
           show={sidebarState}
-          showHandler={(state: SidebarState) => setSidebarState(state)}
+          showHandler={(state) => setSidebarState(state)}
           content={
             addPostMode ? (
               <PostForm

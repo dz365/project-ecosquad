@@ -9,29 +9,20 @@ import { IconSymbols } from "./MapSymbols";
 type MapLibre = {
   data: any;
   pointClickHandler: (e: any) => void;
-  mapClickHandler: (e: any) => void;
 };
 
-const MapLibre: React.FC<MapLibre> = ({
-  data,
-  pointClickHandler,
-  mapClickHandler,
-}) => {
+const MapLibre: React.FC<MapLibre> = ({ data, pointClickHandler }) => {
   const mapContainer = useRef(null);
-  const mapRef = useRef<Map>();
+  const [map, setMap] = useState<Map>();
   const { getAccessTokenSilently } = useAuth0();
 
   useEffect(() => {
-    if (mapRef.current) return;
-
     const map = new maplibreGl.Map({
       container: mapContainer.current!,
       style: `https://api.maptiler.com/maps/outdoor-v2/style.json?key=${process.env.REACT_APP_MAP_TILER_KEY}`,
       center: [-79.3832, 43.6532],
-      zoom: 0,
+      zoom: 15,
     });
-
-    mapRef.current = map;
 
     map.on("load", () => {
       map.dragRotate.disable();
@@ -41,7 +32,7 @@ const MapLibre: React.FC<MapLibre> = ({
       // Add a new source from our GeoJSON data and
       // set the 'cluster' option to true. GL-JS will
       // add the point_count property to your source data.
-      map.addSource("earthquakes", {
+      map.addSource("data", {
         type: "geojson",
         data: data,
         cluster: true,
@@ -63,7 +54,7 @@ const MapLibre: React.FC<MapLibre> = ({
         map.addLayer({
           id: "unclustered-point",
           type: "symbol",
-          source: "earthquakes",
+          source: "data",
           minzoom: 0,
           filter: ["!", ["has", "point_count"]],
           layout: {
@@ -92,7 +83,7 @@ const MapLibre: React.FC<MapLibre> = ({
       map.addLayer({
         id: "clusters",
         type: "circle",
-        source: "earthquakes",
+        source: "data",
         filter: ["has", "point_count"],
         paint: {
           // Use step expressions (https://maplibre.org/maplibre-gl-js-docs/style-spec/#expressions-step)
@@ -124,7 +115,7 @@ const MapLibre: React.FC<MapLibre> = ({
       map.addLayer({
         id: "cluster-count",
         type: "symbol",
-        source: "earthquakes",
+        source: "data",
         filter: ["has", "point_count"],
         layout: {
           "text-field": "{point_count_abbreviated}",
@@ -138,7 +129,7 @@ const MapLibre: React.FC<MapLibre> = ({
           layers: ["clusters"],
         });
         var clusterId = features[0].properties.cluster_id;
-        const source = map.getSource("earthquakes") as GeoJSONSource;
+        const source = map.getSource("data") as GeoJSONSource;
         source.getClusterExpansionZoom(
           clusterId,
           function (err: any, zoom: any) {
@@ -162,14 +153,6 @@ const MapLibre: React.FC<MapLibre> = ({
         });
       });
 
-      // When user clicks the map not on a point, hide the info bar.
-      map.on("click", (e: any) => {
-        // Make sure click was not from a point.
-        if (!e.defaultPrevented) {
-          mapClickHandler(e);
-        }
-      });
-
       map.on("mouseenter", "clusters", () => {
         map.getCanvas().style.cursor = "pointer";
       });
@@ -186,11 +169,13 @@ const MapLibre: React.FC<MapLibre> = ({
         map.getCanvas().style.cursor = "";
       });
     });
+    setMap(map);
   }, []);
 
   useEffect(() => {
-    if (!mapRef.current || !mapRef.current.getSource("earthquakes")) return;
-    (mapRef.current!.getSource("earthquakes") as GeoJSONSource).setData(data);
+    if (map && map.getSource("data")) {
+      (map.getSource("data") as GeoJSONSource).setData(data);
+    }
   }, [data]);
 
   return (

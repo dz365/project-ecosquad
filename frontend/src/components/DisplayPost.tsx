@@ -59,17 +59,16 @@ const DisplayPost: React.FC<DisplayPost> = ({
   // display user of the post
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-center relative w-full sm:w-80 h-80">
-        {files.length > 0 &&
-          files[fileIndex].metadata.mimetype.startsWith("image/") && (
+      {files && files.length > 0 && (
+        <div className="flex items-center justify-center relative w-full sm:w-80 h-80">
+          {files[fileIndex].metadata.mimetype.startsWith("image/") && (
             <img
               src={`${process.env.REACT_APP_API_SERVER_URL}/files/${files[fileIndex].id}`}
               alt="file"
               className="w-full h-auto"
             />
           )}
-        {files.length > 0 &&
-          files[fileIndex].metadata.mimetype.startsWith("video/") && (
+          {files[fileIndex].metadata.mimetype.startsWith("video/") && (
             <video className="w-full h-auto" controls>
               <source
                 src={`${process.env.REACT_APP_API_SERVER_URL}/files/${files[fileIndex].id}`}
@@ -78,8 +77,7 @@ const DisplayPost: React.FC<DisplayPost> = ({
               Your browser doesn't support this video format.
             </video>
           )}
-        {files.length > 0 &&
-          files[fileIndex].metadata.mimetype.startsWith("audio/") && (
+          {files[fileIndex].metadata.mimetype.startsWith("audio/") && (
             <audio className="w-full h-20" controls>
               <source
                 src={`${process.env.REACT_APP_API_SERVER_URL}/files/${files[fileIndex].id}`}
@@ -88,34 +86,37 @@ const DisplayPost: React.FC<DisplayPost> = ({
               Your browser doesn't support this audio format.
             </audio>
           )}
-        <div className="absolute bottom-0 flex items-center justify-between self-center gap-2">
-          <button
-            onClick={() => {
-              setFileIndex(fileIndex - 1);
-            }}
-            className={`${
-              fileIndex <= 0 && files.length > 0 && "cursor-default opacity-25"
-            }`}
-            disabled={fileIndex <= 0 && files.length > 0}
-          >
-            <div className="bg-leftarrow bg-center bg-no-repeat w-12 h-6 sm:w-4 sm:h-10"></div>
-          </button>
-          <p className="text-gray-500">
-            {fileIndex + 1}/{files.length}
-          </p>
-          <button
-            onClick={() => {
-              setFileIndex(fileIndex + 1);
-            }}
-            className={`${
-              fileIndex >= files.length - 1 && "cursor-default opacity-25"
-            }`}
-            disabled={fileIndex >= files.length - 1}
-          >
-            <div className="bg-rightarrow bg-center bg-no-repeat w-12 h-6 sm:w-4 sm:h-10"></div>
-          </button>
+          <div className="absolute bottom-0 flex items-center justify-between self-center gap-2">
+            <button
+              onClick={() => {
+                setFileIndex(fileIndex - 1);
+              }}
+              className={`${
+                fileIndex <= 0 &&
+                files.length > 0 &&
+                "cursor-default opacity-25"
+              }`}
+              disabled={fileIndex <= 0 && files.length > 0}
+            >
+              <div className="bg-leftarrow bg-center bg-no-repeat w-12 h-6 sm:w-4 sm:h-10"></div>
+            </button>
+            <p className="text-gray-500">
+              {fileIndex + 1}/{files.length}
+            </p>
+            <button
+              onClick={() => {
+                setFileIndex(fileIndex + 1);
+              }}
+              className={`${
+                fileIndex >= files.length - 1 && "cursor-default opacity-25"
+              }`}
+              disabled={fileIndex >= files.length - 1}
+            >
+              <div className="bg-rightarrow bg-center bg-no-repeat w-12 h-6 sm:w-4 sm:h-10"></div>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
       <div className="flex flex-col gap-4">
         <LabelText text="Description" />
         <p>{description}</p>

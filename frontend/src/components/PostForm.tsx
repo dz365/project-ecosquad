@@ -5,6 +5,7 @@ import SubmitInput from "./controlled/SubmitInput";
 import { useAuth0 } from "@auth0/auth0-react";
 import { LngLat } from "maplibre-gl";
 import { createPost, getPost, updatePost } from "../service/test.service";
+import { ToastContainer, toast } from "react-toastify";
 
 type PostForm = {
   lnglat: LngLat | undefined;
@@ -55,12 +56,38 @@ const PostForm: React.FC<PostForm> = ({
 
       if (postId) {
         updatePost(token, postId, formData)
-          .then(postFormSubmitHandler)
+          .then(() => {
+            toast.success("Successfully updated post", {
+              toastId: "updated post",
+              position: "top-center",
+              autoClose: 10000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            });
+            postFormSubmitHandler();
+          })
           .catch((err) => console.log(err));
       } else {
         formData.set("userId", user!.sub!.toString());
         createPost(token, formData)
-          .then(postFormSubmitHandler)
+          .then(() => {
+            toast.success("Successfully created post", {
+              toastId: "create post",
+              position: "top-center",
+              autoClose: 10000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            });
+            postFormSubmitHandler();
+          })
           .catch((err) => console.log(err));
       }
     });
@@ -86,111 +113,114 @@ const PostForm: React.FC<PostForm> = ({
   };
 
   return (
-    <form
-      className="flex flex-col gap-4"
-      onKeyDown={preventEnterKeyAction}
-      onSubmit={onSubmitForm}
-    >
-      {postId && (
-        <p>
-          Unfortunately we don't currently support editing your post files after
-          upload. If you do wish to do so, you must create a new post.
-        </p>
-      )}
-      {!postId && (
-        <label className="flex flex-col gap-2">
-          <LabelText text="Upload Files" />
-          <FileInput
-            accept="image/*,video/*,audio/*"
-            multiple={true}
-            name="files"
-            onChangeHandler={(e) => setFiles(e.target.files)}
-          />
+    <>
+      <ToastContainer />
+      <form
+        className="flex flex-col gap-4"
+        onKeyDown={preventEnterKeyAction}
+        onSubmit={onSubmitForm}
+      >
+        {postId && (
+          <p>
+            Unfortunately we don't currently support editing your post files
+            after upload. If you do wish to do so, you must create a new post.
+          </p>
+        )}
+        {!postId && (
+          <label className="flex flex-col gap-2">
+            <LabelText text="Upload Files" />
+            <FileInput
+              accept="image/*,video/*,audio/*"
+              multiple={true}
+              name="files"
+              onChangeHandler={(e) => setFiles(e.target.files)}
+            />
 
-          {files?.length! > 0 && (
-            <div className="flex flex-col border rounded-lg p-2">
-              {Array.from(files!).map((file, i) => (
-                <span
-                  key={i + file.name}
-                  className={`text-sm text-gray-500 ${
-                    i % 2 == 1 && "text-gray-400"
-                  }`}
+            {files?.length! > 0 && (
+              <div className="flex flex-col border rounded-lg p-2">
+                {Array.from(files!).map((file, i) => (
+                  <span
+                    key={i + file.name}
+                    className={`text-sm text-gray-500 ${
+                      i % 2 == 1 && "text-gray-400"
+                    }`}
+                  >
+                    {i + 1}: {file.name}
+                  </span>
+                ))}
+              </div>
+            )}
+          </label>
+        )}
+        <label className="flex flex-col gap-2">
+          <LabelText text="Description" />
+          <TextAreaInput
+            name="description"
+            value={description}
+            onChangeHandler={setDescription}
+            required={true}
+          />
+        </label>
+        <label className="flex gap-4">
+          <LabelText text="Post Type" />
+          <select
+            name="type"
+            className="p-2 rounded-md bg-gray-100"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            required
+          >
+            <option disabled hidden value="">
+              - Select a type -
+            </option>
+            <option value="lithosphere">Lithosphere</option>
+            <option value="hydrosphere">Hydrosphere</option>
+            <option value="biosphere">Biosphere</option>
+            <option value="atmosphere">Atmosphere</option>
+            <option value="weather">Weather</option>
+            <option value="space">Space</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label className="flex flex-col gap-2">
+          <LabelText text="Post Tags" />
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag, i) => (
+                <div
+                  key={i + tag}
+                  className="flex gap-2 bg-gray-100 text-gray-600 p-2 rounded-lg"
                 >
-                  {i + 1}: {file.name}
-                </span>
+                  <span>{tag}</span>
+                  <div className="cursor-pointer" onClick={() => deleteTag(i)}>
+                    &#10005;
+                  </div>
+                </div>
               ))}
             </div>
           )}
-        </label>
-      )}
-      <label className="flex flex-col gap-2">
-        <LabelText text="Description" />
-        <TextAreaInput
-          name="description"
-          value={description}
-          onChangeHandler={setDescription}
-          required={true}
-        />
-      </label>
-      <label className="flex gap-4">
-        <LabelText text="Post Type" />
-        <select
-          name="type"
-          className="p-2 rounded-md bg-gray-100"
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          required
-        >
-          <option disabled hidden value="">
-            - Select a type -
-          </option>
-          <option value="lithosphere">Lithosphere</option>
-          <option value="hydrosphere">Hydrosphere</option>
-          <option value="biosphere">Biosphere</option>
-          <option value="atmosphere">Atmosphere</option>
-          <option value="weather">Weather</option>
-          <option value="space">Space</option>
-          <option value="other">Other</option>
-        </select>
-      </label>
-      <label className="flex flex-col gap-2">
-        <LabelText text="Post Tags" />
-        {tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag, i) => (
-              <div
-                key={i + tag}
-                className="flex gap-2 bg-gray-100 text-gray-600 p-2 rounded-lg"
-              >
-                <span>{tag}</span>
-                <div className="cursor-pointer" onClick={() => deleteTag(i)}>
-                  &#10005;
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
 
-        <div className="self-center mt-4 flex gap-2 items-center bg-gray-100 text-gray-600 p-2 rounded-lg">
-          <input
-            name="tags"
-            onKeyDown={tagInputKeyDown}
-            value={tagInputText}
-            onChange={(e) => setTagInputText(e.target.value)}
-            className="bg-gray-50 border rounded-lg p-1"
-          />
-          <span
-            className="cursor-pointer"
-            onClick={() => addNewTag(tagInputText)}
-          >
-            Enter
-          </span>
+          <div className="self-center mt-4 flex gap-2 items-center bg-gray-100 text-gray-600 p-2 rounded-lg">
+            <input
+              name="tags"
+              onKeyDown={tagInputKeyDown}
+              value={tagInputText}
+              onChange={(e) => setTagInputText(e.target.value)}
+              className="bg-gray-50 border rounded-lg p-1"
+            />
+            <span
+              className="cursor-pointer"
+              onClick={() => addNewTag(tagInputText)}
+            >
+              Enter
+            </span>
+          </div>
+        </label>
+        <div className="flex justify-center mt-16">
+          <SubmitInput text={postId ? "Update post" : "Add post"} />
         </div>
-      </label>
-      <div className="flex justify-center mt-16">
-        <SubmitInput text={postId ? "Update post" : "Add post"} />
-      </div>
-    </form>
+      </form>
+    </>
   );
 };
 
