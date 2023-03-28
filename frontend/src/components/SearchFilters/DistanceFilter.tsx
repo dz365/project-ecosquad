@@ -40,20 +40,20 @@ const DistanceFilter: React.FC<DistanceFilter> = ({
       <span className="text-green-600">Distance</span>
       <div className="flex gap-2">
         <input
-          name="lng"
-          placeholder="Longitude"
-          maxLength={8}
-          value={lng}
-          onChange={(e) => handleCoordinateChange("lng", e.target.value)}
-          required={true}
-          className="w-20 text-sm border px-1 py-px rounded-lg"
-        />
-        <input
           name="lat"
           placeholder="Latitude"
           value={lat}
           maxLength={8}
           onChange={(e) => handleCoordinateChange("lat", e.target.value)}
+          required={true}
+          className="w-20 text-sm border px-1 py-px rounded-lg"
+        />
+        <input
+          name="lng"
+          placeholder="Longitude"
+          maxLength={8}
+          value={lng}
+          onChange={(e) => handleCoordinateChange("lng", e.target.value)}
           required={true}
           className="w-20 text-sm border px-1 py-px rounded-lg"
         />

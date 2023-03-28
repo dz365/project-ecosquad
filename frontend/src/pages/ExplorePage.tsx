@@ -75,28 +75,19 @@ const ExplorePage = () => {
     setAddPostMode(!addPostMode);
   };
 
-  const editPostForm = (pointData: any) => {
+  const editPostForm = (postId: number, lngLat: LngLat) => {
     setSidebarState("expand");
     setAddPostMode(true);
-    setPostId(pointData.id);
-    const coordinates = pointData.geometry.coordinates;
-    setInitLngLat(new LngLat(coordinates[0], coordinates[1]));
+    setPostId(postId);
+    setInitLngLat(lngLat);
   };
 
   const pointClickHandler = (e: any) => {
-    let content: any = "";
-    const pointData = e.features[0];
-    if (pointData.properties.user === user?.sub) {
-      content = (
-        <button className="border" onClick={() => editPostForm(pointData)}>
-          edit
-        </button>
-      );
-    }
     setSidebarContent(
       <DisplayPost
         postId={e.features[0].id}
         userId={e.features[0].properties.user}
+        editPostHandler={editPostForm}
       />
     );
     setSidebarState("expand");
@@ -125,7 +116,7 @@ const ExplorePage = () => {
 
   useEffect(() => {
     if (!userLocation) return;
-    socket.on("new post", (postId, coordinates) => {
+    socket.on("new post", (postId: any, coordinates: any) => {
       const distanceInMeters = userLocation!.distanceTo(
         new LngLat(coordinates[0], coordinates[1])
       );
