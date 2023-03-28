@@ -95,10 +95,6 @@ const updatePost = async (
     .then((res) => res.data);
 };
 
-const searchPost = async (query: string) => {
-  return searchIndex.search(query).then((res: any) => res);
-};
-
 export {
   testAPIEndpoint,
   getUser,
@@ -107,6 +103,5 @@ export {
   createPost,
   getPost,
   getPosts,
-  searchPost,
   updatePost,
 };

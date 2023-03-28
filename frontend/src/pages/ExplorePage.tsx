@@ -15,14 +15,19 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DisplayPost from "../components/DisplayPost";
 
+const socket = io(process.env.REACT_APP_API_SERVER_URL!);
 const ExplorePage = () => {
-  const socket = io(process.env.REACT_APP_API_SERVER_URL!);
-
   const { user, getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
+
+  // Map properties
   const [data, setData] = useState<any>();
+  const [radius, setRadius] = useState<number>();
+
+  // Sidebar properties
   const [sidebarState, setSidebarState] = useState(true);
   const [sidebarContent, setSidebarContent] = useState<any>("");
+
   const [addPostMode, setAddPostMode] = useState(false);
   const [postId, setPostId] = useState<number>();
   const [initLngLat, setInitLngLat] = useState<LngLat>();
@@ -143,7 +148,12 @@ const ExplorePage = () => {
           searchHandler={searchHandler}
         />
         {data && !addPostMode && (
-          <MapLibre data={data} pointClickHandler={pointClickHandler} />
+          <MapLibre
+            data={data}
+            pointClickHandler={pointClickHandler}
+            radiusChangeHander={setRadius}
+            center={userLocation!}
+          />
         )}
         {addPostMode && (
           <MapLibreAddMarker
