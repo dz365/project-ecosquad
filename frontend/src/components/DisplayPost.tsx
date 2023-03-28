@@ -1,13 +1,13 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { LngLat } from "maplibre-gl";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { getPost } from "../service/test.service";
 import { getUser } from "../service/test.service";
 
 interface DisplayPost {
   postId: number;
   userId: string;
-  editPostHandler: (postId: number, lngLat: LngLat) => void;
 }
 
 interface LabelText {
@@ -17,11 +17,8 @@ const LabelText: React.FC<LabelText> = ({ text }) => {
   return <span className="text-xl text-green-600">{text}</span>;
 };
 
-const DisplayPost: React.FC<DisplayPost> = ({
-  postId,
-  userId,
-  editPostHandler,
-}) => {
+const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
+  const navigate = useNavigate();
   const { user, getAccessTokenSilently } = useAuth0();
   const [description, setDescription] = useState("");
   const [type, setType] = useState("");
@@ -149,7 +146,7 @@ const DisplayPost: React.FC<DisplayPost> = ({
       </div>
       {user!.sub === userId && (
         <button
-          onClick={() => editPostHandler(postId, lnglat!)}
+          onClick={() => navigate(`/posts/${postId}/edit`)}
           className="bg-blue-500 opacity-95 rounded-lg text-gray-50 px-6 py-1 self-center my-2 flex items-center gap-3"
         >
           Edit

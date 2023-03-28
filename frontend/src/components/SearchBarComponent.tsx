@@ -6,16 +6,10 @@ import DistanceFilter from "./SearchFilters/DistanceFilter";
 import TypeFilter from "./SearchFilters/TypeFilter";
 
 interface SearchComponent {
-  addPostMode: boolean;
-  addPostHandler: () => void;
   searchHandler: (e: any) => void;
 }
 
-const SearchBarComponent: React.FC<SearchComponent> = ({
-  addPostMode,
-  addPostHandler,
-  searchHandler,
-}) => {
+const SearchBarComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
@@ -48,12 +42,6 @@ const SearchBarComponent: React.FC<SearchComponent> = ({
     setDistanceFilter(undefined);
   };
 
-  const postFormButtonClick = () => {
-    setShowFilters(false);
-    resetFilters();
-    addPostHandler();
-  };
-
   return (
     <div className="fixed top-2 left-4 z-20 w-full">
       <div className="w-11/12 sm:w-96 h-12 flex items-center justify-around gap-4 bg-white rounded-lg px-4 py-2 shadow">
@@ -68,22 +56,17 @@ const SearchBarComponent: React.FC<SearchComponent> = ({
           <button>
             <div className="bg-search w-4 h-4 bg-center bg-no-repeat"></div>
           </button>
-          {!addPostMode && (
-            <button onClick={() => setShowFilters(!showFilters)}>
-              <div className="bg-vertical-dots w-4 h-4 bg-center bg-no-repeat"></div>
-            </button>
-          )}
+
+          <button onClick={() => setShowFilters(!showFilters)}>
+            <div className="bg-vertical-dots w-4 h-4 bg-center bg-no-repeat"></div>
+          </button>
         </div>
         <div className="w-px h-full border-l"></div>
         <button
-          className={`rotate-45 ${!addPostMode && "bg-green-600 p-px"}`}
+          className="rotate-45 bg-green-600"
           onClick={() => navigate("/posts/new")}
         >
-          <div
-            className={`-rotate-45 w-4 h-4 bg-center bg-no-repeat ${
-              addPostMode ? "bg-xmark-dark" : "bg-plus"
-            }`}
-          ></div>
+          <div className="-rotate-45 w-4 h-4 bg-center bg-no-repeat bg-plus"></div>
         </button>
         {showFilters && (
           <div className="absolute top-16 bg-white rounded-lg p-4 flex flex-col gap-2">

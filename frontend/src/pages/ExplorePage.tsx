@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import { getPosts, getUser } from "../service/test.service";
 import SearchBarComponent from "../components/SearchBarComponent";
 import Sidebar from "../components/SideBar";
-import PostForm from "../components/PostForm";
 import { LngLat } from "maplibre-gl";
-import MapLibreAddMarker from "../components/Maps/MapLibreAddMarker";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
@@ -28,11 +26,6 @@ const ExplorePage = () => {
   const [sidebarState, setSidebarState] = useState(true);
   const [sidebarContent, setSidebarContent] = useState<any>("");
 
-  const [addPostMode, setAddPostMode] = useState(false);
-  const [postId, setPostId] = useState<number>();
-  const [initLngLat, setInitLngLat] = useState<LngLat>();
-  const [lngLat, setLngLat] = useState<LngLat>();
-
   const [userLocation, setUserLocation] = useState<LngLat>();
 
   const updateData = () => {
@@ -51,40 +44,11 @@ const ExplorePage = () => {
     });
   };
 
-  const resetSidebar = () => {
-    setSidebarContent("");
-    setAddPostMode(false);
-    setLngLat(undefined);
-    setInitLngLat(undefined);
-    setPostId(undefined);
-    updateData();
-  };
-
-  const addPostHandler = () => {
-    setLngLat(undefined);
-    setInitLngLat(undefined);
-    setPostId(undefined);
-    if (addPostMode) {
-      setSidebarContent("");
-    } else {
-      setSidebarState(true);
-    }
-    setAddPostMode(!addPostMode);
-  };
-
-  const editPostForm = (postId: number, lngLat: LngLat) => {
-    setSidebarState(true);
-    setAddPostMode(true);
-    setPostId(postId);
-    setInitLngLat(lngLat);
-  };
-
   const pointClickHandler = (e: any) => {
     setSidebarContent(
       <DisplayPost
         postId={e.features[0].id}
         userId={e.features[0].properties.user}
-        editPostHandler={editPostForm}
       />
     );
     setSidebarState(true);
@@ -133,12 +97,8 @@ const ExplorePage = () => {
     <PageLayout>
       <>
         <ToastContainer />
-        <SearchBarComponent
-          addPostMode={addPostMode}
-          addPostHandler={addPostHandler}
-          searchHandler={searchHandler}
-        />
-        {data && !addPostMode && (
+        <SearchBarComponent searchHandler={searchHandler} />
+        {data && (
           <MapLibre
             data={data}
             pointClickHandler={pointClickHandler}
@@ -146,22 +106,10 @@ const ExplorePage = () => {
             center={userLocation!}
           />
         )}
-        {addPostMode && (
-          <MapLibreAddMarker
-            setLngLat={setLngLat}
-            initMarkerLngLat={initLngLat}
-          />
-        )}
         <Sidebar
           show={sidebarState}
           showHandler={setSidebarState}
-          content={
-            addPostMode ? (
-              <PostForm postLocation={lngLat} postId={postId} />
-            ) : (
-              sidebarContent
-            )
-          }
+          content={sidebarContent}
         />
       </>
     </PageLayout>
