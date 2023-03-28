@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DisplayPost from "../components/DisplayPost";
 
 const ExplorePage = () => {
   const socket = io(process.env.REACT_APP_API_SERVER_URL!);
@@ -92,7 +93,7 @@ const ExplorePage = () => {
         </button>
       );
     }
-    setSidebarContent(content);
+    setSidebarContent(<DisplayPost postId={e.features[0].id} userId={e.features[0].properties.user} />);
     setSidebarState("expand");
   };
 
