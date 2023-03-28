@@ -3,6 +3,9 @@ module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      colors: {
+        "blue-gray": "#f3f6fc",
+      },
       backgroundImage: {
         uparrow: "url('./assets/icons/chevron-up.svg')",
         downarrow: "url('./assets/icons/chevron-down.svg')",
@@ -10,10 +13,13 @@ module.exports = {
         rightarrow: "url('./assets/icons/chevron-right.svg')",
         plus: "url('./assets/icons/plus.svg')",
         upload: "url('./assets/icons/cloud-arrow-up.svg')",
-        menu: "url('./assets/icons/menu.svg')",
-        xmark: "url('./assets/icons/xmark.svg')",
+        menu: "url('./assets/icons/menu.png')",
+        "xmark-light": "url('./assets/icons/xmark-light.svg')",
+        "xmark-dark": "url('./assets/icons/xmark-dark.svg')",
         pencil: "url('./assets/icons/pencil.png')",
-        background: "url('./assets/background.svg')",
+        search: "url('./assets/icons/magnifying-glass.svg')",
+        logout: "url('./assets/icons/logout.svg')",
+        "vertical-dots": "url('./assets/icons/ellipsis-vertical-solid.svg')",
       },
       animation: {
         slidein: "slidein 1s forwards",

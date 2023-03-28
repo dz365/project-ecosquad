@@ -1,9 +1,4 @@
-import maplibregl, {
-  GeoJSONSource,
-  LngLat,
-  Marker,
-  NavigationControl,
-} from "maplibre-gl";
+import maplibregl, { LngLat, LngLatBounds } from "maplibre-gl";
 import maplibreGl, { Map } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 
@@ -11,42 +6,53 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 interface MapLibreAddMarker {
   setLngLat: (e: LngLat) => void;
+  initMarkerLngLat: LngLat | undefined;
 }
 
-const MapLibreAddMarker: React.FC<MapLibreAddMarker> = ({ setLngLat }) => {
+const MapLibreAddMarker: React.FC<MapLibreAddMarker> = ({
+  setLngLat,
+  initMarkerLngLat,
+}) => {
   const mapContainer = useRef(null);
-  const map = useRef<Map>();
+  const [map, setMap] = useState<Map>();
 
   useEffect(() => {
-    if (map.current) return;
-    const newMap = new maplibreGl.Map({
+    const map = new maplibreGl.Map({
       container: mapContainer.current!,
       style: `https://api.maptiler.com/maps/outdoor-v2/style.json?key=${process.env.REACT_APP_MAP_TILER_KEY}`,
-      center: [-79.3832, 43.6532],
+      center: [0, 0],
       zoom: 15,
     });
 
-    newMap.on("load", () => {
-      newMap.dragRotate.disable();
-      newMap.touchZoomRotate.disableRotation();
-      newMap.addControl(new maplibreGl.NavigationControl({}));
+    map.on("load", () => {
+      map.dragRotate.disable();
+      map.touchZoomRotate.disableRotation();
+      map.addControl(new maplibreGl.NavigationControl({}), "bottom-right");
 
       const marker = new maplibregl.Marker({
         color: "#FF0000",
         draggable: true,
       });
 
-      newMap.on("click", (e) => {
-        marker.setLngLat(e.lngLat);
-        marker.addTo(newMap);
-        setLngLat(e.lngLat);
+      map.on("click", (e) => {
+        marker.setLngLat(e.lngLat.wrap());
+        setLngLat(e.lngLat.wrap());
+        marker.addTo(map);
       });
 
-      marker.on("dragend", () => setLngLat(marker.getLngLat()));
+      marker.on("dragend", () => setLngLat(marker.getLngLat().wrap()));
+      setMap(map);
     });
 
-    map.current = newMap;
+    return () => map?.remove();
   }, []);
+
+  useEffect(() => {
+    if (initMarkerLngLat && map) {
+      map.setCenter(initMarkerLngLat);
+      map.fire("click", { lngLat: initMarkerLngLat });
+    }
+  }, [initMarkerLngLat, map]);
 
   return (
     <div className="relative overflow-hidden w-full h-full">

@@ -1,4 +1,12 @@
 import axios from "axios";
+import { MeiliSearch } from "meilisearch";
+
+const client = new MeiliSearch({
+  host: process.env.REACT_APP_MEILISEARCH_HOST!,
+  apiKey: process.env.REACT_APP_MEILISEARCH_KEY!,
+});
+
+const searchIndex = client.index("posts");
 
 const serverURL = process.env.REACT_APP_API_SERVER_URL;
 const testAPIEndpoint = async (accessToken: string) => {
@@ -15,17 +23,6 @@ const testAPIEndpoint = async (accessToken: string) => {
 const getUser = async (accessToken: string, userId: string) => {
   return axios({
     url: `${serverURL}/users/${userId}`,
-    method: "GET",
-    headers: {
-      "content-type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
-  }).then((res) => res.data);
-};
-
-const getUserAvatar = async (accessToken: string, userId: string) => {
-  return axios({
-    url: `${serverURL}/users/${userId}/avatar`,
     method: "GET",
     headers: {
       "content-type": "application/json",
@@ -68,11 +65,48 @@ const createPost = async (accessToken: string, formData: FormData) => {
     .then((res) => res.data);
 };
 
+const getPosts = async () => {
+  return searchIndex.getDocuments().then((res: any) => res);
+};
+
+const getPost = async (accessToken: string, id: number) => {
+  return axios({
+    url: `${serverURL}/posts/${id}`,
+    method: "GET",
+    headers: {
+      "content-type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  }).then((res) => res.data);
+};
+
+const updatePost = async (
+  accessToken: string,
+  postId: number,
+  formData: FormData
+) => {
+  return axios
+    .patch(`${serverURL}/posts/${postId}`, formData, {
+      headers: {
+        "content-type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+    .then((res) => res.data);
+};
+
+const searchPost = async (query: string) => {
+  return searchIndex.search(query).then((res: any) => res);
+};
+
 export {
   testAPIEndpoint,
   getUser,
-  getUserAvatar,
   createUser,
   updateUser,
   createPost,
+  getPost,
+  getPosts,
+  searchPost,
+  updatePost,
 };

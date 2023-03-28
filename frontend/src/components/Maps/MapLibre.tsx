@@ -1,12 +1,25 @@
-import maplibregl, { GeoJSONSource } from "maplibre-gl";
+import { GeoJSONSource } from "maplibre-gl";
 import maplibreGl, { Map } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { getPost } from "../../service/test.service";
+import { useAuth0 } from "@auth0/auth0-react";
+import { IconSymbols } from "./MapSymbols";
 
-const MapLibre = () => {
+type MapLibre = {
+  data: any;
+  pointClickHandler: (e: any) => void;
+  mapClickHandler: (e: any) => void;
+};
+
+const MapLibre: React.FC<MapLibre> = ({
+  data,
+  pointClickHandler,
+  mapClickHandler,
+}) => {
   const mapContainer = useRef(null);
   const mapRef = useRef<Map>();
-  const [infoBarState, setInfoBarState] = useState<"" | "show" | "hide">("");
+  const { getAccessTokenSilently } = useAuth0();
 
   useEffect(() => {
     if (mapRef.current) return;
@@ -15,23 +28,65 @@ const MapLibre = () => {
       container: mapContainer.current!,
       style: `https://api.maptiler.com/maps/outdoor-v2/style.json?key=${process.env.REACT_APP_MAP_TILER_KEY}`,
       center: [-79.3832, 43.6532],
-      zoom: 15,
+      zoom: 0,
     });
+
+    mapRef.current = map;
 
     map.on("load", () => {
       map.dragRotate.disable();
       map.touchZoomRotate.disableRotation();
-      map.addControl(new maplibreGl.NavigationControl({}));
+      map.addControl(new maplibreGl.NavigationControl({}), "bottom-right");
 
       // Add a new source from our GeoJSON data and
       // set the 'cluster' option to true. GL-JS will
       // add the point_count property to your source data.
       map.addSource("earthquakes", {
         type: "geojson",
-        data: "https://maplibre.org/maplibre-gl-js-docs/assets/earthquakes.geojson",
+        data: data,
         cluster: true,
         clusterMaxZoom: 14, // Max zoom to cluster points on
         clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
+      });
+
+      Promise.all(
+        IconSymbols.map(
+          (icons) =>
+            new Promise<void>((resolve, reject) => {
+              map.loadImage(icons.icon, (err, image: any) => {
+                map.addImage(icons.id, image);
+                resolve();
+              });
+            })
+        )
+      ).then(() => {
+        map.addLayer({
+          id: "unclustered-point",
+          type: "symbol",
+          source: "earthquakes",
+          minzoom: 0,
+          filter: ["!", ["has", "point_count"]],
+          layout: {
+            "icon-image": [
+              "match",
+              ["get", "type"],
+              "lithosphere",
+              "lithosphere",
+              "atmosphere",
+              "atmosphere",
+              "hydrosphere",
+              "hydrosphere",
+              "biosphere",
+              "biosphere",
+              "weather",
+              "weather",
+              "space",
+              "space",
+              "other",
+            ],
+            "icon-overlap": "always",
+          },
+        });
       });
 
       map.addLayer({
@@ -77,28 +132,13 @@ const MapLibre = () => {
         },
       });
 
-      map.addLayer({
-        id: "unclustered-point",
-        type: "circle",
-        source: "earthquakes",
-        filter: ["!", ["has", "point_count"]],
-        paint: {
-          "circle-color": "#11b4da",
-          "circle-radius": 8,
-          "circle-stroke-width": 1,
-          "circle-stroke-color": "#fff",
-        },
-      });
-
       // inspect a cluster on click
       map.on("click", "clusters", function (e: any) {
         var features: any = map.queryRenderedFeatures(e.point, {
           layers: ["clusters"],
         });
         var clusterId = features[0].properties.cluster_id;
-        const source: GeoJSONSource = map.getSource(
-          "earthquakes"
-        ) as GeoJSONSource;
+        const source = map.getSource("earthquakes") as GeoJSONSource;
         source.getClusterExpansionZoom(
           clusterId,
           function (err: any, zoom: any) {
@@ -115,14 +155,18 @@ const MapLibre = () => {
       // When user clicks a point, show the info bar.
       map.on("click", "unclustered-point", (e: any) => {
         e.preventDefault();
-        setInfoBarState("show");
+        pointClickHandler(e);
+        const id = e.features[0].id;
+        getAccessTokenSilently().then((token) => {
+          getPost(token, id).then((res) => {});
+        });
       });
 
       // When user clicks the map not on a point, hide the info bar.
       map.on("click", (e: any) => {
         // Make sure click was not from a point.
         if (!e.defaultPrevented) {
-          setInfoBarState("hide");
+          mapClickHandler(e);
         }
       });
 
@@ -142,35 +186,16 @@ const MapLibre = () => {
         map.getCanvas().style.cursor = "";
       });
     });
-
-    mapRef.current = map;
   }, []);
+
+  useEffect(() => {
+    if (!mapRef.current || !mapRef.current.getSource("earthquakes")) return;
+    (mapRef.current!.getSource("earthquakes") as GeoJSONSource).setData(data);
+  }, [data]);
 
   return (
     <div className="relative overflow-hidden w-full h-full">
       <div ref={mapContainer} className="h-full"></div>
-      <div
-        className={`fixed z-10 w-full h-4/6 top-full md:top-0 md:-left-96 md:w-96 md:h-screen bg-white ${
-          infoBarState === "show" && "animate-slideup md:animate-slidein"
-        } ${
-          infoBarState === "hide" && "animate-slidedown md:animate-slideout"
-        }`}
-      >
-        <button
-          className="absolute -top-8 right-[calc(50%-32px)] md:top-[calc(50%-32px)] md:-right-8 w-16 h-16 bg-white rounded-full text-right"
-          onClick={() => {
-            setInfoBarState(infoBarState === "show" ? "hide" : "show");
-          }}
-        >
-          <div
-            className={`m-auto mb-6 md:mb-0 md:ml-6 w-8 h-8 bg-contain bg-center bg-no-repeat ${
-              infoBarState === "show"
-                ? "bg-downarrow md:bg-leftarrow"
-                : "bg-uparrow md:bg-rightarrow"
-            }`}
-          ></div>
-        </button>
-      </div>
     </div>
   );
 };

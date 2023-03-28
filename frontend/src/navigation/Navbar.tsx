@@ -3,17 +3,27 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import SignOutButton from "./SignoutButton";
 
-const Navbar = () => {
+interface Navbar {
+  iconSize?: "sm" | "md" | "lg";
+}
+const Navbar: React.FC<Navbar> = ({ iconSize = "md" }) => {
+  const sizes = {
+    sm: "w-5 h-5",
+    md: "w-8 h-8",
+    lg: "w-10 h-10",
+  };
+
   const [menuState, setMenuState] = useState<"" | "show" | "hide">("");
 
   const { isAuthenticated } = useAuth0();
 
   return (
     <>
-      <button
-        className="fixed top-4 left-4 z-20 w-8 h-8 bg-menu bg-no-repeat bg-center"
-        onClick={() => setMenuState("show")}
-      ></button>
+      <button onClick={() => setMenuState("show")}>
+        <div
+          className={`${sizes[iconSize]} bg-menu bg-contain bg-center bg-no-repeat`}
+        ></div>
+      </button>
       <div
         className={`fixed top-0 -left-72 w-72 z-30 h-screen bg-white ${
           menuState === "show" && "animate-slidein"
@@ -25,13 +35,12 @@ const Navbar = () => {
               <img src="/logo.png" className="w-8" />
             </div>
             <button
-              className="w-8 h-8 bg-xmark bg-no-repeat bg-center"
+              className="w-8 h-8 bg-xmark-light bg-no-repeat bg-center"
               onClick={() => setMenuState("hide")}
             ></button>
           </div>
 
           <NavLink to="/">Explore</NavLink>
-          <NavLink to="/profile">Profile</NavLink>
           <p>Credits</p>
 
           {isAuthenticated && (

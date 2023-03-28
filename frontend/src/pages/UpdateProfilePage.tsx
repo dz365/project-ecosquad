@@ -1,30 +1,35 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { LngLat } from "maplibre-gl";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ToggleSwitch from "../components/ToggleSwitch/ToggleSwitch";
+import TextAreaInput from "../components/controlled/TextareaInput";
+import TextInput from "../components/controlled/TextInput";
+import MapLibreAddMarker from "../components/Maps/MapLibreAddMarker";
+import Navbar from "../navigation/Navbar";
 import { createUser, getUser, updateUser } from "../service/test.service";
-import PageLayout from "./PageLayout";
 
 const UpdateProfilePage = () => {
   const navigate = useNavigate();
+  const [isNewUser, setIsNewUser] = useState(false);
   const [avatarURL, setAvatarURL] = useState("");
   const [name, setName] = useState("");
   const [about, setAbout] = useState("");
   const [privateProfile, setPrivateProfile] = useState(true);
-
+  const [initLngLat, setInitLngLat] = useState<LngLat>();
+  const [lngLat, setLngLat] = useState<LngLat>();
   const { user, getAccessTokenSilently } = useAuth0();
-
-  const togglePrivateProfile = () => {
-    setPrivateProfile(!privateProfile);
-  };
 
   useEffect(() => {
     getAccessTokenSilently().then((token) => {
-      getUser(token, user!.sub!).then((res) => {
-        setName(res.name);
-        setAbout(res.about);
-        setPrivateProfile(res.privateProfile);
-      });
+      getUser(token, user!.sub!)
+        .then((res) => {
+          setName(res.name);
+          setAbout(res.about);
+          const coordinates = res.geometry.coordinates;
+          setInitLngLat(new LngLat(coordinates[0], coordinates[1]));
+          setPrivateProfile(res.privateProfile);
+        })
+        .catch(() => setIsNewUser(true));
     });
   }, [user?.sub]);
 
@@ -38,101 +43,102 @@ const UpdateProfilePage = () => {
   const onSubmit = (e: any) => {
     e.preventDefault();
 
+    if (!lngLat) return;
+
     getAccessTokenSilently().then((token) => {
       const formData = new FormData(e.target);
-
-      formData.append("email", user!.email!);
+      formData.set("id", user!.sub!);
+      formData.set("email", user!.email!);
       formData.set("privateProfile", privateProfile.toString());
+      formData.set("coordinates", JSON.stringify(lngLat.toArray()));
 
-      getUser(token, user!.sub!)
+      (isNewUser
+        ? createUser(token, formData)
+        : updateUser(token, formData, user!.sub!)
+      )
         .then(() => {
-          updateUser(token, formData, user!.sub!);
-        })
-        .catch(() => {
-          formData.append("id", user!.sub!);
-          createUser(token, formData);
-        })
-        .finally(() => {
           navigate("/");
-        });
+        })
+        .catch(() => {});
     });
   };
 
   return (
-    <PageLayout>
-      <div className="bg-green-100 min-h-screen pt-8 flex items-center justify-center bg-background bg-center">
+    <div className="min-h-screen">
+      <div className="z-50 fixed top-4 left-4">
+        <Navbar />
+      </div>
+      <div className="bg-blue-gray min-h-screen pt-8 flex items-center justify-center bg-center">
         <form
           onSubmit={onSubmit}
           className="flex flex-col gap-8 rounded-lg bg-white p-8 drop-shadow-lg"
         >
-          <div className="text-2xl text-green-600 self-center">
-            Update Profile
-          </div>
-          <label className="px-14 relative place-self-center cursor-pointer flex flex-col items-center">
-            <img
-              src={
-                avatarURL === ""
-                  ? `${process.env.REACT_APP_API_SERVER_URL}/users/${user!
-                      .sub!}/avatar`
-                  : avatarURL
-              }
-              alt="avatar"
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null; // prevents looping
-                currentTarget.src = "/default_avatar.svg";
-              }}
-              className="w-24 h-24 rounded-full bg-contain border"
-            />
-            <div className="absolute top-0 right-0 flex items-center gap-1">
-              <div className="w-4 h-4 bg-pencil bg-cover opacity-75"></div>
-              <div className="text-xs text-gray-700">edit</div>
+          <div className="flex flex-col md:flex-row gap-8 items-center">
+            <div className="flex flex-col gap-4">
+              <div className="text-2xl text-green-600 self-center">
+                Update Profile
+              </div>
+              <label className="px-14 relative place-self-center cursor-pointer flex flex-col items-center">
+                <img
+                  src={
+                    avatarURL === ""
+                      ? `${process.env.REACT_APP_API_SERVER_URL}/users/${user!
+                          .sub!}/avatar`
+                      : avatarURL
+                  }
+                  alt="avatar"
+                  onError={({ currentTarget }) => {
+                    currentTarget.onerror = null; // prevents looping
+                    currentTarget.src = "/default_avatar.png";
+                  }}
+                  className="w-24 h-24 rounded-full bg-contain border"
+                />
+                <div className="absolute top-0 right-0 flex items-center gap-1">
+                  <div className="w-4 h-4 bg-pencil bg-cover opacity-75"></div>
+                  <div className="text-xs text-gray-700">edit</div>
+                </div>
+
+                <input
+                  type="file"
+                  name="avatar"
+                  onChange={onAvatarUpdate}
+                  className="hidden"
+                />
+              </label>
+              <label className="flex flex-col">
+                <span className="text-green-900">Name</span>
+                <TextInput
+                  name="name"
+                  value={name}
+                  onChangeHandler={setName}
+                  required={true}
+                />
+              </label>
+              <label className="flex flex-col">
+                <span className="text-green-900">About</span>
+                <TextAreaInput
+                  name="about"
+                  value={about}
+                  onChangeHandler={setAbout}
+                  required={false}
+                />
+              </label>
             </div>
-
-            <input
-              type="file"
-              name="avatar"
-              onChange={onAvatarUpdate}
-              className="hidden"
-            />
-          </label>
-          <label className="flex flex-col">
-            <div className="text-green-900">Name</div>
-            <input
-              type="text"
-              name="name"
-              placeholder="Enter your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="border outline-none focus:border-gray-700 text-gray-700 rounded-lg px-2 py-1"
-            />
-          </label>
-          <label className="flex flex-col">
-            <div className="text-green-900">About</div>
-            <textarea
-              name="about"
-              placeholder="Tell people who you are."
-              value={about}
-              onChange={(e) => setAbout(e.target.value)}
-              className="border outline-none focus:border-gray-700 text-gray-700 rounded-lg px-2 py-1"
-            />
-          </label>
-          <div className="flex gap-4 items-center">
-            <span className="text-green-900">Private profile</span>
-            <ToggleSwitch
-              inputName="privateProfile"
-              checked={privateProfile}
-              onChangeHandler={togglePrivateProfile}
-            />
+            <div className="w-72 h-72 md:w-96 md:h-96">
+              <MapLibreAddMarker
+                setLngLat={setLngLat}
+                initMarkerLngLat={initLngLat}
+              />
+            </div>
           </div>
-
           <input
             type="submit"
             value="Update"
-            className="py-2 px-2 rounded-lg bg-green-600 text-green-50"
+            className="self-center py-2 px-2 rounded-lg bg-green-600 text-green-50"
           />
         </form>
       </div>
-    </PageLayout>
+    </div>
   );
 };
 

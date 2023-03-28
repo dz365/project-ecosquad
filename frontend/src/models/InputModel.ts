@@ -3,4 +3,5 @@ export interface InputModel {
   placeholder?: string;
   value: any;
   onChangeHandler: (e: any) => void;
+  required: boolean;
 }

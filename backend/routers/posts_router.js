@@ -2,23 +2,34 @@ import { Router } from "express";
 import multer from "multer";
 import { Post } from "../models/posts.js";
 import { File } from "../models/files.js";
+import { validateAccessToken } from "../middleware/auth.js";
+import { searchIndex } from "../meilisearch.js";
+import { reverseGeoSearch } from "../reverseGeosearch.js";
+import { emitNewPostMessage } from "../socket.js";
 
 export const postsRouter = Router();
+//postsRouter.use(validateAccessToken);
 
 const postFiles = multer({ dest: "./posts" });
 
 // create a new post
 postsRouter.post("/", postFiles.array("files"), async (req, res) => {
   try {
+    const coordinates = JSON.parse(req.body.coordinates);
+    const longitude = coordinates[0];
+    const latitude = coordinates[1];
+    const location = await reverseGeoSearch(longitude, latitude);
+
     const post = await Post.create({
       description: req.body.description,
       geometry: {
         type: "Point",
-        coordinates: JSON.parse(req.body.coordinates),
+        coordinates: coordinates,
       },
       type: req.body.type,
       tags: JSON.parse(req.body.tags),
       UserId: req.body.userId,
+      location: location,
     });
 
     let fileMetadatas = [];
@@ -43,6 +54,27 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
       });
     }
 
+    const newSearchDoc = {
+      id: post.id,
+      _geo: {
+        lat: latitude,
+        lng: longitude,
+      },
+      type: "Feature",
+      geometry: post.geometry,
+      properties: {
+        user: post.UserId,
+        description: post.description,
+        type: post.type,
+        tags: post.tags,
+        location: location,
+      },
+    };
+
+    await searchIndex.addDocuments([newSearchDoc]);
+
+    emitNewPostMessage(post.id, post.geometry.coordinates);
+
     return res.json({ post, fileIds });
   } catch (e) {
     return res.status(422).json({ error: "Post creation failed." });
@@ -51,30 +83,23 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
 
 // get a single post
 postsRouter.get("/:id", async (req, res) => {
-  const post = await Post.findByPk(req.params.id);
+  const post = await Post.findByPk(+req.params.id);
 
   if (!post) {
     return res.status(404).json({ error: "Post not found." });
   }
 
   const files = await File.findAll({
-    attributes: ["id"],
     where: {
       PostId: post.id,
     },
   });
 
-  let fileIds = [];
-
-  files.forEach((file) => {
-    fileIds.push(file.id);
-  });
-
-  return res.json({ post, fileIds });
+  return res.json({ post, files });
 });
 
 // update a specific post
-postsRouter.patch("/:id", postFiles.array("files"), async (req, res) => {
+postsRouter.patch("/:id", async (req, res) => {
   const post = await Post.findByPk(req.params.id);
   const description = req.body.description;
   const coordinates = req.body.coordinates
@@ -82,10 +107,6 @@ postsRouter.patch("/:id", postFiles.array("files"), async (req, res) => {
     : null;
   const type = req.body.type;
   const tags = req.body.tags ? JSON.parse(req.body.tags) : null;
-  const deletedFileIds = req.body.deletedFiles
-    ? JSON.parse(req.body.deletedFiles)
-    : null;
-  const addedFileMetadatas = req.files;
   const update = {};
 
   if (!post) {
@@ -97,25 +118,7 @@ postsRouter.patch("/:id", postFiles.array("files"), async (req, res) => {
   if (tags) update.tags = tags;
   if (coordinates) {
     update.geometry = { type: "Point", coordinates: coordinates };
-  }
-
-  if (deletedFileIds) {
-    await File.destroy({
-      where: {
-        id: deletedFileIds,
-        PostId: post.id,
-      },
-    });
-  }
-
-  if (addedFileMetadatas) {
-    let fileMetadatas = [];
-
-    addedFileMetadatas.forEach((file) => {
-      fileMetadatas.push({ metadata: file, PostId: post.id });
-    });
-
-    await File.bulkCreate(fileMetadatas);
+    update.location = await reverseGeoSearch(longitude, latitude);
   }
 
   const files = await File.findAll({
@@ -125,7 +128,7 @@ postsRouter.patch("/:id", postFiles.array("files"), async (req, res) => {
     },
   });
 
-  let fileIds = [];
+  const fileIds = [];
 
   files.forEach((file) => {
     fileIds.push(file.id);
@@ -133,6 +136,27 @@ postsRouter.patch("/:id", postFiles.array("files"), async (req, res) => {
 
   await post.update(update);
   await post.reload();
+
+  const updateSearchDoc = {
+    id: post.id,
+    _geo: {
+      lat: post.geometry.coordinates[0],
+      lng: post.geometry.coordinates[1],
+    },
+    geometry: post.geometry,
+    properties: {
+      user: post.UserId,
+      description: post.description,
+      type: post.type,
+      tags: post.tags,
+      location: await reverseGeoSearch(
+        post.geometry.coordinates[0],
+        post.geometry.coordinates[1]
+      ),
+    },
+  };
+
+  await searchIndex.updateDocuments([updateSearchDoc]);
   return res.json({ post, fileIds });
 });
 
@@ -146,6 +170,7 @@ postsRouter.delete("/:id", async (req, res) => {
         PostId: post.id,
       },
     });
+    await searchIndex.deleteDocument(post.id);
     await post.destroy();
   } else {
     return res.status(404).json({ error: "Post not found" });

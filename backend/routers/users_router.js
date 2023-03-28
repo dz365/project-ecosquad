@@ -4,10 +4,10 @@ import { Follow } from "../models/follows.js";
 import multer from "multer";
 import path from "path";
 import { validateAccessToken } from "../middleware/auth.js";
-
+import { reverseGeoSearch } from "../reverseGeosearch.js";
 export const usersRouter = Router();
 
-const avatar = multer({ dest: "./pictures/avatars/" });
+const avatar = multer({ dest: "./avatars/" });
 
 // create a new user
 usersRouter.post(
@@ -16,6 +16,11 @@ usersRouter.post(
   avatar.single("avatar"),
   async (req, res) => {
     try {
+      const coordinates = JSON.parse(req.body.coordinates);
+      const longitude = coordinates[0];
+      const latitude = coordinates[1];
+      const location = await reverseGeoSearch(longitude, latitude);
+
       const user = await User.create({
         id: req.body.id,
         name: req.body.name,
@@ -23,6 +28,11 @@ usersRouter.post(
         avatarMetadata: req.file,
         about: req.body.about,
         privateProfile: req.body.privateProfile,
+        geometry: {
+          type: "Point",
+          coordinates: JSON.parse(req.body.coordinates),
+        },
+        location: location,
       });
       return res.json(user);
     } catch (e) {
@@ -51,7 +61,10 @@ usersRouter.get("/:id/avatar", async (req, res) => {
   }
 
   if (!user.avatarMetadata) {
-    return res.status(404).json({ error: "User does not have an avatar" });
+    const imgPath = "./avatars/default.png";
+    res.setHeader("Content-Type", "image/png");
+    res.sendFile(imgPath, { root: path.resolve() });
+    return;
   }
   res.setHeader("Content-Type", user.avatarMetadata.mimetype);
   res.sendFile(user.avatarMetadata.path, { root: path.resolve() });
@@ -68,6 +81,10 @@ usersRouter.patch(
     const avatarMetadata = req.file;
     const about = req.body.about;
     const privateProfile = req.body.privateProfile;
+    const coordinates = req.body.coordinates
+      ? JSON.parse(req.body.coordinates)
+      : null;
+
     const update = {};
 
     if (!user) {
@@ -78,6 +95,18 @@ usersRouter.patch(
     if (avatarMetadata) update.avatarMetadata = avatarMetadata;
     if (about) update.about = about;
     if (privateProfile) update.privateProfile = privateProfile;
+
+    if (coordinates) {
+      const longitude = coordinates[0];
+      const latitude = coordinates[1];
+      const location = await reverseGeoSearch(longitude, latitude);
+
+      update.geometry = {
+        type: "Point",
+        coordinates: coordinates,
+      };
+      update.location = location;
+    }
 
     await user.update(update);
     await user.reload();
