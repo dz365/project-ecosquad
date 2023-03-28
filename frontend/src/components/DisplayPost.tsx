@@ -1,4 +1,5 @@
 import { useAuth0 } from "@auth0/auth0-react";
+import { LngLat } from "maplibre-gl";
 import { useEffect, useState } from "react";
 import { getPost } from "../service/test.service";
 import { getUser } from "../service/test.service";
@@ -6,6 +7,7 @@ import { getUser } from "../service/test.service";
 interface DisplayPost {
   postId: number;
   userId: string;
+  editPostHandler: (postId: number, lngLat: LngLat) => void;
 }
 
 interface LabelText {
@@ -15,7 +17,11 @@ const LabelText: React.FC<LabelText> = ({ text }) => {
   return <span className="text-xl text-green-600">{text}</span>;
 };
 
-const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
+const DisplayPost: React.FC<DisplayPost> = ({
+  postId,
+  userId,
+  editPostHandler,
+}) => {
   const { user, getAccessTokenSilently } = useAuth0();
   const [description, setDescription] = useState("");
   const [type, setType] = useState("");
@@ -25,6 +31,7 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
   const [location, setLocation] = useState("");
   const [files, setFiles] = useState<any>([]);
   const [fileIndex, setFileIndex] = useState(0);
+  const [lnglat, setLngLat] = useState<LngLat>();
 
   useEffect(() => {
     getAccessTokenSilently().then((token) => {
@@ -34,6 +41,8 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
         setTags(res.post.tags);
         setLocation(res.post.location);
         setFiles(res.files);
+        const coordinates = res.post.geometry.coordinates;
+        setLngLat(new LngLat(coordinates[0], coordinates[1]));
         console.log(res);
       });
       getUser(token, userId).then((res) => {
@@ -84,8 +93,8 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
             onClick={() => {
               setFileIndex(fileIndex - 1);
             }}
-            className={`cursor-pointer ${
-              fileIndex <= 0 && files.length > 0 && "cursor-default opacity-0"
+            className={`${
+              fileIndex <= 0 && files.length > 0 && "cursor-default opacity-25"
             }`}
             disabled={fileIndex <= 0 && files.length > 0}
           >
@@ -98,8 +107,8 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
             onClick={() => {
               setFileIndex(fileIndex + 1);
             }}
-            className={`cursor-pointer ${
-              fileIndex >= files.length - 1 && "cursor-default opacity-0"
+            className={`${
+              fileIndex >= files.length - 1 && "cursor-default opacity-25"
             }`}
             disabled={fileIndex >= files.length - 1}
           >
@@ -137,6 +146,14 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
           <p className="text-gray-500 text-sm font-light">{email}</p>
         </div>
       </div>
+      {user!.sub === userId && (
+        <button
+          onClick={() => editPostHandler(postId, lnglat!)}
+          className="bg-blue-500 opacity-95 rounded-lg text-gray-50 px-6 py-1 self-center my-2 flex items-center gap-3"
+        >
+          Edit
+        </button>
+      )}
     </div>
   );
 };

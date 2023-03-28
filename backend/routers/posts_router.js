@@ -118,7 +118,7 @@ postsRouter.patch("/:id", async (req, res) => {
   if (tags) update.tags = tags;
   if (coordinates) {
     update.geometry = { type: "Point", coordinates: coordinates };
-    update.location = await reverseGeoSearch(longitude, latitude);
+    update.location = await reverseGeoSearch(coordinates[0], coordinates[1]);
   }
 
   const files = await File.findAll({
@@ -140,8 +140,8 @@ postsRouter.patch("/:id", async (req, res) => {
   const updateSearchDoc = {
     id: post.id,
     _geo: {
-      lat: post.geometry.coordinates[0],
-      lng: post.geometry.coordinates[1],
+      lng: post.geometry.coordinates[0],
+      lat: post.geometry.coordinates[1],
     },
     geometry: post.geometry,
     properties: {

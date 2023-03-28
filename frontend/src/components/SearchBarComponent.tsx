@@ -34,6 +34,7 @@ const SearchBarComponent: React.FC<SearchComponent> = ({
     searchIndex
       .search(searchQuery, {
         filter: filter,
+        limit: 100,
       })
       .then((res) => searchHandler(res));
   }, [searchQuery, typeFilters, lng, lat, distanceFilter]);
