@@ -4,6 +4,7 @@ import HomePage from "./pages/HomePage";
 import NotExistingPage from "./pages/NotExistingPage";
 import EditPostPage from "./pages/EditPostPage";
 import UpdateProfilePage from "./pages/UpdateProfilePage";
+import NewPostPage from "./pages/NewPostPage";
 
 function App() {
   return (
@@ -15,11 +16,11 @@ function App() {
         element={<AuthenticationGuard component={UpdateProfilePage} />}
       />
       <Route
-        path="/post/new"
-        element={<AuthenticationGuard component={EditPostPage} />}
+        path="/posts/new"
+        element={<AuthenticationGuard component={NewPostPage} />}
       />
       <Route
-        path="/post/:id/edit"
+        path="/posts/:id/edit"
         element={<AuthenticationGuard component={EditPostPage} />}
       />
       <Route path="*" element={<NotExistingPage />} />

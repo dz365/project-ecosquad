@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import searchIndex from "../MeilisearchClient";
 import Navbar from "../navigation/Navbar";
 import DistanceFilter from "./SearchFilters/DistanceFilter";
@@ -15,6 +16,7 @@ const SearchBarComponent: React.FC<SearchComponent> = ({
   addPostHandler,
   searchHandler,
 }) => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -75,7 +77,7 @@ const SearchBarComponent: React.FC<SearchComponent> = ({
         <div className="w-px h-full border-l"></div>
         <button
           className={`rotate-45 ${!addPostMode && "bg-green-600 p-px"}`}
-          onClick={postFormButtonClick}
+          onClick={() => navigate("/posts/new")}
         >
           <div
             className={`-rotate-45 w-4 h-4 bg-center bg-no-repeat ${

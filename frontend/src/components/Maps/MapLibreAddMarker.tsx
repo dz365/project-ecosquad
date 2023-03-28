@@ -6,7 +6,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 interface MapLibreAddMarker {
   setLngLat: (e: LngLat) => void;
-  initMarkerLngLat: LngLat | undefined;
+  initMarkerLngLat?: LngLat;
 }
 
 const MapLibreAddMarker: React.FC<MapLibreAddMarker> = ({
