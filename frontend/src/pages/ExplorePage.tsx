@@ -8,12 +8,12 @@ import PostForm from "../components/PostForm";
 import { LngLat } from "maplibre-gl";
 import MapLibreAddMarker from "../components/Maps/MapLibreAddMarker";
 import { useAuth0 } from "@auth0/auth0-react";
-import ProfileCard from "../components/ProfileCard";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DisplayPost from "../components/DisplayPost";
+import PageLayout from "./PageLayout";
 
 const socket = io(process.env.REACT_APP_API_SERVER_URL!);
 const ExplorePage = () => {
@@ -31,14 +31,9 @@ const ExplorePage = () => {
   const [addPostMode, setAddPostMode] = useState(false);
   const [postId, setPostId] = useState<number>();
   const [initLngLat, setInitLngLat] = useState<LngLat>();
-  const [displayProfileCard, setDisplayProfileCard] = useState(false);
   const [lngLat, setLngLat] = useState<LngLat>();
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
-  const [userLocation, setUserLocation] = useState<LngLat>();
 
-  const resizeListener = () => {
-    setIsMobile(window.innerWidth < 640);
-  };
+  const [userLocation, setUserLocation] = useState<LngLat>();
 
   const updateData = () => {
     getPosts().then((posts) => {
@@ -48,6 +43,7 @@ const ExplorePage = () => {
       });
     });
   };
+
   const searchHandler = (searchData: any) => {
     setData({
       type: "FeatureCollection",
@@ -103,10 +99,8 @@ const ExplorePage = () => {
           const coordinates = res.geometry.coordinates;
           setUserLocation(new LngLat(coordinates[0], coordinates[1]));
         })
-        .catch(() => navigate("/updateprofile"));
+        .catch(() => navigate("/profile/update"));
     });
-    window.addEventListener("resize", resizeListener);
-    return () => window.removeEventListener("resize", resizeListener);
   }, []);
 
   useEffect(() => {
@@ -136,12 +130,9 @@ const ExplorePage = () => {
     });
   }, [userLocation]);
   return (
-    <div className="h-screen w-full">
-      <ToastContainer />
-      <div
-        className="h-screen w-full"
-        onClick={() => setDisplayProfileCard(false)}
-      >
+    <PageLayout>
+      <>
+        <ToastContainer />
         <SearchBarComponent
           addPostMode={addPostMode}
           addPostHandler={addPostHandler}
@@ -163,45 +154,17 @@ const ExplorePage = () => {
         )}
         <Sidebar
           show={sidebarState}
-          showHandler={(state) => setSidebarState(state)}
+          showHandler={setSidebarState}
           content={
             addPostMode ? (
-              <PostForm
-                lnglat={lngLat}
-                postFormSubmitHandler={resetSidebar}
-                postId={postId}
-              />
+              <PostForm postLocation={lngLat} postId={postId} />
             ) : (
               sidebarContent
             )
           }
         />
-      </div>
-
-      <button
-        className={`z-20 fixed ${
-          isMobile ? "bottom-2 left-4" : "top-2 right-4"
-        } bg-white rounded-full cursor-pointer shadow`}
-        onClick={() => setDisplayProfileCard(!displayProfileCard)}
-      >
-        <img
-          src={`${process.env.REACT_APP_API_SERVER_URL}/users/${user!
-            .sub!}/avatar`}
-          alt="avatar"
-          className="w-12 h-12 rounded-full border"
-        />
-      </button>
-
-      {displayProfileCard && (
-        <div
-          className={`z-20 fixed ${
-            isMobile ? "bottom-20 left-4" : "top-20 right-4"
-          }`}
-        >
-          <ProfileCard />
-        </div>
-      )}
-    </div>
+      </>
+    </PageLayout>
   );
 };
 

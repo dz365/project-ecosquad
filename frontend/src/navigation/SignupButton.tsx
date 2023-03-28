@@ -6,7 +6,7 @@ const SignUpButton = () => {
   const onSignUp = async () => {
     await loginWithRedirect({
       appState: {
-        returnTo: "/updateprofile",
+        returnTo: "/profile/update",
       },
       authorizationParams: {
         prompt: "login",
