@@ -93,7 +93,12 @@ const ExplorePage = () => {
         </button>
       );
     }
-    setSidebarContent(<DisplayPost postId={e.features[0].id} userId={e.features[0].properties.user} />);
+    setSidebarContent(
+      <DisplayPost
+        postId={e.features[0].id}
+        userId={e.features[0].properties.user}
+      />
+    );
     setSidebarState("expand");
   };
 
