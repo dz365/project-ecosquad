@@ -1,12 +1,14 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
 import ProfileCard from "../components/ProfileCard";
+import Navbar from "../navigation/Navbar";
 
 interface PageLayout {
+  showNavbar?: boolean;
   children: JSX.Element;
 }
 
-const PageLayout: React.FC<PageLayout> = ({ children }) => {
+const PageLayout: React.FC<PageLayout> = ({ showNavbar = true, children }) => {
   const { user } = useAuth0();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
   const [displayProfileCard, setDisplayProfileCard] = useState(false);
@@ -25,6 +27,11 @@ const PageLayout: React.FC<PageLayout> = ({ children }) => {
         className="z-10 w-full h-screen"
         onClick={() => setDisplayProfileCard(false)}
       >
+        {showNavbar && (
+          <div className="fixed top-4 left-4 z-50">
+            <Navbar />
+          </div>
+        )}
         {children}
       </div>
       <button

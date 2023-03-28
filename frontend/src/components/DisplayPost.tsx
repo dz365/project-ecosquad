@@ -28,7 +28,6 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
   const [location, setLocation] = useState("");
   const [files, setFiles] = useState<any>([]);
   const [fileIndex, setFileIndex] = useState(0);
-  const [lnglat, setLngLat] = useState<LngLat>();
 
   useEffect(() => {
     getAccessTokenSilently().then((token) => {
@@ -38,14 +37,10 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
         setTags(res.post.tags);
         setLocation(res.post.location);
         setFiles(res.files);
-        const coordinates = res.post.geometry.coordinates;
-        setLngLat(new LngLat(coordinates[0], coordinates[1]));
-        console.log(res);
       });
       getUser(token, userId).then((res) => {
         setName(res.name);
         setEmail(res.email);
-        console.log(res.id);
       });
     });
   }, [user?.sub, postId, userId]);

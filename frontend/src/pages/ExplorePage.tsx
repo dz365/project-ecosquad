@@ -94,7 +94,7 @@ const ExplorePage = () => {
     });
   }, [userLocation]);
   return (
-    <PageLayout>
+    <PageLayout showNavbar={false}>
       <>
         <ToastContainer />
         <SearchBarComponent searchHandler={searchHandler} />
