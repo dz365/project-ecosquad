@@ -6,18 +6,16 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { LngLat } from "maplibre-gl";
 import { createPost, getPost, updatePost } from "../service/test.service";
 import { ToastContainer, toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 type PostForm = {
-  lnglat: LngLat | undefined;
-  postFormSubmitHandler: () => void;
+  postLocation: LngLat | undefined;
   postId?: number;
 };
 
-const PostForm: React.FC<PostForm> = ({
-  lnglat,
-  postFormSubmitHandler,
-  postId = undefined,
-}) => {
+const PostForm: React.FC<PostForm> = ({ postLocation, postId = undefined }) => {
+  const navigate = useNavigate();
+
   const [description, setDescription] = useState("");
   const [files, setFiles] = useState<FileList>();
   const [tags, setTags] = useState<string[]>([]);
@@ -48,11 +46,11 @@ const PostForm: React.FC<PostForm> = ({
     e.preventDefault();
 
     getAccessTokenSilently().then((token) => {
-      if (!lnglat) return;
+      if (!postLocation) return;
 
       const formData = new FormData(e.target);
       formData.set("tags", JSON.stringify(tags));
-      formData.set("coordinates", JSON.stringify(lnglat.toArray()));
+      formData.set("coordinates", JSON.stringify(postLocation.toArray()));
 
       if (postId) {
         updatePost(token, postId, formData)
@@ -68,7 +66,7 @@ const PostForm: React.FC<PostForm> = ({
               progress: undefined,
               theme: "colored",
             });
-            postFormSubmitHandler();
+            navigate("/");
           })
           .catch((err) => console.log(err));
       } else {
@@ -86,7 +84,7 @@ const PostForm: React.FC<PostForm> = ({
               progress: undefined,
               theme: "colored",
             });
-            postFormSubmitHandler();
+            navigate("/");
           })
           .catch((err) => console.log(err));
       }

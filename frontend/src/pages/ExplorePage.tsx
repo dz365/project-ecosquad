@@ -1,48 +1,52 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import MapLibre from "../components/Maps/MapLibre";
-import { useEffect, useState } from "react";
-import { getPosts, getUser } from "../service/test.service";
+import { useEffect, useRef, useState } from "react";
+import { getUser } from "../service/test.service";
 import SearchBarComponent from "../components/SearchBarComponent";
 import Sidebar from "../components/SideBar";
-import PostForm from "../components/PostForm";
 import { LngLat } from "maplibre-gl";
-import MapLibreAddMarker from "../components/Maps/MapLibreAddMarker";
 import { useAuth0 } from "@auth0/auth0-react";
-import ProfileCard from "../components/ProfileCard";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DisplayPost from "../components/DisplayPost";
+import PageLayout from "./PageLayout";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import { ICON_IMAGES } from "../components/Maps/MapSymbols";
 
+const settings = {
+  arrows: false,
+  dots: false,
+  infinite: false,
+  speed: 500,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  draggable: false,
+  slideClass: "flex flex-col gap-8",
+};
+
+const socket = io(process.env.REACT_APP_API_SERVER_URL!);
 const ExplorePage = () => {
-  const socket = io(process.env.REACT_APP_API_SERVER_URL!);
-
   const { user, getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
+
+  // Map properties
   const [data, setData] = useState<any>();
+  const [radius, setRadius] = useState<number>();
+
+  // Sidebar properties
+  const sliderRef = useRef<Slider>(null);
   const [sidebarState, setSidebarState] = useState(true);
-  const [sidebarContent, setSidebarContent] = useState<any>("");
-  const [addPostMode, setAddPostMode] = useState(false);
-  const [postId, setPostId] = useState<number>();
-  const [initLngLat, setInitLngLat] = useState<LngLat>();
-  const [displayProfileCard, setDisplayProfileCard] = useState(false);
-  const [lngLat, setLngLat] = useState<LngLat>();
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+
   const [userLocation, setUserLocation] = useState<LngLat>();
 
-  const resizeListener = () => {
-    setIsMobile(window.innerWidth < 640);
-  };
+  const [currentDisplay, setCurrentDisplay] = useState(0);
+  const [selectedPostId, setSelectedPostId] = useState<number>();
+  const [selectedPostUserId, setSelectedPostUserId] = useState<string>();
 
-  const updateData = () => {
-    getPosts().then((posts) => {
-      setData({
-        type: "FeatureCollection",
-        features: posts.results,
-      });
-    });
-  };
   const searchHandler = (searchData: any) => {
     setData({
       type: "FeatureCollection",
@@ -50,58 +54,30 @@ const ExplorePage = () => {
     });
   };
 
-  const resetSidebar = () => {
-    setSidebarContent("");
-    setAddPostMode(false);
-    setLngLat(undefined);
-    setInitLngLat(undefined);
-    setPostId(undefined);
-    updateData();
-  };
-
-  const addPostHandler = () => {
-    setLngLat(undefined);
-    setInitLngLat(undefined);
-    setPostId(undefined);
-    if (addPostMode) {
-      setSidebarContent("");
-    } else {
-      setSidebarState(true);
-    }
-    setAddPostMode(!addPostMode);
-  };
-
-  const editPostForm = (postId: number, lngLat: LngLat) => {
+  const displayPointData = (postId: number, postUserId: string) => {
+    setSelectedPostId(postId);
+    setSelectedPostUserId(postUserId);
+    setCurrentDisplay(1);
     setSidebarState(true);
-    setAddPostMode(true);
-    setPostId(postId);
-    setInitLngLat(lngLat);
   };
 
   const pointClickHandler = (e: any) => {
-    setSidebarContent(
-      <DisplayPost
-        postId={e.features[0].id}
-        userId={e.features[0].properties.user}
-        editPostHandler={editPostForm}
-      />
-    );
-    setSidebarState(true);
+    displayPointData(e.features[0].id, e.features[0].properties.user);
   };
 
   useEffect(() => {
-    updateData();
+    if (sliderRef.current) sliderRef.current.slickGoTo(currentDisplay);
+  }, [currentDisplay, sliderRef.current]);
 
+  useEffect(() => {
     getAccessTokenSilently().then((token) => {
       getUser(token, user!.sub!)
         .then((res) => {
           const coordinates = res.geometry.coordinates;
           setUserLocation(new LngLat(coordinates[0], coordinates[1]));
         })
-        .catch(() => navigate("/updateprofile"));
+        .catch(() => navigate("/profile/update"));
     });
-    window.addEventListener("resize", resizeListener);
-    return () => window.removeEventListener("resize", resizeListener);
   }, []);
 
   useEffect(() => {
@@ -131,67 +107,67 @@ const ExplorePage = () => {
     });
   }, [userLocation]);
   return (
-    <div className="h-screen w-full">
-      <ToastContainer />
-      <div
-        className="h-screen w-full"
-        onClick={() => setDisplayProfileCard(false)}
-      >
-        <SearchBarComponent
-          addPostMode={addPostMode}
-          addPostHandler={addPostHandler}
-          searchHandler={searchHandler}
-        />
-        {data && !addPostMode && (
-          <MapLibre data={data} pointClickHandler={pointClickHandler} />
-        )}
-        {addPostMode && (
-          <MapLibreAddMarker
-            setLngLat={setLngLat}
-            initMarkerLngLat={initLngLat}
+    <PageLayout showNavbar={false}>
+      <>
+        <ToastContainer />
+        <SearchBarComponent searchHandler={searchHandler} />
+        {data && (
+          <MapLibre
+            data={data}
+            pointClickHandler={pointClickHandler}
+            radiusChangeHander={setRadius}
+            center={userLocation!}
           />
         )}
         <Sidebar
           show={sidebarState}
-          showHandler={(state) => setSidebarState(state)}
+          showHandler={setSidebarState}
           content={
-            addPostMode ? (
-              <PostForm
-                lnglat={lngLat}
-                postFormSubmitHandler={resetSidebar}
-                postId={postId}
-              />
-            ) : (
-              sidebarContent
-            )
+            <Slider ref={sliderRef} {...settings}>
+              <div>
+                {data &&
+                  data.features &&
+                  data.features.map((post: any, i: number) => (
+                    <div
+                      className={`flex items-center gap-2 w-full h-8 py-8 px-2 ${
+                        i % 2 == 0 && "bg-gray-50"
+                      }`}
+                      onClick={() =>
+                        displayPointData(post.id, post.properties.user)
+                      }
+                    >
+                      <img
+                        src={ICON_IMAGES[post.properties.type]}
+                        className="w-8 h-8"
+                      />
+                      <p className="w-8/12 grow truncate whitespace-nowrap text-gray-600">
+                        {post.properties.description}
+                      </p>
+                      <button>
+                        <div className="w-4 h-4 bg-rightarrow bg-no-repeat bg-contain bg-center opacity-50"></div>
+                      </button>
+                    </div>
+                  ))}
+              </div>
+              <div>
+                <div className="flex flex-col gap-2">
+                  <a
+                    className="cursor-pointer text-sm text-gray-500"
+                    onClick={() => setCurrentDisplay(0)}
+                  >
+                    &#60; view posts
+                  </a>
+                  <DisplayPost
+                    postId={selectedPostId ?? -1}
+                    userId={selectedPostUserId ?? ""}
+                  />
+                </div>
+              </div>
+            </Slider>
           }
         />
-      </div>
-
-      <button
-        className={`z-20 fixed ${
-          isMobile ? "bottom-2 left-4" : "top-2 right-4"
-        } bg-white rounded-full cursor-pointer shadow`}
-        onClick={() => setDisplayProfileCard(!displayProfileCard)}
-      >
-        <img
-          src={`${process.env.REACT_APP_API_SERVER_URL}/users/${user!
-            .sub!}/avatar`}
-          alt="avatar"
-          className="w-12 h-12 rounded-full border"
-        />
-      </button>
-
-      {displayProfileCard && (
-        <div
-          className={`z-20 fixed ${
-            isMobile ? "bottom-20 left-4" : "top-20 right-4"
-          }`}
-        >
-          <ProfileCard />
-        </div>
-      )}
-    </div>
+      </>
+    </PageLayout>
   );
 };
 

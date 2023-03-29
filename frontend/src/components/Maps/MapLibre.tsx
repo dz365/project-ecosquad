@@ -1,4 +1,4 @@
-import { GeoJSONSource } from "maplibre-gl";
+import { GeoJSONSource, LngLatLike } from "maplibre-gl";
 import maplibreGl, { Map } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -8,10 +8,17 @@ import { IconSymbols } from "./MapSymbols";
 
 type MapLibre = {
   data: any;
+  center: LngLatLike;
+  radiusChangeHander: (radius: number) => void;
   pointClickHandler: (e: any) => void;
 };
 
-const MapLibre: React.FC<MapLibre> = ({ data, pointClickHandler }) => {
+const MapLibre: React.FC<MapLibre> = ({
+  data,
+  center,
+  radiusChangeHander,
+  pointClickHandler,
+}) => {
   const mapContainer = useRef(null);
   const [map, setMap] = useState<Map>();
   const { getAccessTokenSilently } = useAuth0();
@@ -20,8 +27,7 @@ const MapLibre: React.FC<MapLibre> = ({ data, pointClickHandler }) => {
     const map = new maplibreGl.Map({
       container: mapContainer.current!,
       style: `https://api.maptiler.com/maps/outdoor-v2/style.json?key=${process.env.REACT_APP_MAP_TILER_KEY}`,
-      center: [-79.3832, 43.6532],
-      zoom: 15,
+      zoom: 12,
     });
 
     map.on("load", () => {
@@ -153,6 +159,12 @@ const MapLibre: React.FC<MapLibre> = ({ data, pointClickHandler }) => {
         });
       });
 
+      map.on("zoom", () => {
+        const bounds = map.getBounds();
+        const center = map.getCenter();
+        radiusChangeHander(center.distanceTo(bounds.getNorthEast()));
+      });
+
       map.on("mouseenter", "clusters", () => {
         map.getCanvas().style.cursor = "pointer";
       });
@@ -176,7 +188,13 @@ const MapLibre: React.FC<MapLibre> = ({ data, pointClickHandler }) => {
     if (map && map.getSource("data")) {
       (map.getSource("data") as GeoJSONSource).setData(data);
     }
-  }, [data]);
+  }, [data, map]);
+
+  useEffect(() => {
+    if (center && map) {
+      map.setCenter(center);
+    }
+  }, [center, map]);
 
   return (
     <div className="relative overflow-hidden w-full h-full">

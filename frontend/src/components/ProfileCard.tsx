@@ -19,7 +19,7 @@ const ProfileCard = () => {
   }, [user?.sub]);
 
   const onEditClick = () => {
-    navigate("/updateprofile");
+    navigate("/profile/update");
   };
 
   return (
