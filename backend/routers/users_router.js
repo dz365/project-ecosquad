@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { User } from "../models/users.js";
-import { Follow } from "../models/follows.js";
 import multer from "multer";
 import path from "path";
 import { validateAccessToken } from "../middleware/auth.js";
@@ -17,9 +16,30 @@ usersRouter.post(
   async (req, res) => {
     try {
       const coordinates = JSON.parse(req.body.coordinates);
-      const longitude = coordinates[0];
-      const latitude = coordinates[1];
+      const longitude = Number(coordinates[0]);
+      const latitude = Number(coordinates[1]);
+
+      if (!Array.isArray(coordinates)) {
+        return res
+          .status(422)
+          .json({ error: "User creation failed. Invalid coordinates." });
+      } else if (coordinates.length !== 2) {
+        return res
+          .status(422)
+          .json({ error: "User creation failed. Invalid coordinates." });
+      } else if (Number.isNaN(longitude) || Number.isNaN(latitude)) {
+        return res
+          .status(422)
+          .json({ error: "User creation failed. Invalid coordinates." });
+      }
+
       const location = await reverseGeoSearch(longitude, latitude);
+
+      if (req.file !== null && !req.file.mimetype.startsWith("image/")) {
+        return res.status(422).json({
+          error: "User creation failed. Avatar file type not supported.",
+        });
+      }
 
       const user = await User.create({
         id: req.body.id,
@@ -27,7 +47,6 @@ usersRouter.post(
         email: req.body.email,
         avatarMetadata: req.file,
         about: req.body.about,
-        privateProfile: req.body.privateProfile,
         geometry: {
           type: "Point",
           coordinates: JSON.parse(req.body.coordinates),
@@ -53,6 +72,7 @@ usersRouter.get("/:id", validateAccessToken, async (req, res) => {
   return res.json(user);
 });
 
+// get a specific user's avatar
 usersRouter.get("/:id/avatar", async (req, res) => {
   const user = await User.findByPk(req.params.id);
 
@@ -67,7 +87,7 @@ usersRouter.get("/:id/avatar", async (req, res) => {
     return;
   }
   res.setHeader("Content-Type", user.avatarMetadata.mimetype);
-  res.sendFile(user.avatarMetadata.path, { root: path.resolve('/') });
+  res.sendFile(user.avatarMetadata.path, { root: path.resolve("/") });
 });
 
 // update a specific user's profile
@@ -76,11 +96,16 @@ usersRouter.patch(
   validateAccessToken,
   avatar.single("avatar"),
   async (req, res) => {
+    if (req.auth.payload.sub !== req.params.id) {
+      return res
+        .status(403)
+        .json({ error: "User profile update unauthorized." });
+    }
+
     const user = await User.findByPk(req.params.id);
     const name = req.body.name;
     const avatarMetadata = req.file;
     const about = req.body.about;
-    const privateProfile = req.body.privateProfile;
     const coordinates = req.body.coordinates
       ? JSON.parse(req.body.coordinates)
       : null;
@@ -92,20 +117,42 @@ usersRouter.patch(
     }
 
     if (name) update.name = name;
-    if (avatarMetadata) update.avatarMetadata = avatarMetadata;
     if (about) update.about = about;
-    if (privateProfile) update.privateProfile = privateProfile;
+    if (avatarMetadata) {
+      if (avatarMetadata.mimetype.startsWith("image/")) {
+        update.avatarMetadata = avatarMetadata;
+      } else {
+        return res.status(422).json({
+          error: "User update failed. Avatar file type not supported.",
+        });
+      }
+    }
 
     if (coordinates) {
-      const longitude = coordinates[0];
-      const latitude = coordinates[1];
-      const location = await reverseGeoSearch(longitude, latitude);
+      const longitude = Number(coordinates[0]);
+      const latitude = Number(coordinates[1]);
 
-      update.geometry = {
-        type: "Point",
-        coordinates: coordinates,
-      };
-      update.location = location.location;
+      if (!Array.isArray(coordinates)) {
+        return res
+          .status(422)
+          .json({ error: "Post creation failed. Invalid coordinates." });
+      } else if (coordinates.length !== 2) {
+        return res
+          .status(422)
+          .json({ error: "Post creation failed. Invalid coordinates." });
+      } else if (Number.isNaN(longitude) || Number.isNaN(latitude)) {
+        return res
+          .status(422)
+          .json({ error: "Post creation failed. Invalid coordinates." });
+      } else {
+        const location = await reverseGeoSearch(longitude, latitude);
+
+        update.geometry = {
+          type: "Point",
+          coordinates: coordinates,
+        };
+        update.location = location.location;
+      }
     }
 
     await user.update(update);
@@ -116,55 +163,16 @@ usersRouter.patch(
 
 // delete a specific user
 usersRouter.delete("/:id", validateAccessToken, async (req, res) => {
+  if (req.auth.payload.sub !== req.params.id) {
+    return res.status(403).json({ error: "User deletion unauthorized." });
+  }
+
   const user = await User.findByPk(req.params.id);
 
   if (user) {
     await user.destroy();
   } else {
     return res.status(404).json({ error: "User not found" });
-  }
-
-  return res.status(204).end();
-});
-
-// user follows another user
-usersRouter.post("/:id/follows", validateAccessToken, async (req, res) => {
-  const user = await User.findByPk(req.params.id);
-  const following = await User.findByPk(req.body.followingId);
-
-  if (user.id === following.id) {
-    return res.status(422).json({ error: "Cannot follow yourself." });
-  }
-
-  if (!user || !following) {
-    return res.status(404).json({ error: "User(s) not found." });
-  }
-
-  await Follow.findOrCreate({
-    where: {
-      UserId: req.params.id,
-      following: req.body.followingId,
-    },
-  });
-
-  return res.status(204).end();
-});
-
-// user unfollows another user
-usersRouter.post("/:id/unfollows", validateAccessToken, async (req, res) => {
-  const userId = req.params.id;
-  const followingId = req.body.followingId;
-  const follow = await Follow.findOne({
-    where: {
-      UserId: userId,
-      following: followingId,
-    },
-  });
-
-  if (follow) {
-    await follow.destroy();
-  } else {
-    return res.status(404).json({ error: "User(s) not found." });
   }
 
   return res.status(204).end();

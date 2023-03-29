@@ -3,10 +3,15 @@ import { File } from "../models/files.js";
 import path from "path";
 
 export const fileRouter = Router();
-//postsRouter.use(validateAccessToken);
 
 fileRouter.get("/:id", async (req, res) => {
-  const file = await File.findByPk(+req.params.id);
+  const id = Number(req.params.id);
+
+  if (!id) {
+    return res.status(404).json({ error: "file not found." });
+  }
+
+  const file = await File.findByPk(id);
 
   if (!file) {
     return res.status(404).json({ error: "file not found." });
