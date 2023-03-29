@@ -17,6 +17,11 @@ const LabelText: React.FC<LabelText> = ({ text }) => {
   return <span className="text-xl text-green-600">{text}</span>;
 };
 
+interface Location {
+  location: string;
+  location_en: string;
+}
+
 const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
   const navigate = useNavigate();
   const { user, getAccessTokenSilently } = useAuth0();
@@ -27,7 +32,7 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
   const [tags, setTags] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState<Location>();
   const [files, setFiles] = useState<any>([]);
   const [fileIndex, setFileIndex] = useState(0);
 
@@ -39,7 +44,10 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
           setDescription(res.post.description);
           setType(res.post.type);
           setTags(res.post.tags);
-          setLocation(res.post.location);
+          setLocation({
+            location: res.post.location,
+            location_en: res.post.location_en,
+          });
           setFiles(res.files);
         })
         .catch(() => setInvalidPostId(true));
@@ -58,12 +66,12 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
   return (
     <div className="flex flex-col gap-4">
       {files && files.length > 0 && (
-        <div className="flex items-center justify-center relative w-full sm:w-80 h-80">
+        <div className="flex flex-col items-center justify-between gap-4 relative w-full sm:w-80 h-80">
           {files[fileIndex].metadata.mimetype.startsWith("image/") && (
             <img
               src={`${process.env.REACT_APP_API_SERVER_URL}/files/${files[fileIndex].id}`}
               alt="file"
-              className="w-full h-auto"
+              className="object-contain w-full h-full"
             />
           )}
           {files[fileIndex].metadata.mimetype.startsWith("video/") && (
@@ -76,7 +84,7 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
             </video>
           )}
           {files[fileIndex].metadata.mimetype.startsWith("audio/") && (
-            <audio className="w-full h-20" controls>
+            <audio className="w-full h-20 my-20" controls>
               <source
                 src={`${process.env.REACT_APP_API_SERVER_URL}/files/${files[fileIndex].id}`}
                 type={files[fileIndex].metadata.mimetype}
@@ -84,7 +92,7 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
               Your browser doesn't support this audio format.
             </audio>
           )}
-          <div className="absolute bottom-0 flex items-center justify-between self-center gap-2">
+          <div className="flex items-center justify-between self-center gap-2">
             <button
               onClick={() => {
                 setFileIndex(fileIndex - 1);
@@ -121,7 +129,10 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
         <LabelText text="Type" />
         <p>{type}</p>
         <LabelText text="Location" />
-        <p>{location}</p>
+        <div>
+          <p>{location?.location}</p>
+          <p>{location?.location_en}</p>
+        </div>
         <LabelText text="Tags" />
         <div className="flex flex-wrap gap-2">
           {tags.map((tag, i) => (

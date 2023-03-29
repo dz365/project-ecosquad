@@ -40,7 +40,7 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
     const location = await reverseGeoSearch(longitude, latitude);
 
     if (
-      [
+      ![
         "lithosphere",
         "hydrosphere",
         "biosphere",
@@ -48,9 +48,11 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
         "weather",
         "space",
         "other",
-      ].findIndex(req.body.type) === -1
+      ].includes(req.body.type)
     ) {
-      return res.status(422).json({ error: "Post creation failed." });
+      return res
+        .status(422)
+        .json({ error: "Post creation failed. Invalid type." });
     }
 
     const post = await Post.create({
@@ -122,6 +124,7 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
 
     return res.json({ post, fileIds });
   } catch (e) {
+    console.log(e);
     return res.status(422).json({ error: "Post creation failed." });
   }
 });
@@ -174,7 +177,7 @@ postsRouter.patch("/:id", async (req, res) => {
   if (tags) update.tags = tags;
   if (type) {
     if (
-      [
+      ![
         "lithosphere",
         "hydrosphere",
         "biosphere",
@@ -182,7 +185,7 @@ postsRouter.patch("/:id", async (req, res) => {
         "weather",
         "space",
         "other",
-      ].findIndex(req.body.type) === -1
+      ].includes(req.body.type)
     ) {
       return res.status(422).json({ error: "Post creation failed." });
     } else {

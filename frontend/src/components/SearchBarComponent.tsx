@@ -64,7 +64,7 @@ const SearchBarComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
           <div className="-rotate-45 w-4 h-4 bg-center bg-no-repeat bg-plus"></div>
         </button>
         {showFilters && (
-          <div className="absolute top-16 bg-white rounded-lg p-4 flex flex-col gap-2">
+          <div className="absolute top-16 bg-blue-gray rounded-lg p-4 flex flex-col gap-2 shadow">
             <div className="flex gap-8 justify-between">
               <span className="text-blue-600">Advanced Search</span>
               <button

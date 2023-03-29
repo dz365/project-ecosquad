@@ -3,7 +3,6 @@ import { File } from "../models/files.js";
 import path from "path";
 
 export const fileRouter = Router();
-fileRouter.use(validateAccessToken);
 
 fileRouter.get("/:id", async (req, res) => {
   const id = Number(req.params.id);
