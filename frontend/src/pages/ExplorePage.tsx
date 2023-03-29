@@ -90,7 +90,6 @@ const ExplorePage = () => {
       toast.info(
         <div>
           <p>A new post has been created {distanceInKm}km away from you</p>
-          <button onClick={() => console.log("clicked")}>click here</button>
         </div>,
         {
           toastId: "new post",
