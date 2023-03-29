@@ -7,7 +7,7 @@ import { validateAccessToken } from "../middleware/auth.js";
 import { reverseGeoSearch } from "../reverseGeosearch.js";
 export const usersRouter = Router();
 
-const avatar = multer({ dest: "./avatars/" });
+const avatar = multer({ dest: "/usr/src/app/avatars" });
 
 // create a new user
 usersRouter.post(
@@ -32,7 +32,7 @@ usersRouter.post(
           type: "Point",
           coordinates: JSON.parse(req.body.coordinates),
         },
-        location: location,
+        location: location.location,
       });
       return res.json(user);
     } catch (e) {
@@ -67,7 +67,7 @@ usersRouter.get("/:id/avatar", async (req, res) => {
     return;
   }
   res.setHeader("Content-Type", user.avatarMetadata.mimetype);
-  res.sendFile(user.avatarMetadata.path, { root: path.resolve() });
+  res.sendFile(user.avatarMetadata.path, { root: path.resolve('/') });
 });
 
 // update a specific user's profile
@@ -105,7 +105,7 @@ usersRouter.patch(
         type: "Point",
         coordinates: coordinates,
       };
-      update.location = location;
+      update.location = location.location;
     }
 
     await user.update(update);

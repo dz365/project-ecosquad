@@ -21,8 +21,8 @@ services:
     ports:
       - 3001:3001
     volumes:
-      - posts:/posts
-      - avatars:/avatars
+      - posts:/usr/src/app/posts
+      - avatars:/usr/src/app/avatars
   postgres:
     restart: always
     build:
