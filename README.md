@@ -30,7 +30,7 @@ Users will also get the chance to explore what other users are sharing and if in
 | Complexity  | Points | Envisioned Usage                                                          |
 | ----------- | ------ | ------------------------------------------------------------------------- |
 | Meilisearch | 3      | Search and filter options to view posts displayed on the interactive map. |
-| SendGrid    | 2      | Periodically sending email for followed topics                            |
+| Socket.IO   | 2      | Notify users of newly created posts                                       |
 | Auth0       | 1      | Authorization and authentication purposes                                 |
 | MapLibre    | 1      | Interactive map that users can add posts and filter posts                 |
 
@@ -51,7 +51,7 @@ Currently, no bonus complexity points are planned. However, if we decide on havi
 
 - Allow users to filter and search for data points on the map using Meilisearch
 - Allow users to follow other users and topics
-- Send periodic emails for followed topics
+- Send notifications for newly created posts
 - Further styling
 
 **Final**
