@@ -1,20 +1,16 @@
 import { useEffect, useState } from "react";
-import searchIndex from "../MeilisearchClient";
+import { useNavigate } from "react-router-dom";
+import { search } from "../MeilisearchClient";
 import Navbar from "../navigation/Navbar";
 import DistanceFilter from "./SearchFilters/DistanceFilter";
 import TypeFilter from "./SearchFilters/TypeFilter";
 
 interface SearchComponent {
-  addPostMode: boolean;
-  addPostHandler: () => void;
   searchHandler: (e: any) => void;
 }
 
-const SearchBarComponent: React.FC<SearchComponent> = ({
-  addPostMode,
-  addPostHandler,
-  searchHandler,
-}) => {
+const SearchBarComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -31,12 +27,7 @@ const SearchBarComponent: React.FC<SearchComponent> = ({
       filter += `_geoRadius(${lat}, ${lng}, ${distanceFilter})`;
     }
 
-    searchIndex
-      .search(searchQuery, {
-        filter: filter,
-        limit: 100,
-      })
-      .then((res) => searchHandler(res));
+    search(searchQuery, filter).then((res) => searchHandler(res));
   }, [searchQuery, typeFilters, lng, lat, distanceFilter]);
 
   const resetFilters = () => {
@@ -44,12 +35,6 @@ const SearchBarComponent: React.FC<SearchComponent> = ({
     setLat("");
     setLng("");
     setDistanceFilter(undefined);
-  };
-
-  const postFormButtonClick = () => {
-    setShowFilters(false);
-    resetFilters();
-    addPostHandler();
   };
 
   return (
@@ -66,22 +51,17 @@ const SearchBarComponent: React.FC<SearchComponent> = ({
           <button>
             <div className="bg-search w-4 h-4 bg-center bg-no-repeat"></div>
           </button>
-          {!addPostMode && (
-            <button onClick={() => setShowFilters(!showFilters)}>
-              <div className="bg-vertical-dots w-4 h-4 bg-center bg-no-repeat"></div>
-            </button>
-          )}
+
+          <button onClick={() => setShowFilters(!showFilters)}>
+            <div className="bg-vertical-dots w-4 h-4 bg-center bg-no-repeat"></div>
+          </button>
         </div>
         <div className="w-px h-full border-l"></div>
         <button
-          className={`rotate-45 ${!addPostMode && "bg-green-600 p-px"}`}
-          onClick={postFormButtonClick}
+          className="rotate-45 bg-green-600"
+          onClick={() => navigate("/posts/new")}
         >
-          <div
-            className={`-rotate-45 w-4 h-4 bg-center bg-no-repeat ${
-              addPostMode ? "bg-xmark-dark" : "bg-plus"
-            }`}
-          ></div>
+          <div className="-rotate-45 w-4 h-4 bg-center bg-no-repeat bg-plus"></div>
         </button>
         {showFilters && (
           <div className="absolute top-16 bg-white rounded-lg p-4 flex flex-col gap-2">

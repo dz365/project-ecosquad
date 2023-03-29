@@ -36,3 +36,17 @@ export const IconSymbols = [
     id: "other",
   },
 ];
+
+interface IconImages {
+  [key: string]: string;
+}
+
+export const ICON_IMAGES: IconImages = {
+  lithosphere: Lithosphere,
+  atmosphere: Atmosphere,
+  hydrosphere: Hydrosphere,
+  biosphere: Biosphere,
+  weather: Weather,
+  space: Space,
+  other: Other,
+};

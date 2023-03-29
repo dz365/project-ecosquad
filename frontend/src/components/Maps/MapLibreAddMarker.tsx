@@ -6,7 +6,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 interface MapLibreAddMarker {
   setLngLat: (e: LngLat) => void;
-  initMarkerLngLat: LngLat | undefined;
+  initMarkerLngLat?: LngLat;
 }
 
 const MapLibreAddMarker: React.FC<MapLibreAddMarker> = ({
@@ -20,8 +20,7 @@ const MapLibreAddMarker: React.FC<MapLibreAddMarker> = ({
     const map = new maplibreGl.Map({
       container: mapContainer.current!,
       style: `https://api.maptiler.com/maps/outdoor-v2/style.json?key=${process.env.REACT_APP_MAP_TILER_KEY}`,
-      center: [0, 0],
-      zoom: 15,
+      zoom: 12,
     });
 
     map.on("load", () => {

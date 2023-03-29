@@ -10,7 +10,7 @@ import { emitNewPostMessage } from "../socket.js";
 export const postsRouter = Router();
 postsRouter.use(validateAccessToken);
 
-const postFiles = multer({ dest: "./posts" });
+const postFiles = multer({ dest: "/usr/src/app/posts" });
 
 // create a new post
 postsRouter.post("/", postFiles.array("files"), async (req, res) => {
@@ -62,7 +62,8 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
       type: req.body.type,
       tags: JSON.parse(req.body.tags),
       UserId: req.body.userId,
-      location: location,
+      location: location.location,
+      location_en: location.location_en,
     });
 
     let fileMetadatas = [];
@@ -110,7 +111,8 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
         description: post.description,
         type: post.type,
         tags: post.tags,
-        location: location,
+        location: location.location,
+        location_en: location.location_en,
       },
     };
 
@@ -187,26 +189,17 @@ postsRouter.patch("/:id", async (req, res) => {
       update.type = type;
     }
   }
+
+  let location = {
+    location: "",
+    location_en: "",
+  };
+
   if (coordinates) {
-    if (!Array.isArray(coordinates)) {
-      return res
-        .status(422)
-        .json({ error: "Post creation failed. Invalid coordinates." });
-    } else if (coordinates.length !== 2) {
-      return res
-        .status(422)
-        .json({ error: "Post creation failed. Invalid coordinates." });
-    } else if (
-      typeof coordinates[0] !== "number" ||
-      typeof coordinates[1] !== "number"
-    ) {
-      return res
-        .status(422)
-        .json({ error: "Post creation failed. Invalid coordinates." });
-    } else {
-      update.geometry = { type: "Point", coordinates: coordinates };
-      update.location = await reverseGeoSearch(coordinates[0], coordinates[1]);
-    }
+    update.geometry = { type: "Point", coordinates: coordinates };
+    location = await reverseGeoSearch(coordinates[0], coordinates[1]);
+    update.location = location.location;
+    update.location_en = location.location_en;
   }
 
   const files = await File.findAll({
@@ -237,10 +230,8 @@ postsRouter.patch("/:id", async (req, res) => {
       description: post.description,
       type: post.type,
       tags: post.tags,
-      location: await reverseGeoSearch(
-        post.geometry.coordinates[0],
-        post.geometry.coordinates[1]
-      ),
+      location: location.location,
+      location_en: location.location_en,
     },
   };
 

@@ -1,13 +1,13 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { LngLat } from "maplibre-gl";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { getPost } from "../service/test.service";
 import { getUser } from "../service/test.service";
 
 interface DisplayPost {
   postId: number;
   userId: string;
-  editPostHandler: (postId: number, lngLat: LngLat) => void;
 }
 
 interface LabelText {
@@ -17,12 +17,11 @@ const LabelText: React.FC<LabelText> = ({ text }) => {
   return <span className="text-xl text-green-600">{text}</span>;
 };
 
-const DisplayPost: React.FC<DisplayPost> = ({
-  postId,
-  userId,
-  editPostHandler,
-}) => {
+const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
+  const navigate = useNavigate();
   const { user, getAccessTokenSilently } = useAuth0();
+  const [invalidPostId, setInvalidPostId] = useState(false);
+  const [invalidUserId, setInvalidUserId] = useState(false);
   const [description, setDescription] = useState("");
   const [type, setType] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -31,32 +30,31 @@ const DisplayPost: React.FC<DisplayPost> = ({
   const [location, setLocation] = useState("");
   const [files, setFiles] = useState<any>([]);
   const [fileIndex, setFileIndex] = useState(0);
-  const [lnglat, setLngLat] = useState<LngLat>();
 
   useEffect(() => {
     getAccessTokenSilently().then((token) => {
-      getPost(token, postId).then((res) => {
-        setDescription(res.post.description);
-        setType(res.post.type);
-        setTags(res.post.tags);
-        setLocation(res.post.location);
-        setFiles(res.files);
-        const coordinates = res.post.geometry.coordinates;
-        setLngLat(new LngLat(coordinates[0], coordinates[1]));
-        console.log(res);
-      });
-      getUser(token, userId).then((res) => {
-        setName(res.name);
-        setEmail(res.email);
-        console.log(res.id);
-      });
+      getPost(token, postId)
+        .then((res) => {
+          setInvalidPostId(false);
+          setDescription(res.post.description);
+          setType(res.post.type);
+          setTags(res.post.tags);
+          setLocation(res.post.location);
+          setFiles(res.files);
+        })
+        .catch(() => setInvalidPostId(true));
+      getUser(token, userId)
+        .then((res) => {
+          setInvalidUserId(false);
+          setName(res.name);
+          setEmail(res.email);
+        })
+        .catch(() => setInvalidUserId(true));
     });
   }, [user?.sub, postId, userId]);
 
-  // depending on file type display different tag
-  // {true && <p>true</p>}
+  if (invalidPostId || invalidUserId) return <></>;
 
-  // display user of the post
   return (
     <div className="flex flex-col gap-4">
       {files && files.length > 0 && (
@@ -149,7 +147,7 @@ const DisplayPost: React.FC<DisplayPost> = ({
       </div>
       {user!.sub === userId && (
         <button
-          onClick={() => editPostHandler(postId, lnglat!)}
+          onClick={() => navigate(`/posts/${postId}/edit`)}
           className="bg-blue-500 opacity-95 rounded-lg text-gray-50 px-6 py-1 self-center my-2 flex items-center gap-3"
         >
           Edit

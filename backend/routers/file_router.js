@@ -22,5 +22,5 @@ fileRouter.get("/:id", async (req, res) => {
     return res.status(404).json({ error: "file does not have an avatar" });
   }
   res.setHeader("Content-Type", file.metadata.mimetype);
-  res.sendFile(file.metadata.path, { root: path.resolve() });
+  res.sendFile(file.metadata.path, { root: path.resolve("/") });
 });
