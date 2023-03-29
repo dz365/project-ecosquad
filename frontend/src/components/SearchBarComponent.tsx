@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import searchIndex from "../MeilisearchClient";
+import { search } from "../MeilisearchClient";
 import Navbar from "../navigation/Navbar";
 import DistanceFilter from "./SearchFilters/DistanceFilter";
 import TypeFilter from "./SearchFilters/TypeFilter";
@@ -27,12 +27,7 @@ const SearchBarComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
       filter += `_geoRadius(${lat}, ${lng}, ${distanceFilter})`;
     }
 
-    searchIndex
-      .search(searchQuery, {
-        filter: filter,
-        limit: 100,
-      })
-      .then((res) => searchHandler(res));
+    search(searchQuery, filter).then((res) => searchHandler(res));
   }, [searchQuery, typeFilters, lng, lat, distanceFilter]);
 
   const resetFilters = () => {

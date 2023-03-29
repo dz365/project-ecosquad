@@ -11,4 +11,11 @@ searchIndex.updateSettings({
   filterableAttributes: ["properties.user", "properties.type", "_geo"],
 });
 
-export default searchIndex;
+const search = async (query: string, filter: string) => {
+  return searchIndex.search(query, {
+    filter: filter,
+    limit: (await searchIndex.getStats()).numberOfDocuments,
+  });
+};
+
+export { search };

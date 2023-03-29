@@ -1,7 +1,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import MapLibre from "../components/Maps/MapLibre";
-import { useEffect, useState } from "react";
-import { getPosts, getUser } from "../service/test.service";
+import { useEffect, useRef, useState } from "react";
+import { getUser } from "../service/test.service";
 import SearchBarComponent from "../components/SearchBarComponent";
 import Sidebar from "../components/SideBar";
 import { LngLat } from "maplibre-gl";
@@ -12,6 +12,21 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DisplayPost from "../components/DisplayPost";
 import PageLayout from "./PageLayout";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import { ICON_IMAGES } from "../components/Maps/MapSymbols";
+
+const settings = {
+  arrows: false,
+  dots: false,
+  infinite: false,
+  speed: 500,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  draggable: false,
+  slideClass: "flex flex-col gap-8",
+};
 
 const socket = io(process.env.REACT_APP_API_SERVER_URL!);
 const ExplorePage = () => {
@@ -23,19 +38,14 @@ const ExplorePage = () => {
   const [radius, setRadius] = useState<number>();
 
   // Sidebar properties
+  const sliderRef = useRef<Slider>(null);
   const [sidebarState, setSidebarState] = useState(true);
-  const [sidebarContent, setSidebarContent] = useState<any>("");
 
   const [userLocation, setUserLocation] = useState<LngLat>();
 
-  const updateData = () => {
-    getPosts().then((posts) => {
-      setData({
-        type: "FeatureCollection",
-        features: posts.results,
-      });
-    });
-  };
+  const [currentDisplay, setCurrentDisplay] = useState(0);
+  const [selectedPostId, setSelectedPostId] = useState<number>();
+  const [selectedPostUserId, setSelectedPostUserId] = useState<string>();
 
   const searchHandler = (searchData: any) => {
     setData({
@@ -44,19 +54,22 @@ const ExplorePage = () => {
     });
   };
 
-  const pointClickHandler = (e: any) => {
-    setSidebarContent(
-      <DisplayPost
-        postId={e.features[0].id}
-        userId={e.features[0].properties.user}
-      />
-    );
+  const displayPointData = (postId: number, postUserId: string) => {
+    setSelectedPostId(postId);
+    setSelectedPostUserId(postUserId);
+    setCurrentDisplay(1);
     setSidebarState(true);
   };
 
-  useEffect(() => {
-    updateData();
+  const pointClickHandler = (e: any) => {
+    displayPointData(e.features[0].id, e.features[0].properties.user);
+  };
 
+  useEffect(() => {
+    if (sliderRef.current) sliderRef.current.slickGoTo(currentDisplay);
+  }, [currentDisplay, sliderRef.current]);
+
+  useEffect(() => {
     getAccessTokenSilently().then((token) => {
       getUser(token, user!.sub!)
         .then((res) => {
@@ -109,7 +122,49 @@ const ExplorePage = () => {
         <Sidebar
           show={sidebarState}
           showHandler={setSidebarState}
-          content={sidebarContent}
+          content={
+            <Slider ref={sliderRef} {...settings}>
+              <div>
+                {data &&
+                  data.features &&
+                  data.features.map((post: any, i: number) => (
+                    <div
+                      className={`flex items-center gap-2 w-full h-8 py-8 px-2 ${
+                        i % 2 == 0 && "bg-gray-50"
+                      }`}
+                      onClick={() =>
+                        displayPointData(post.id, post.properties.user)
+                      }
+                    >
+                      <img
+                        src={ICON_IMAGES[post.properties.type]}
+                        className="w-8 h-8"
+                      />
+                      <p className="w-8/12 grow truncate whitespace-nowrap text-gray-600">
+                        {post.properties.description}
+                      </p>
+                      <button>
+                        <div className="w-4 h-4 bg-rightarrow bg-no-repeat bg-contain bg-center opacity-50"></div>
+                      </button>
+                    </div>
+                  ))}
+              </div>
+              <div>
+                <div className="flex flex-col gap-2">
+                  <a
+                    className="cursor-pointer text-sm text-gray-500"
+                    onClick={() => setCurrentDisplay(0)}
+                  >
+                    &#60; view posts
+                  </a>
+                  <DisplayPost
+                    postId={selectedPostId ?? -1}
+                    userId={selectedPostUserId ?? ""}
+                  />
+                </div>
+              </div>
+            </Slider>
+          }
         />
       </>
     </PageLayout>

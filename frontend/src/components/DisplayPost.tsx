@@ -20,6 +20,8 @@ const LabelText: React.FC<LabelText> = ({ text }) => {
 const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
   const navigate = useNavigate();
   const { user, getAccessTokenSilently } = useAuth0();
+  const [invalidPostId, setInvalidPostId] = useState(false);
+  const [invalidUserId, setInvalidUserId] = useState(false);
   const [description, setDescription] = useState("");
   const [type, setType] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -31,24 +33,28 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
 
   useEffect(() => {
     getAccessTokenSilently().then((token) => {
-      getPost(token, postId).then((res) => {
-        setDescription(res.post.description);
-        setType(res.post.type);
-        setTags(res.post.tags);
-        setLocation(res.post.location);
-        setFiles(res.files);
-      });
-      getUser(token, userId).then((res) => {
-        setName(res.name);
-        setEmail(res.email);
-      });
+      getPost(token, postId)
+        .then((res) => {
+          setInvalidPostId(false);
+          setDescription(res.post.description);
+          setType(res.post.type);
+          setTags(res.post.tags);
+          setLocation(res.post.location);
+          setFiles(res.files);
+        })
+        .catch(() => setInvalidPostId(true));
+      getUser(token, userId)
+        .then((res) => {
+          setInvalidUserId(false);
+          setName(res.name);
+          setEmail(res.email);
+        })
+        .catch(() => setInvalidUserId(true));
     });
   }, [user?.sub, postId, userId]);
 
-  // depending on file type display different tag
-  // {true && <p>true</p>}
+  if (invalidPostId || invalidUserId) return <></>;
 
-  // display user of the post
   return (
     <div className="flex flex-col gap-4">
       {files && files.length > 0 && (
