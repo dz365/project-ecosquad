@@ -140,6 +140,10 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
         <img
           src={`${process.env.REACT_APP_API_SERVER_URL}/users/${userId}/avatar`}
           alt="avatar"
+          onError={({ currentTarget }) => {
+            currentTarget.onerror = null; // prevents looping
+            currentTarget.src = "/default_avatar.png";
+          }}
           className="w-12 h-12 rounded-full border"
         />
         <div className="flex flex-col">
