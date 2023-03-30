@@ -80,13 +80,10 @@ usersRouter.get("/:id/avatar", async (req, res) => {
   if (!user) {
     return res.status(404).json({ error: "User not found." });
   }
-
   if (!user.avatarMetadata) {
-    const imgPath = "./avatars/default.png";
-    res.setHeader("Content-Type", "image/png");
-    res.sendFile(imgPath, { root: path.resolve() });
-    return;
+    return res.status(404).json({ error: "User does not have an avatar" });
   }
+
   res.setHeader("Content-Type", user.avatarMetadata.mimetype);
   res.sendFile(user.avatarMetadata.path, { root: path.resolve("/") });
 });
@@ -130,30 +127,17 @@ usersRouter.patch(
     }
 
     if (coordinates) {
-      const longitude = Number(coordinates[0]);
-      const latitude = Number(coordinates[1]);
-
-      if (!Array.isArray(coordinates)) {
+      if (!validCoordinates(coordinates)) {
         return res
           .status(422)
-          .json({ error: "Post creation failed. Invalid coordinates." });
-      } else if (coordinates.length !== 2) {
-        return res
-          .status(422)
-          .json({ error: "Post creation failed. Invalid coordinates." });
-      } else if (Number.isNaN(longitude) || Number.isNaN(latitude)) {
-        return res
-          .status(422)
-          .json({ error: "Post creation failed. Invalid coordinates." });
-      } else {
-        const location = await reverseGeoSearch(longitude, latitude);
-
-        update.geometry = {
-          type: "Point",
-          coordinates: coordinates,
-        };
-        update.location = location;
+          .json({ error: "User update failed. Invalid coordinates." });
       }
+
+      update.geometry = {
+        type: "Point",
+        coordinates: coordinates,
+      };
+      update.location = await reverseGeoSearch(coordinates[0], coordinates[1]);
     }
 
     await user.update(update);
