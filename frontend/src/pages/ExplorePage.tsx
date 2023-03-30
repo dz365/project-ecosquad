@@ -40,9 +40,11 @@ const ExplorePage = () => {
   const sliderRef = useRef<Slider>(null);
   const [sidebarState, setSidebarState] = useState(true);
 
-  const [mapCenter, setMapCenter] = useState<LngLatLike>();
   const [userLocation, setUserLocation] = useState<LngLat>();
   const [currentDisplay, setCurrentDisplay] = useState(0);
+
+  const [showPostInfo, setShowPostInfo] = useState(false);
+  const [mockMapClick, setMockMapClick] = useState<LngLatLike>();
   const [selectedPostId, setSelectedPostId] = useState<number>();
   const [selectedPostUserId, setSelectedPostUserId] = useState<string>();
 
@@ -53,26 +55,32 @@ const ExplorePage = () => {
     });
   };
 
-  const displayPointData = (
-    postId: number,
-    postUserId: string,
-    coordinate: LngLatLike
-  ) => {
+  const displayPointData = (postId: number, postUserId: string) => {
     setSelectedPostId(postId);
     setSelectedPostUserId(postUserId);
-    setMapCenter(coordinate);
     setCurrentDisplay(1);
     setSidebarState(true);
   };
 
   const pointClickHandler = (e: any) => {
     const postData = e.features[0];
-    const coordinates = postData.geometry.coordinates;
-    displayPointData(postData.id, postData.properties.user, coordinates);
+    displayPointData(postData.id, postData.properties.user);
+  };
+
+  const mockPointClick = (
+    postId: number,
+    postUserId: string,
+    coordinates: LngLat
+  ) => {
+    setMockMapClick(coordinates);
+    displayPointData(postId, postUserId);
   };
 
   useEffect(() => {
-    if (sliderRef.current) sliderRef.current.slickGoTo(currentDisplay);
+    if (sliderRef.current) {
+      sliderRef.current.slickGoTo(currentDisplay);
+      setShowPostInfo(currentDisplay === 1);
+    }
   }, [currentDisplay, sliderRef.current]);
 
   useEffect(() => {
@@ -81,7 +89,6 @@ const ExplorePage = () => {
         .then((res) => {
           const coordinates = res.geometry.coordinates;
           setUserLocation(new LngLat(coordinates[0], coordinates[1]));
-          setMapCenter(coordinates);
         })
         .catch(() => navigate("/profile/update"));
     });
@@ -119,10 +126,10 @@ const ExplorePage = () => {
         <SearchBarComponent searchHandler={searchHandler} />
         {data && (
           <MapLibre
+            initialCenter={userLocation}
             data={data}
             pointClickHandler={pointClickHandler}
-            radiusChangeHander={setRadius}
-            center={mapCenter!}
+            mockMapClick={mockMapClick}
           />
         )}
         <Sidebar
@@ -135,14 +142,18 @@ const ExplorePage = () => {
                   data.features &&
                   data.features.map((post: any, i: number) => (
                     <div
+                      key={post.id}
                       className={`flex items-center gap-2 w-full h-8 py-8 px-2 ${
                         i % 2 == 0 && "bg-gray-50"
                       }`}
                       onClick={() =>
-                        displayPointData(
+                        mockPointClick(
                           post.id,
                           post.properties.user,
-                          post.geometry.coordinates
+                          new LngLat(
+                            post.geometry.coordinates[0],
+                            post.geometry.coordinates[1]
+                          )
                         )
                       }
                     >
@@ -160,18 +171,22 @@ const ExplorePage = () => {
                   ))}
               </div>
               <div>
-                <div className="flex flex-col gap-2">
-                  <a
-                    className="cursor-pointer text-sm text-gray-500"
-                    onClick={() => setCurrentDisplay(0)}
-                  >
-                    &#60; view posts
-                  </a>
-                  <DisplayPost
-                    postId={selectedPostId ?? -1}
-                    userId={selectedPostUserId ?? ""}
-                  />
-                </div>
+                {showPostInfo ? (
+                  <div className="flex flex-col gap-2">
+                    <a
+                      className="cursor-pointer text-sm text-gray-500"
+                      onClick={() => setCurrentDisplay(0)}
+                    >
+                      &#60; view posts
+                    </a>
+                    <DisplayPost
+                      postId={selectedPostId!}
+                      userId={selectedPostUserId!}
+                    />
+                  </div>
+                ) : (
+                  <></>
+                )}
               </div>
             </Slider>
           }

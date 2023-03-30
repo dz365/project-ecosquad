@@ -108,6 +108,7 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
       type: "Feature",
       geometry: post.geometry,
       properties: {
+        postId: post.id,
         user: post.UserId,
         description: post.description,
         type: post.type,
@@ -220,11 +221,12 @@ postsRouter.patch("/:id", async (req, res) => {
     },
     geometry: post.geometry,
     properties: {
+      postId: post.id,
       user: post.UserId,
       description: post.description,
       type: post.type,
       tags: post.tags,
-      location: post.location
+      location: post.location,
     },
   };
 

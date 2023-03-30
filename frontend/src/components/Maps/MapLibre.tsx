@@ -1,4 +1,4 @@
-import { GeoJSONSource, LngLatLike } from "maplibre-gl";
+import { GeoJSONSource, LngLat, LngLatLike } from "maplibre-gl";
 import maplibreGl, { Map } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -7,23 +7,21 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { IconSymbols } from "./MapSymbols";
 
 type MapLibre = {
+  initialCenter?: LngLat;
   data: any;
-  center: LngLatLike;
-
-  radiusChangeHander: (radius: number) => void;
   pointClickHandler: (e: any) => void;
+  mockMapClick?: LngLatLike;
 };
 
 const MapLibre: React.FC<MapLibre> = ({
+  initialCenter,
   data,
-  center,
-
-  radiusChangeHander,
   pointClickHandler,
+  mockMapClick,
 }) => {
   const mapContainer = useRef(null);
   const [map, setMap] = useState<Map>();
-  const { getAccessTokenSilently } = useAuth0();
+  const { user, getAccessTokenSilently } = useAuth0();
 
   useEffect(() => {
     const map = new maplibreGl.Map({
@@ -153,16 +151,11 @@ const MapLibre: React.FC<MapLibre> = ({
 
       // When user clicks a point, show the info bar.
       map.on("click", "unclustered-point", (e: any) => {
-        console.log(e);
-        pointClickHandler(e);
         map.easeTo({
           center: e.features[0].geometry.coordinates,
           zoom: 12,
         });
-        const id = e.features[0].id;
-        getAccessTokenSilently().then((token) => {
-          getPost(token, id).then((res) => {});
-        });
+        pointClickHandler(e);
       });
 
       map.on("mouseenter", "clusters", () => {
@@ -191,13 +184,22 @@ const MapLibre: React.FC<MapLibre> = ({
   }, [data, map]);
 
   useEffect(() => {
-    if (center && map) {
+    if (mockMapClick && map) {
       map.easeTo({
-        center: center,
+        center: mockMapClick,
         zoom: 12,
       });
     }
-  }, [center, map]);
+  }, [mockMapClick, map]);
+
+  useEffect(() => {
+    if (initialCenter && map) {
+      map.easeTo({
+        center: initialCenter,
+        zoom: 12,
+      });
+    }
+  }, [initialCenter, map]);
 
   return (
     <div className="relative overflow-hidden w-full h-full">
