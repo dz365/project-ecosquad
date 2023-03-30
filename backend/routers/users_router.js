@@ -8,6 +8,16 @@ export const usersRouter = Router();
 
 const avatar = multer({ dest: "/usr/src/app/avatars" });
 
+const validCoordinates = (coordinates) => {
+  return (
+    coordinates &&
+    Array.isArray(coordinates) &&
+    coordinates.length === 2 &&
+    !Number.isNaN(coordinates[0]) &&
+    !Number.isNaN(coordinates[1])
+  );
+};
+
 // create a new user
 usersRouter.post(
   "/",
@@ -15,47 +25,38 @@ usersRouter.post(
   avatar.single("avatar"),
   async (req, res) => {
     try {
-      const coordinates = JSON.parse(req.body.coordinates);
-      const longitude = Number(coordinates[0]);
-      const latitude = Number(coordinates[1]);
+      if (!req.body.name || !req.body.email || !req.body.coordinates) {
+        return res.status(422).json({ error: "Missing request parameters." });
+      }
 
-      if (!Array.isArray(coordinates)) {
-        return res
-          .status(422)
-          .json({ error: "User creation failed. Invalid coordinates." });
-      } else if (coordinates.length !== 2) {
-        return res
-          .status(422)
-          .json({ error: "User creation failed. Invalid coordinates." });
-      } else if (Number.isNaN(longitude) || Number.isNaN(latitude)) {
+      const coordinates = JSON.parse(req.body.coordinates);
+
+      if (!validCoordinates(coordinates)) {
         return res
           .status(422)
           .json({ error: "User creation failed. Invalid coordinates." });
       }
 
-      const location = await reverseGeoSearch(longitude, latitude);
-
-      if (req.file !== null && !req.file.mimetype.startsWith("image/")) {
+      if (req.file && !req.file.mimetype.startsWith("image/")) {
         return res.status(422).json({
           error: "User creation failed. Avatar file type not supported.",
         });
       }
 
       const user = await User.create({
-        id: req.body.id,
+        id: req.auth.payload.sub,
         name: req.body.name,
         email: req.body.email,
         avatarMetadata: req.file,
         about: req.body.about,
         geometry: {
           type: "Point",
-          coordinates: JSON.parse(req.body.coordinates),
+          coordinates: coordinates,
         },
-        location: location.location,
+        location: await reverseGeoSearch(coordinates[0], coordinates[1]),
       });
       return res.json(user);
     } catch (e) {
-      console.log(e);
       return res.status(422).json({ error: "User creation failed." });
     }
   }
@@ -151,7 +152,7 @@ usersRouter.patch(
           type: "Point",
           coordinates: coordinates,
         };
-        update.location = location.location;
+        update.location = location;
       }
     }
 

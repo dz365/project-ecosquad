@@ -10,8 +10,5 @@ export const reverseGeoSearch = async (longitude, latitude) => {
       feature.place_type[0] !== "address" &&
       feature.place_type[0] !== "postal_code"
   );
-  return {
-    location: location?.place_name ?? "",
-    location_en: location?.place_name_en ?? "",
-  };
+  return location?.place_name ?? "";
 };
