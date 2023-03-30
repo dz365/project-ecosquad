@@ -114,6 +114,7 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
         type: post.type,
         tags: post.tags,
         location: location,
+        createdAt: post.createdAt,
       },
     };
 
@@ -227,6 +228,7 @@ postsRouter.patch("/:id", async (req, res) => {
       type: post.type,
       tags: post.tags,
       location: post.location,
+      createdAt: post.createdAt,
     },
   };
 
