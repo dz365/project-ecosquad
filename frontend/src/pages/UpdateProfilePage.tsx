@@ -14,7 +14,6 @@ const UpdateProfilePage = () => {
   const [avatarURL, setAvatarURL] = useState("");
   const [name, setName] = useState("");
   const [about, setAbout] = useState("");
-  const [privateProfile, setPrivateProfile] = useState(true);
   const [initLngLat, setInitLngLat] = useState<LngLat>();
   const [lngLat, setLngLat] = useState<LngLat>();
   const { user, getAccessTokenSilently } = useAuth0();
@@ -27,7 +26,6 @@ const UpdateProfilePage = () => {
           setAbout(res.about);
           const coordinates = res.geometry.coordinates;
           setInitLngLat(new LngLat(coordinates[0], coordinates[1]));
-          setPrivateProfile(res.privateProfile);
         })
         .catch(() => setIsNewUser(true));
     });
@@ -49,7 +47,6 @@ const UpdateProfilePage = () => {
       const formData = new FormData(e.target);
       formData.set("id", user!.sub!);
       formData.set("email", user!.email!);
-      formData.set("privateProfile", privateProfile.toString());
       formData.set("coordinates", JSON.stringify(lngLat.toArray()));
 
       (isNewUser

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { getUser } from "../service/test.service";
 import SearchBarComponent from "../components/SearchBarComponent";
 import Sidebar from "../components/SideBar";
-import { LngLat } from "maplibre-gl";
+import { LngLat, LngLatLike } from "maplibre-gl";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
@@ -36,13 +36,12 @@ const ExplorePage = () => {
   // Map properties
   const [data, setData] = useState<any>();
   const [radius, setRadius] = useState<number>();
-
   // Sidebar properties
   const sliderRef = useRef<Slider>(null);
   const [sidebarState, setSidebarState] = useState(true);
 
+  const [mapCenter, setMapCenter] = useState<LngLatLike>();
   const [userLocation, setUserLocation] = useState<LngLat>();
-
   const [currentDisplay, setCurrentDisplay] = useState(0);
   const [selectedPostId, setSelectedPostId] = useState<number>();
   const [selectedPostUserId, setSelectedPostUserId] = useState<string>();
@@ -54,15 +53,22 @@ const ExplorePage = () => {
     });
   };
 
-  const displayPointData = (postId: number, postUserId: string) => {
+  const displayPointData = (
+    postId: number,
+    postUserId: string,
+    coordinate: LngLatLike
+  ) => {
     setSelectedPostId(postId);
     setSelectedPostUserId(postUserId);
+    setMapCenter(coordinate);
     setCurrentDisplay(1);
     setSidebarState(true);
   };
 
   const pointClickHandler = (e: any) => {
-    displayPointData(e.features[0].id, e.features[0].properties.user);
+    const postData = e.features[0];
+    const coordinates = postData.geometry.coordinates;
+    displayPointData(postData.id, postData.properties.user, coordinates);
   };
 
   useEffect(() => {
@@ -75,6 +81,7 @@ const ExplorePage = () => {
         .then((res) => {
           const coordinates = res.geometry.coordinates;
           setUserLocation(new LngLat(coordinates[0], coordinates[1]));
+          setMapCenter(coordinates);
         })
         .catch(() => navigate("/profile/update"));
     });
@@ -115,7 +122,7 @@ const ExplorePage = () => {
             data={data}
             pointClickHandler={pointClickHandler}
             radiusChangeHander={setRadius}
-            center={userLocation!}
+            center={mapCenter!}
           />
         )}
         <Sidebar
@@ -132,7 +139,11 @@ const ExplorePage = () => {
                         i % 2 == 0 && "bg-gray-50"
                       }`}
                       onClick={() =>
-                        displayPointData(post.id, post.properties.user)
+                        displayPointData(
+                          post.id,
+                          post.properties.user,
+                          post.geometry.coordinates
+                        )
                       }
                     >
                       <img

@@ -9,6 +9,7 @@ import { IconSymbols } from "./MapSymbols";
 type MapLibre = {
   data: any;
   center: LngLatLike;
+
   radiusChangeHander: (radius: number) => void;
   pointClickHandler: (e: any) => void;
 };
@@ -16,6 +17,7 @@ type MapLibre = {
 const MapLibre: React.FC<MapLibre> = ({
   data,
   center,
+
   radiusChangeHander,
   pointClickHandler,
 }) => {
@@ -26,7 +28,7 @@ const MapLibre: React.FC<MapLibre> = ({
   useEffect(() => {
     const map = new maplibreGl.Map({
       container: mapContainer.current!,
-      style: `https://api.maptiler.com/maps/outdoor-v2/style.json?key=${process.env.REACT_APP_MAP_TILER_KEY}`,
+      style: "https://demotiles.maplibre.org/style.json",
       zoom: 12,
     });
 
@@ -151,18 +153,16 @@ const MapLibre: React.FC<MapLibre> = ({
 
       // When user clicks a point, show the info bar.
       map.on("click", "unclustered-point", (e: any) => {
-        e.preventDefault();
+        console.log(e);
         pointClickHandler(e);
+        map.easeTo({
+          center: e.features[0].geometry.coordinates,
+          zoom: 12,
+        });
         const id = e.features[0].id;
         getAccessTokenSilently().then((token) => {
           getPost(token, id).then((res) => {});
         });
-      });
-
-      map.on("zoom", () => {
-        const bounds = map.getBounds();
-        const center = map.getCenter();
-        radiusChangeHander(center.distanceTo(bounds.getNorthEast()));
       });
 
       map.on("mouseenter", "clusters", () => {
@@ -192,7 +192,10 @@ const MapLibre: React.FC<MapLibre> = ({
 
   useEffect(() => {
     if (center && map) {
-      map.setCenter(center);
+      map.easeTo({
+        center: center,
+        zoom: 12,
+      });
     }
   }, [center, map]);
 

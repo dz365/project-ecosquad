@@ -64,8 +64,7 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
       type: req.body.type,
       tags: JSON.parse(req.body.tags),
       UserId: req.body.userId,
-      location: location.location,
-      location_en: location.location_en,
+      location: location,
     });
 
     let fileMetadatas = [];
@@ -113,8 +112,7 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
         description: post.description,
         type: post.type,
         tags: post.tags,
-        location: location.location,
-        location_en: location.location_en,
+        location: location,
       },
     };
 
@@ -193,16 +191,9 @@ postsRouter.patch("/:id", async (req, res) => {
     }
   }
 
-  let location = {
-    location: "",
-    location_en: "",
-  };
-
   if (coordinates) {
     update.geometry = { type: "Point", coordinates: coordinates };
-    location = await reverseGeoSearch(coordinates[0], coordinates[1]);
-    update.location = location.location;
-    update.location_en = location.location_en;
+    update.location = await reverseGeoSearch(coordinates[0], coordinates[1]);
   }
 
   const files = await File.findAll({
@@ -233,8 +224,7 @@ postsRouter.patch("/:id", async (req, res) => {
       description: post.description,
       type: post.type,
       tags: post.tags,
-      location: location.location,
-      location_en: location.location_en,
+      location: post.location
     },
   };
 

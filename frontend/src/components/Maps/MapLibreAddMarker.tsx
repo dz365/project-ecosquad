@@ -19,7 +19,7 @@ const MapLibreAddMarker: React.FC<MapLibreAddMarker> = ({
   useEffect(() => {
     const map = new maplibreGl.Map({
       container: mapContainer.current!,
-      style: `https://api.maptiler.com/maps/outdoor-v2/style.json?key=${process.env.REACT_APP_MAP_TILER_KEY}`,
+      style: "https://demotiles.maplibre.org/style.json",
       zoom: 12,
     });
 

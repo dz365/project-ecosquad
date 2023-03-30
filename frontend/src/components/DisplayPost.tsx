@@ -17,11 +17,6 @@ const LabelText: React.FC<LabelText> = ({ text }) => {
   return <span className="text-xl text-green-600">{text}</span>;
 };
 
-interface Location {
-  location: string;
-  location_en: string;
-}
-
 const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
   const navigate = useNavigate();
   const { user, getAccessTokenSilently } = useAuth0();
@@ -32,7 +27,7 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
   const [tags, setTags] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [location, setLocation] = useState<Location>();
+  const [location, setLocation] = useState("Unable to determine location");
   const [files, setFiles] = useState<any>([]);
   const [fileIndex, setFileIndex] = useState(0);
 
@@ -44,10 +39,7 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
           setDescription(res.post.description);
           setType(res.post.type);
           setTags(res.post.tags);
-          setLocation({
-            location: res.post.location,
-            location_en: res.post.location_en,
-          });
+          setLocation(res.post.location);
           setFiles(res.files);
         })
         .catch(() => setInvalidPostId(true));
@@ -130,8 +122,7 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
         <p>{type}</p>
         <LabelText text="Location" />
         <div>
-          <p>{location?.location}</p>
-          <p>{location?.location_en}</p>
+          <p>{location}</p>
         </div>
         <LabelText text="Tags" />
         <div className="flex flex-wrap gap-2">
