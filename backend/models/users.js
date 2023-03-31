@@ -22,11 +22,6 @@ export const User = sequelize.define("User", {
   about: {
     type: DataTypes.STRING,
     defaultValue: "",
-    allowNull: false,
-  },
-  privateProfile: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
   },
   geometry: {
     type: DataTypes.GEOMETRY("POINT"),

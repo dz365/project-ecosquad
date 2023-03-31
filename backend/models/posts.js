@@ -24,10 +24,6 @@ export const Post = sequelize.define("Post", {
     type: DataTypes.STRING,
     defaultValue: "",
   },
-  location_en: {
-    type: DataTypes.STRING,
-    defaultValue: "",
-  },
 });
 
 Post.belongsTo(User);

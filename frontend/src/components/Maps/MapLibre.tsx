@@ -1,32 +1,31 @@
-import { GeoJSONSource, LngLatLike } from "maplibre-gl";
+import { GeoJSONSource, LngLat, LngLatLike } from "maplibre-gl";
 import maplibreGl, { Map } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { getPost } from "../../service/test.service";
 import { useAuth0 } from "@auth0/auth0-react";
 import { IconSymbols } from "./MapSymbols";
 
 type MapLibre = {
+  initialCenter?: LngLat;
   data: any;
-  center: LngLatLike;
-  radiusChangeHander: (radius: number) => void;
   pointClickHandler: (e: any) => void;
+  mockMapClick?: LngLatLike;
 };
 
 const MapLibre: React.FC<MapLibre> = ({
+  initialCenter,
   data,
-  center,
-  radiusChangeHander,
   pointClickHandler,
+  mockMapClick,
 }) => {
   const mapContainer = useRef(null);
   const [map, setMap] = useState<Map>();
-  const { getAccessTokenSilently } = useAuth0();
 
   useEffect(() => {
     const map = new maplibreGl.Map({
       container: mapContainer.current!,
-      style: `https://api.maptiler.com/maps/outdoor-v2/style.json?key=${process.env.REACT_APP_MAP_TILER_KEY}`,
+      style:
+        "https://openmaptiles.github.io/osm-bright-gl-style/style-cdn.json",
       zoom: 12,
     });
 
@@ -34,6 +33,17 @@ const MapLibre: React.FC<MapLibre> = ({
       map.dragRotate.disable();
       map.touchZoomRotate.disableRotation();
       map.addControl(new maplibreGl.NavigationControl({}), "bottom-right");
+
+      map.addSource("osm-tiles", {
+        type: "raster",
+        tiles: ["https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+        tileSize: 256,
+      });
+      map.addLayer({
+        id: "osm-layer",
+        type: "raster",
+        source: "osm-tiles",
+      });
 
       // Add a new source from our GeoJSON data and
       // set the 'cluster' option to true. GL-JS will
@@ -151,18 +161,11 @@ const MapLibre: React.FC<MapLibre> = ({
 
       // When user clicks a point, show the info bar.
       map.on("click", "unclustered-point", (e: any) => {
-        e.preventDefault();
-        pointClickHandler(e);
-        const id = e.features[0].id;
-        getAccessTokenSilently().then((token) => {
-          getPost(token, id).then((res) => {});
+        map.easeTo({
+          center: e.features[0].geometry.coordinates,
+          zoom: 12,
         });
-      });
-
-      map.on("zoom", () => {
-        const bounds = map.getBounds();
-        const center = map.getCenter();
-        radiusChangeHander(center.distanceTo(bounds.getNorthEast()));
+        pointClickHandler(e);
       });
 
       map.on("mouseenter", "clusters", () => {
@@ -191,10 +194,22 @@ const MapLibre: React.FC<MapLibre> = ({
   }, [data, map]);
 
   useEffect(() => {
-    if (center && map) {
-      map.setCenter(center);
+    if (mockMapClick && map) {
+      map.easeTo({
+        center: mockMapClick,
+        zoom: 12,
+      });
     }
-  }, [center, map]);
+  }, [mockMapClick, map]);
+
+  useEffect(() => {
+    if (initialCenter && map) {
+      map.easeTo({
+        center: initialCenter,
+        zoom: 12,
+      });
+    }
+  }, [initialCenter, map]);
 
   return (
     <div className="relative overflow-hidden w-full h-full">
