@@ -19,7 +19,8 @@ const MapLibreAddMarker: React.FC<MapLibreAddMarker> = ({
   useEffect(() => {
     const map = new maplibreGl.Map({
       container: mapContainer.current!,
-      style: `https://api.maptiler.com/maps/outdoor-v2/style.json?key=${process.env.REACT_APP_MAP_TILER_KEY}`,
+      style:
+        "https://openmaptiles.github.io/osm-bright-gl-style/style-cdn.json",
       zoom: 12,
     });
 
@@ -27,6 +28,18 @@ const MapLibreAddMarker: React.FC<MapLibreAddMarker> = ({
       map.dragRotate.disable();
       map.touchZoomRotate.disableRotation();
       map.addControl(new maplibreGl.NavigationControl({}), "bottom-right");
+
+      map.addSource("osm-tiles", {
+        type: "raster",
+        tiles: ["https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+        tileSize: 256,
+      });
+
+      map.addLayer({
+        id: "osm-layer",
+        type: "raster",
+        source: "osm-tiles",
+      });
 
       const marker = new maplibregl.Marker({
         color: "#FF0000",

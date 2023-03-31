@@ -1,8 +1,11 @@
+import { LngLat } from "maplibre-gl";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { search } from "../MeilisearchClient";
 import Navbar from "../navigation/Navbar";
 import DistanceFilter from "./SearchFilters/DistanceFilter";
+import LocationSearch from "./SearchFilters/LocationSearch";
+import SortBy from "./SearchFilters/SortBy";
 import TypeFilter from "./SearchFilters/TypeFilter";
 
 interface SearchComponent {
@@ -14,12 +17,16 @@ const SearchBarComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
-  const [lng, setLng] = useState("");
-  const [lat, setLat] = useState("");
+  const [location, setLocation] = useState<LngLat>();
+
   const [distanceFilter, setDistanceFilter] = useState<number>();
+  const [sort, setSort] = useState("relevance");
 
   useEffect(() => {
     let filter = "";
+    const lng = location?.lng;
+    const lat = location?.lat;
+
     if (typeFilters.length > 0)
       filter += `properties.type IN [${typeFilters}] `;
     if (lng && lat && distanceFilter) {
@@ -27,13 +34,19 @@ const SearchBarComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
       filter += `_geoRadius(${lat}, ${lng}, ${distanceFilter})`;
     }
 
-    search(searchQuery, filter).then((res) => searchHandler(res));
-  }, [searchQuery, typeFilters, lng, lat, distanceFilter]);
+    let sortBy = [];
+    if (sort === "distance" && lat && lng) {
+      sortBy.push(`_geoPoint(${lat}, ${lng}):asc`);
+    }
+    if (sort === "dateposted") {
+      sortBy.push("properties.createdAt:desc");
+    }
+
+    search(searchQuery, filter, sortBy).then((res) => searchHandler(res));
+  }, [searchQuery, typeFilters, location, distanceFilter, sort]);
 
   const resetFilters = () => {
     setTypeFilters([]);
-    setLat("");
-    setLng("");
     setDistanceFilter(undefined);
   };
 
@@ -64,7 +77,7 @@ const SearchBarComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
           <div className="-rotate-45 w-4 h-4 bg-center bg-no-repeat bg-plus"></div>
         </button>
         {showFilters && (
-          <div className="absolute top-16 bg-blue-gray rounded-lg p-4 flex flex-col gap-2 shadow">
+          <div className="absolute top-16 left-0 bg-blue-gray rounded-lg p-4 flex flex-col gap-2 shadow">
             <div className="flex gap-8 justify-between">
               <span className="text-blue-600">Advanced Search</span>
               <button
@@ -76,18 +89,16 @@ const SearchBarComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-8">
+              <LocationSearch setLocation={setLocation} />
               <TypeFilter
                 filteredTypes={typeFilters}
                 setFilteredTypes={setTypeFilters}
               />
               <DistanceFilter
-                lng={lng}
-                lat={lat}
-                setLng={setLng}
-                setLat={setLat}
                 distanceFilter={distanceFilter}
                 setDistanceFilter={setDistanceFilter}
               />
+              <SortBy sort={sort} setSort={setSort} />
             </div>
           </div>
         )}
