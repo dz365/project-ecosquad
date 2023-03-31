@@ -6,6 +6,10 @@
 
 - EcoSquad
 
+## Video:
+
+https://youtu.be/r7mHGlYXmiU
+
 ## Stack Focus
 
 - Focus will be evenly divided between the frontend and backend aspects
