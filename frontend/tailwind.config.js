@@ -20,6 +20,8 @@ module.exports = {
         search: "url('./assets/icons/magnifying-glass.svg')",
         logout: "url('./assets/icons/logout.svg')",
         "vertical-dots": "url('./assets/icons/ellipsis-vertical-solid.svg')",
+        telescope: "url('./assets/icons/telescope.png')",
+        locationpin: "url('./assets/icons/location-pin.png')",
       },
       animation: {
         slidein: "slidein 1s forwards",
