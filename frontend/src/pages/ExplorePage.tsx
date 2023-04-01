@@ -35,10 +35,7 @@ const ExplorePage = () => {
   const navigate = useNavigate();
 
   // Map properties
-  const [data, setData] = useState<any>({
-    type: "FeatureCollection",
-    features: [],
-  });
+  const [data, setData] = useState<any>();
 
   // Sidebar properties
   const sliderRef = useRef<Slider>(null);
@@ -127,47 +124,50 @@ const ExplorePage = () => {
     <PageLayout showNavbar={false}>
       <>
         <SearchBarComponent searchHandler={searchHandler} />
-        <MapLibre
-          initialCenter={userLocation}
-          data={data}
-          pointClickHandler={pointClickHandler}
-          mockMapClick={mockMapClick}
-        />
+        {data && (
+          <MapLibre
+            initialCenter={userLocation}
+            data={data}
+            pointClickHandler={pointClickHandler}
+            mockMapClick={mockMapClick}
+          />
+        )}
         <Sidebar
           show={sidebarState}
           showHandler={setSidebarState}
           content={
             <Slider ref={sliderRef} {...settings}>
               <div>
-                {data.features.map((post: any, i: number) => (
-                  <div
-                    key={post.id}
-                    className={`flex items-center gap-2 w-full h-8 py-8 px-2 ${
-                      i % 2 == 0 && "bg-gray-50"
-                    }`}
-                    onClick={() =>
-                      mockPointClick(
-                        post.id,
-                        post.properties.user,
-                        new LngLat(
-                          post.geometry.coordinates[0],
-                          post.geometry.coordinates[1]
+                {data &&
+                  data.features.map((post: any, i: number) => (
+                    <div
+                      key={post.id}
+                      className={`flex items-center gap-2 w-full h-8 py-8 px-2 ${
+                        i % 2 == 0 && "bg-gray-50"
+                      }`}
+                      onClick={() =>
+                        mockPointClick(
+                          post.id,
+                          post.properties.user,
+                          new LngLat(
+                            post.geometry.coordinates[0],
+                            post.geometry.coordinates[1]
+                          )
                         )
-                      )
-                    }
-                  >
-                    <img
-                      src={ICON_IMAGES[post.properties.type]}
-                      className="w-8 h-8"
-                    />
-                    <p className="w-8/12 grow truncate whitespace-nowrap text-gray-600">
-                      {post.properties.description}
-                    </p>
-                    <button>
-                      <div className="w-4 h-4 bg-rightarrow bg-no-repeat bg-contain bg-center opacity-50"></div>
-                    </button>
-                  </div>
-                ))}
+                      }
+                    >
+                      <img
+                        src={ICON_IMAGES[post.properties.type]}
+                        className="w-8 h-8"
+                      />
+                      <p className="w-8/12 grow truncate whitespace-nowrap text-gray-600">
+                        {post.properties.description}
+                      </p>
+                      <button>
+                        <div className="w-4 h-4 bg-rightarrow bg-no-repeat bg-contain bg-center opacity-50"></div>
+                      </button>
+                    </div>
+                  ))}
               </div>
               <div>
                 {showPostInfo ? (
