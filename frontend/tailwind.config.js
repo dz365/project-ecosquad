@@ -7,6 +7,7 @@ module.exports = {
         "blue-gray": "#f3f6fc",
       },
       backgroundImage: {
+        refresh: "url('./assets/icons/refresh.svg')",
         uparrow: "url('./assets/icons/chevron-up.svg')",
         downarrow: "url('./assets/icons/chevron-down.svg')",
         leftarrow: "url('./assets/icons/chevron-left.svg')",

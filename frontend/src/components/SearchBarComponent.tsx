@@ -70,6 +70,7 @@ const SearchBarComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
           </button>
         </div>
         <div className="w-px h-full border-l"></div>
+        <button className="w-4 h-4 bg-center bg-no-repeat bg-refresh" />
         <button
           className="rotate-45 bg-green-600"
           onClick={() => navigate("/posts/new")}

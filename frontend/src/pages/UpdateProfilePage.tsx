@@ -1,14 +1,16 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { LngLat } from "maplibre-gl";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TextAreaInput from "../components/controlled/TextareaInput";
 import TextInput from "../components/controlled/TextInput";
 import MapLibreAddMarker from "../components/Maps/MapLibreAddMarker";
 import Navbar from "../navigation/Navbar";
 import { createUser, getUser, updateUser } from "../service/test.service";
+import { ToastContext } from "../ToastContext";
 
 const UpdateProfilePage = () => {
+  const { createToast } = useContext(ToastContext);
   const navigate = useNavigate();
   const [isNewUser, setIsNewUser] = useState(false);
   const [avatarURL, setAvatarURL] = useState("");
@@ -54,9 +56,10 @@ const UpdateProfilePage = () => {
         : updateUser(token, formData, user!.sub!)
       )
         .then(() => {
+          createToast("success", "Profile has been updated");
           navigate("/");
         })
-        .catch(() => {});
+        .catch(() => createToast("error", "Unable to update profile"));
     });
   };
 
