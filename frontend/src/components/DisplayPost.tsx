@@ -56,17 +56,7 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
   if (invalidPostId || invalidUserId) return <></>;
 
   return (
-    <div className="flex flex-col gap-4 border rounded-lg shadow w-full">
-      <div>
-        <div className="flex items-center pt-2 px-2">
-          <div className="bg-locationpin w-5 h-5 bg-contain bg-center bg-no-repeat"></div>
-          <p className="text-xs font-light px-2">{location}</p>
-        </div>
-        <div className="flex items-center pt-2 px-2">
-          <div className="bg-telescope w-4 h-4 bg-contain bg-center bg-no-repeat"></div>
-          <span className="text-xs font-light px-3">{type}</span>
-        </div>
-      </div>
+    <div className="flex flex-col gap-2 border rounded-lg shadow w-full">
       {files &&
         files.length > 0 &&
         fileIndex < files.length &&
@@ -76,11 +66,11 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
               <img
                 src={`${process.env.REACT_APP_API_SERVER_URL}/files/${files[fileIndex].id}`}
                 alt="file"
-                className="object-contain self-center max-w-max h-full"
+                className="object-contain self-center max-w-max h-full my-6"
               />
             )}
             {files[fileIndex].metadata.mimetype.startsWith("video/") && (
-              <video className="w-full h-auto" controls>
+              <video className="w-full h-56 my-4" controls>
                 <source
                   src={`${process.env.REACT_APP_API_SERVER_URL}/files/${files[fileIndex].id}`}
                   type={files[fileIndex].metadata.mimetype}
@@ -97,7 +87,7 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
                 Your browser doesn't support this audio format.
               </audio>
             )}
-            <div className="flex items-center justify-center self-center gap-2 bg-white w-full">
+            <div className="flex items-center justify-center self-center gap-2 bg-white w-full pt-2">
               <button
                 onClick={() => {
                   setFileIndex(fileIndex - 1);
@@ -128,8 +118,18 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
             </div>
           </div>
         )}
-      <div className="flex flex-col gap-5 px-2">
+      <div className="flex flex-col gap-5 px-2 mt-2">
         <p className="font-light">{description}</p>
+        <div>
+          <div className="flex items-center">
+            <div className="bg-locationpin w-5 h-5 bg-contain bg-center bg-no-repeat"></div>
+            <p className="text-xs font-light px-2">{location}</p>
+          </div>
+          <div className="flex items-center pt-2">
+            <div className="bg-telescope w-4 h-4 bg-contain bg-center bg-no-repeat"></div>
+            <span className="text-xs font-light px-3">{type}</span>
+          </div>
+        </div>
         <div className="flex flex-wrap gap-2 drop-shadow">
           {tags.map((tag, i) => (
             <div
@@ -141,7 +141,7 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
           ))}
         </div>
       </div>
-      <div className="flex gap-4 px-2 mb-2">
+      <div className="flex gap-4 px-2 my-2">
         <img
           src={`${process.env.REACT_APP_API_SERVER_URL}/users/${userId}/avatar`}
           alt="avatar"
