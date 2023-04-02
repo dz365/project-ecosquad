@@ -55,6 +55,8 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
         .json({ error: "Post creation failed. Invalid type." });
     }
 
+    const tags = req.body.tags ? JSON.parse(req.body.tags) : null;
+
     const post = await Post.create({
       description: req.body.description,
       geometry: {
@@ -62,7 +64,7 @@ postsRouter.post("/", postFiles.array("files"), async (req, res) => {
         coordinates: coordinates,
       },
       type: req.body.type,
-      tags: JSON.parse(req.body.tags),
+      tags: tags,
       UserId: req.body.userId,
       location: location,
     });

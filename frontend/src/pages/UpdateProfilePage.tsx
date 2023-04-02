@@ -28,6 +28,7 @@ const UpdateProfilePage = () => {
         .then((res) => {
           setName(res.name);
           setAbout(res.about);
+          setPreferences(res.preferences);
           const coordinates = res.geometry.coordinates;
           setInitLngLat(new LngLat(coordinates[0], coordinates[1]));
         })

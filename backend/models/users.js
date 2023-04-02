@@ -31,4 +31,8 @@ export const User = sequelize.define("User", {
     type: DataTypes.STRING,
     defaultValue: "",
   },
+  preferences: {
+    type: DataTypes.ARRAY(DataTypes.STRING),
+    defaultValue: [],
+  },
 });
