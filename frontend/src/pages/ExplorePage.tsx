@@ -48,7 +48,7 @@ const ExplorePage = () => {
   const [mockMapClick, setMockMapClick] = useState<LngLatLike>();
   const [selectedPostId, setSelectedPostId] = useState<number>();
   const [selectedPostUserId, setSelectedPostUserId] = useState<string>();
-
+  const [userPreferences, setUserPreferences] = useState([]);
   const searchHandler = (searchData: any) => {
     setData({
       type: "FeatureCollection",
@@ -102,6 +102,7 @@ const ExplorePage = () => {
         .then((res) => {
           const coordinates = res.geometry.coordinates;
           setUserLocation(new LngLat(coordinates[0], coordinates[1]));
+          setUserPreferences(res.preferences);
         })
         .catch(() => navigate("/profile/update"));
     });
@@ -123,7 +124,10 @@ const ExplorePage = () => {
   return (
     <PageLayout showNavbar={false}>
       <>
-        <SearchBarComponent searchHandler={searchHandler} />
+        <SearchBarComponent
+          searchHandler={searchHandler}
+          searchPreferences={userPreferences}
+        />
         {data && (
           <MapLibre
             initialCenter={userLocation}

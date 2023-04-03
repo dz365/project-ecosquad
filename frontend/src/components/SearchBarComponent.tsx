@@ -10,9 +10,13 @@ import TypeFilter from "./SearchFilters/TypeFilter";
 
 interface SearchComponent {
   searchHandler: (e: any) => void;
+  searchPreferences: string[];
 }
 
-const SearchBarComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
+const SearchBarComponent: React.FC<SearchComponent> = ({
+  searchHandler,
+  searchPreferences,
+}) => {
   const navigate = useNavigate();
   const [refreshData, setRefreshData] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,7 +47,15 @@ const SearchBarComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
     }
 
     search(searchQuery, filterBy, sortBy).then((res) => searchHandler(res));
-  }, [searchQuery, typeFilters, location, distanceFilter, sort, refreshData]);
+  }, [
+    searchQuery,
+    typeFilters,
+    location,
+    distanceFilter,
+    sort,
+    refreshData,
+    searchPreferences,
+  ]);
 
   const resetFilters = () => {
     setTypeFilters([]);

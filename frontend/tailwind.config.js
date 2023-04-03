@@ -23,6 +23,7 @@ module.exports = {
         "vertical-dots": "url('./assets/icons/ellipsis-vertical-solid.svg')",
         telescope: "url('./assets/icons/telescope.png')",
         locationpin: "url('./assets/icons/location-pin.png')",
+        plant: "url('./assets/icons/plant.png')",
       },
       animation: {
         slidein: "slidein 1s forwards",
