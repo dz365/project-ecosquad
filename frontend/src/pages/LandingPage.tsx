@@ -8,7 +8,7 @@ const LandingPage = () => {
   return (
     <PageLayout>
       <div className="absolute top-0 left-0 w-full h-screen">
-        <div className="z-10 w-72 absolute top-48 left-20 flex flex-col gap-4 bg-white p-4 rounded-xl">
+        <div className="z-10 w-72 absolute top-48 left-4 sm:left-20 flex flex-col gap-4 bg-white p-4 rounded-xl">
           <h1 className="text-green-600 text-3xl">Ecosquad</h1>
           <p className="text-gray-500">
             A web app that gives everyone the chance to learn more about nature

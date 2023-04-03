@@ -8,6 +8,7 @@ import NewPostPage from "./pages/PostPages/NewPostPage";
 import { ToastContainer, toast, ToastOptions } from "react-toastify";
 import { ToastContext } from "./ToastContext";
 import "react-toastify/dist/ReactToastify.css";
+import CreditsPage from "./pages/CreditsPage";
 
 const toastConfig: ToastOptions = {
   toastId: "new post",
@@ -38,7 +39,7 @@ function App() {
       <ToastContainer />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/credits" element={<h1>CREDITS</h1>} />
+        <Route path="/credits" element={<CreditsPage />} />
         <Route
           path="/profile/update"
           element={<AuthenticationGuard component={UpdateProfilePage} />}
