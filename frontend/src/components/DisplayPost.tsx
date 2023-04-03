@@ -3,20 +3,21 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { getPost } from "../service/test.service";
 import { getUser } from "../service/test.service";
+import { deletePost } from "../service/test.service";
 
 interface DisplayPost {
   postId: number;
   userId: string;
+  displayHandler: (e: any) => void;
+  deleteHandler: (e: number) => void;
 }
 
-interface LabelText {
-  text: string;
-}
-const LabelText: React.FC<LabelText> = ({ text }) => {
-  return <span className="text-xl text-green-600">{text}</span>;
-};
-
-const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
+const DisplayPost: React.FC<DisplayPost> = ({
+  postId,
+  userId,
+  displayHandler,
+  deleteHandler,
+}) => {
   const navigate = useNavigate();
   const { user, getAccessTokenSilently } = useAuth0();
   const [invalidPostId, setInvalidPostId] = useState(false);
@@ -52,6 +53,19 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
         .catch(() => setInvalidUserId(true));
     });
   }, [user?.sub, postId, userId]);
+
+  const deleteClickHandler = () => {
+    getAccessTokenSilently().then((token) => {
+      deletePost(token, postId)
+        .then(() => {
+          deleteHandler(postId);
+          displayHandler(0);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
+  };
 
   if (invalidPostId || invalidUserId) return <></>;
 
@@ -157,12 +171,20 @@ const DisplayPost: React.FC<DisplayPost> = ({ postId, userId }) => {
         </div>
       </div>
       {user!.sub === userId && (
-        <button
-          onClick={() => navigate(`/posts/${postId}/edit`)}
-          className="bg-blue-500 opacity-95 rounded-lg text-gray-50 px-6 py-1 self-center mb-2"
-        >
-          Edit
-        </button>
+        <div className="flex flex-col sm:flex-row items-center justify-around gap-4 mb-2 px-2">
+          <button
+            onClick={() => navigate(`/posts/${postId}/edit`)}
+            className="bg-blue-500 opacity-95 hover:opacity-75 rounded-lg text-gray-50 px-6 py-2 w-full"
+          >
+            Edit
+          </button>
+          <button
+            onClick={deleteClickHandler}
+            className="bg-red-500 opacity-95 hover:opacity-75 rounded-lg text-gray-50 px-6 py-2 w-full"
+          >
+            Delete
+          </button>
+        </div>
       )}
     </div>
   );

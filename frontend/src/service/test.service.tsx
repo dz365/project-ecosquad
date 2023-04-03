@@ -83,6 +83,16 @@ const updatePost = async (
     .then((res) => res.data);
 };
 
+const deletePost = async (accessToken: string, id: number) => {
+  return axios
+    .delete(`${serverURL}/posts/${id}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+    .then((res) => res.data);
+};
+
 export {
   testAPIEndpoint,
   getUser,
@@ -91,4 +101,5 @@ export {
   createPost,
   getPost,
   updatePost,
+  deletePost,
 };
