@@ -21,7 +21,7 @@ const MapLibreAddMarker: React.FC<MapLibreAddMarker> = ({
       container: mapContainer.current!,
       style:
         "https://openmaptiles.github.io/osm-bright-gl-style/style-cdn.json",
-      zoom: 12,
+      zoom: 0,
     });
 
     map.on("load", () => {
