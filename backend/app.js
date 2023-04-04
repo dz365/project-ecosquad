@@ -25,10 +25,6 @@ app.use("/files", fileRouter);
 const server = http.createServer(app);
 socket(server);
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
 const PORT = 3001;
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

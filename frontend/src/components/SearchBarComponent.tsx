@@ -1,7 +1,7 @@
 import { LngLat } from "maplibre-gl";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { search } from "../MeilisearchClient";
+import { search } from "../service/meilisearch.service";
 import Navbar from "../navigation/Navbar";
 import DistanceFilter from "./SearchFilters/DistanceFilter";
 import LocationSearch from "./SearchFilters/LocationSearch";
