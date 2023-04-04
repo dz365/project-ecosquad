@@ -1,5 +1,27 @@
-version: "1.0"
+version: "3.3"
 services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./certs:/etc/nginx/certs
+      - ./vhost:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+  nginx-proxy-acme:
+    image: nginxproxy/acme-companion
+    container_name: nginx-proxy-acme
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./certs:/etc/nginx/certs
+      - ./vhost:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+      - ./acme:/etc/acme.sh
+    environment:
+      - DEFAULT_EMAIL=danielwq.zhang@mail.utoronto.ca
   frontend:
     env_file:
       - .env
@@ -7,9 +29,13 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    image: ecosquad-frontend
+    image: ghcr.io/uoft-utsc-cs-sandbox/frontend-dz365
+    container_name: frontend
     ports:
-      - 3000:3000
+      - 80
+    environment:
+      - VIRTUAL_HOST=ecosquad.me
+      - LETSENCRYPT_HOST=ecosquad.me
   backend:
     env_file:
       - .env
@@ -17,12 +43,16 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: ecosquad-backend
+    image: ghcr.io/uoft-utsc-cs-sandbox/backend-dz365
+    container_name: backend
     ports:
-      - 3001:3001
+      - 3001
     volumes:
       - posts:/usr/src/app/posts
       - avatars:/usr/src/app/avatars
+    environment:
+      - VIRTUAL_HOST=api.ecosquad.me
+      - LETSENCRYPT_HOST=api.ecosquad.me
   postgres:
     restart: always
     build:

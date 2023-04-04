@@ -1,18 +1,22 @@
-FROM node:16
+FROM node:16 as build
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)
 COPY package*.json ./
 
-RUN npm install
+RUN npm install --no-optional --prefer-offline --no-audit
 
 # Bundle app source
-COPY . .
+COPY . ./
 
-EXPOSE 3001
+RUN npm run build
 
-CMD [ "npm", "start" ]
+# Serve these static files with NGINX.
+FROM nginx:1.21.6-alpine
+COPY --from=build /app/build/ /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
