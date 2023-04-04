@@ -16,6 +16,7 @@
     "meilisearch": "^0.31.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-modal": "^3.16.1",
     "react-router-dom": "^6.8.2",
     "react-scripts": "5.0.1",
     "react-slick": "^0.29.0",
@@ -52,6 +53,7 @@
     ]
   },
   "devDependencies": {
+    "@types/react-modal": "^3.13.1",
     "@types/react-slick": "^0.23.10",
     "prettier": "^2.8.4"
   }
