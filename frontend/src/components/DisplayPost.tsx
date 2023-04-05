@@ -24,14 +24,15 @@ const DisplayPost: React.FC<DisplayPost> = ({
   const [invalidPostId, setInvalidPostId] = useState(false);
   const [invalidUserId, setInvalidUserId] = useState(false);
   const [description, setDescription] = useState("");
-  const [type, setType] = useState("");
+  const [type, setType] = useState("Determining type...");
   const [tags, setTags] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [location, setLocation] = useState("Unable to determine location");
+  const [location, setLocation] = useState("Determining location...");
   const [files, setFiles] = useState<any>([]);
   const [fileIndex, setFileIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [isFileLoading, setIsFileLoading] = useState(true);
 
   useEffect(() => {
     getAccessTokenSilently().then((token) => {
@@ -43,8 +44,14 @@ const DisplayPost: React.FC<DisplayPost> = ({
           setTags(res.post.tags);
           setLocation(res.post.location);
           setFiles(res.files);
-          setFileIndex(0);
           setShowModal(false);
+
+          if (res.files.length > 0) {
+            console.log("it is");
+            setIsFileLoading(true);
+          } else {
+            setIsFileLoading(false);
+          }
         })
         .catch(() => setInvalidPostId(true));
       getUser(token, userId)
@@ -56,6 +63,25 @@ const DisplayPost: React.FC<DisplayPost> = ({
         .catch(() => setInvalidUserId(true));
     });
   }, [user?.sub, postId, userId]);
+
+  useEffect(() => {
+    if (
+      isFileLoading &&
+      files.length > 0 &&
+      fileIndex >= 0 &&
+      fileIndex < files.length
+    ) {
+      if (files[fileIndex].metadata.mimetype.startsWith("image/")) {
+        loadFileImage().then(() => {
+          setIsFileLoading(false);
+        });
+      } else if (files[fileIndex].metadata.mimetype.startsWith("video/")) {
+        setIsFileLoading(false);
+      } else if (files[fileIndex].metadata.mimetype.startsWith("audio/")) {
+        setIsFileLoading(false);
+      }
+    }
+  }, [isFileLoading, fileIndex, files]);
 
   const deleteClickHandler = () => {
     getAccessTokenSilently().then((token) => {
@@ -78,6 +104,23 @@ const DisplayPost: React.FC<DisplayPost> = ({
     setShowModal(false);
   };
 
+  const loadFileImage = () => {
+    const loadingFile = new Image();
+    const url = `${process.env.REACT_APP_API_SERVER_URL}/files/${files[fileIndex].id}`;
+    const file = document.querySelector("#file-panel")?.querySelector("img");
+
+    return new Promise((resolve) => {
+      if (file) {
+        file.src = "";
+        loadingFile.onload = () => {
+          file.src = loadingFile.src;
+          resolve(file);
+        };
+        loadingFile.src = url;
+      }
+    });
+  };
+
   if (invalidPostId || invalidUserId) return <></>;
 
   return (
@@ -87,12 +130,18 @@ const DisplayPost: React.FC<DisplayPost> = ({
           files.length > 0 &&
           fileIndex < files.length &&
           fileIndex >= 0 && (
-            <div className="flex flex-col justify-between bg-gray-100 w-full h-80">
+            <div
+              id="file-panel"
+              className="flex flex-col justify-between bg-gray-100 w-full h-80"
+            >
+              {isFileLoading && <p>Loading...</p>}
               {files[fileIndex].metadata.mimetype.startsWith("image/") && (
                 <img
-                  src={`${process.env.REACT_APP_API_SERVER_URL}/files/${files[fileIndex].id}`}
+                  src=""
                   alt="file"
-                  className="object-contain self-center max-w-max h-full my-6"
+                  className={`object-contain self-center max-w-max h-full my-6 ${
+                    isFileLoading && "hidden"
+                  }`}
                 />
               )}
               {files[fileIndex].metadata.mimetype.startsWith("video/") && (
@@ -117,13 +166,15 @@ const DisplayPost: React.FC<DisplayPost> = ({
                 <button
                   onClick={() => {
                     setFileIndex(fileIndex - 1);
+                    setIsFileLoading(true);
                   }}
                   className={`${
-                    fileIndex <= 0 &&
-                    files.length > 0 &&
+                    (isFileLoading || (fileIndex <= 0 && files.length > 0)) &&
                     "cursor-default opacity-25"
                   }`}
-                  disabled={fileIndex <= 0 && files.length > 0}
+                  disabled={
+                    isFileLoading || (fileIndex <= 0 && files.length > 0)
+                  }
                 >
                   <div className="bg-leftarrow bg-center bg-no-repeat w-12 h-6 sm:w-4 sm:h-10"></div>
                 </button>
@@ -133,11 +184,13 @@ const DisplayPost: React.FC<DisplayPost> = ({
                 <button
                   onClick={() => {
                     setFileIndex(fileIndex + 1);
+                    setIsFileLoading(true);
                   }}
                   className={`${
-                    fileIndex >= files.length - 1 && "cursor-default opacity-25"
+                    (isFileLoading || fileIndex >= files.length - 1) &&
+                    "cursor-default opacity-25"
                   }`}
-                  disabled={fileIndex >= files.length - 1}
+                  disabled={isFileLoading || fileIndex >= files.length - 1}
                 >
                   <div className="bg-rightarrow bg-center bg-no-repeat w-12 h-6 sm:w-4 sm:h-10"></div>
                 </button>
