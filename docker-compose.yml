@@ -28,7 +28,8 @@ services:
     env_file:
       - .env
     restart: always
-    image: ghcr.io/uoft-utsc-cs-sandbox/frontend-dz365
+    build:
+      context: ./frontend
     container_name: frontend
     ports:
       - 80
@@ -73,6 +74,8 @@ services:
       - meilisearch-data:/data.ms
     environment:
       - MEILI_MASTER_KEY=${MEILISEARCH_KEY}
+      - VIRTUAL_HOST=search.ecosquad.me
+      - LETSENCRYPT_HOST=search.ecosquad.me 
     ports:
       - "7700:7700"
 volumes:
