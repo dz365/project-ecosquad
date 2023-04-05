@@ -8,7 +8,7 @@ WORKDIR /app
 # where available (npm@5+)
 COPY package*.json ./
 
-RUN npm install --no-optional --prefer-offline --no-audit
+RUN npm install
 
 # Bundle app source
 COPY . ./

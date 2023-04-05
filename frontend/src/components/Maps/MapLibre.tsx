@@ -24,8 +24,7 @@ const MapLibre: React.FC<MapLibre> = ({
   useEffect(() => {
     const map = new maplibreGl.Map({
       container: mapContainer.current!,
-      style:
-        "https://openmaptiles.github.io/osm-bright-gl-style/style-cdn.json",
+      style: `https://api.maptiler.com/maps/basic-v2/style.json?key=${process.env.REACT_APP_MAP_TILER_KEY}`,
       zoom: 0,
     });
 
@@ -33,17 +32,6 @@ const MapLibre: React.FC<MapLibre> = ({
       map.dragRotate.disable();
       map.touchZoomRotate.disableRotation();
       map.addControl(new maplibreGl.NavigationControl({}), "bottom-right");
-
-      map.addSource("osm-tiles", {
-        type: "raster",
-        tiles: ["https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
-        tileSize: 256,
-      });
-      map.addLayer({
-        id: "osm-layer",
-        type: "raster",
-        source: "osm-tiles",
-      });
 
       // Add a new source from our GeoJSON data and
       // set the 'cluster' option to true. GL-JS will
