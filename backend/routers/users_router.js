@@ -43,10 +43,6 @@ usersRouter.post(
         });
       }
 
-      const preferences = req.body.preferences
-        ? JSON.parse(req.body.preferences)
-        : null;
-
       const user = await User.create({
         id: req.auth.payload.sub,
         name: req.body.name,
@@ -58,7 +54,6 @@ usersRouter.post(
           coordinates: coordinates,
         },
         location: await reverseGeoSearch(coordinates[0], coordinates[1]),
-        preferences: preferences,
       });
       return res.json(user);
     } catch (e) {
@@ -113,9 +108,6 @@ usersRouter.patch(
       ? JSON.parse(req.body.coordinates)
       : null;
 
-    const preferences = req.body.preferences
-      ? JSON.parse(req.body.preferences)
-      : null;
     const update = {};
 
     if (!user) {
@@ -147,8 +139,6 @@ usersRouter.patch(
       };
       update.location = await reverseGeoSearch(coordinates[0], coordinates[1]);
     }
-
-    if (preferences) update.preferences = preferences;
 
     await user.update(update);
     await user.reload();
