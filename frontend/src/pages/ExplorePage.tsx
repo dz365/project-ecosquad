@@ -49,6 +49,10 @@ const ExplorePage = () => {
   const [selectedPostId, setSelectedPostId] = useState<number>();
   const [selectedPostUserId, setSelectedPostUserId] = useState<string>();
   const [userPreferences, setUserPreferences] = useState([]);
+
+  const [postPage, setPostPage] = useState(0);
+  const POSTPERPAGE = 10;
+
   const searchHandler = (searchData: any) => {
     setData({
       type: "FeatureCollection",
@@ -142,36 +146,76 @@ const ExplorePage = () => {
           content={
             <Slider ref={sliderRef} {...settings}>
               <div>
-                {data &&
-                  data.features.map((post: any, i: number) => (
-                    <div
-                      key={post.id}
-                      className={`flex items-center gap-2 w-full h-8 py-8 px-2 ${
-                        i % 2 == 0 && "bg-gray-50"
-                      }`}
-                      onClick={() =>
-                        mockPointClick(
-                          post.id,
-                          post.properties.user,
-                          new LngLat(
-                            post.geometry.coordinates[0],
-                            post.geometry.coordinates[1]
-                          )
-                        )
-                      }
-                    >
-                      <img
-                        src={ICON_IMAGES[post.properties.type]}
-                        className="w-8 h-8"
-                      />
-                      <p className="w-8/12 grow truncate whitespace-nowrap text-gray-600">
-                        {post.properties.description}
+                {data && data.features && data.features.length > 0 && (
+                  <>
+                    {data.features
+                      .slice(
+                        postPage * POSTPERPAGE,
+                        postPage * POSTPERPAGE + POSTPERPAGE
+                      )
+                      .map((post: any, i: number) => (
+                        <div
+                          key={post.id}
+                          className={`flex items-center gap-2 w-full h-8 py-8 px-2 ${
+                            i % 2 == 0 && "bg-gray-50"
+                          }`}
+                          onClick={() =>
+                            mockPointClick(
+                              post.id,
+                              post.properties.user,
+                              new LngLat(
+                                post.geometry.coordinates[0],
+                                post.geometry.coordinates[1]
+                              )
+                            )
+                          }
+                        >
+                          <img
+                            src={ICON_IMAGES[post.properties.type]}
+                            className="w-8 h-8"
+                          />
+                          <p className="w-8/12 grow truncate whitespace-nowrap text-gray-600">
+                            {post.properties.description}
+                          </p>
+                          <button>
+                            <div className="w-4 h-4 bg-rightarrow bg-no-repeat bg-contain bg-center opacity-50"></div>
+                          </button>
+                        </div>
+                      ))}
+
+                    <div className="flex items-center justify-center self-center gap-2 bg-white w-full pt-2">
+                      <button
+                        onClick={() => setPostPage(postPage - 1)}
+                        className={`${
+                          postPage <= 0 &&
+                          data.features.length > 0 &&
+                          "cursor-default opacity-25"
+                        }`}
+                        disabled={postPage <= 0}
+                      >
+                        <div className="bg-leftarrow bg-center bg-no-repeat w-12 h-6 sm:w-4 sm:h-10"></div>
+                      </button>
+                      <p className="text-gray-500">
+                        {postPage + 1} /{" "}
+                        {Math.ceil(data.features.length / POSTPERPAGE)}
                       </p>
-                      <button>
-                        <div className="w-4 h-4 bg-rightarrow bg-no-repeat bg-contain bg-center opacity-50"></div>
+                      <button
+                        onClick={() => setPostPage(postPage + 1)}
+                        className={`${
+                          postPage * POSTPERPAGE + POSTPERPAGE >=
+                            data.features.length - 1 &&
+                          "cursor-default opacity-25"
+                        }`}
+                        disabled={
+                          postPage * POSTPERPAGE + POSTPERPAGE >=
+                          data.features.length - 1
+                        }
+                      >
+                        <div className="bg-rightarrow bg-center bg-no-repeat w-12 h-6 sm:w-4 sm:h-10"></div>
                       </button>
                     </div>
-                  ))}
+                  </>
+                )}
               </div>
               <div>
                 {showPostInfo ? (
