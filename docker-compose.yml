@@ -35,6 +35,8 @@ services:
     environment:
       - VIRTUAL_HOST=ecosquad.me
       - LETSENCRYPT_HOST=ecosquad.me
+    volumes:
+      - ./nginx/frontend.conf:/etc/nginx/conf.d/frontend.conf
   backend:
     env_file:
       - .env
