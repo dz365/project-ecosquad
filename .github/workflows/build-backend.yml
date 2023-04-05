@@ -6,7 +6,8 @@ on:
     branches:
       - main
     # Only run this workflow if the commit has modified files from backend
-
+    paths:
+      - backend/**
 
 env:
   IMAGE_NAME: backend-dz365
