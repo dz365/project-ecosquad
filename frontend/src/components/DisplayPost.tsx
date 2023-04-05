@@ -45,9 +45,9 @@ const DisplayPost: React.FC<DisplayPost> = ({
           setLocation(res.post.location);
           setFiles(res.files);
           setShowModal(false);
+          setFileIndex(0);
 
           if (res.files.length > 0) {
-            console.log("it is");
             setIsFileLoading(true);
           } else {
             setIsFileLoading(false);
@@ -112,8 +112,10 @@ const DisplayPost: React.FC<DisplayPost> = ({
     return new Promise((resolve) => {
       if (file) {
         file.src = "";
+        file.alt = "loading image";
         loadingFile.onload = () => {
           file.src = loadingFile.src;
+          file.alt = "image file";
           resolve(file);
         };
         loadingFile.src = url;
@@ -134,11 +136,10 @@ const DisplayPost: React.FC<DisplayPost> = ({
               id="file-panel"
               className="flex flex-col justify-between bg-gray-100 w-full h-80"
             >
-              {isFileLoading && <p>Loading...</p>}
               {files[fileIndex].metadata.mimetype.startsWith("image/") && (
                 <img
                   src=""
-                  alt="file"
+                  alt="image file"
                   className={`object-contain self-center max-w-max h-full my-6 ${
                     isFileLoading && "hidden"
                   }`}
