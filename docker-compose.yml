@@ -22,13 +22,12 @@ services:
       - ./acme:/etc/acme.sh
     environment:
       - DEFAULT_EMAIL=danielwq.zhang@mail.utoronto.ca
+    volumes_from:
+      - nginx-proxy
   frontend:
     env_file:
       - .env
     restart: always
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
     image: ghcr.io/uoft-utsc-cs-sandbox/frontend-dz365
     container_name: frontend
     ports:
@@ -40,9 +39,6 @@ services:
     env_file:
       - .env
     restart: always
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
     image: ghcr.io/uoft-utsc-cs-sandbox/backend-dz365
     container_name: backend
     ports:
