@@ -20,7 +20,6 @@ const UpdateProfilePage = () => {
   const [initLngLat, setInitLngLat] = useState<LngLat>();
   const [lngLat, setLngLat] = useState<LngLat>();
   const { user, getAccessTokenSilently } = useAuth0();
-  const [preferences, setPreferences] = useState<string[]>([]);
 
   useEffect(() => {
     getAccessTokenSilently().then((token) => {
@@ -28,7 +27,6 @@ const UpdateProfilePage = () => {
         .then((res) => {
           setName(res.name);
           setAbout(res.about);
-          setPreferences(res.preferences);
           const coordinates = res.geometry.coordinates;
           setInitLngLat(new LngLat(coordinates[0], coordinates[1]));
         })
@@ -52,7 +50,6 @@ const UpdateProfilePage = () => {
       const formData = new FormData(e.target);
       formData.set("id", user!.sub!);
       formData.set("email", user!.email!);
-      formData.set("preferences", JSON.stringify(preferences));
       formData.set("coordinates", JSON.stringify(lngLat.toArray()));
 
       (isNewUser
@@ -132,10 +129,6 @@ const UpdateProfilePage = () => {
                 initMarkerLngLat={initLngLat}
               />
             </div>
-          </div>
-          <div className="w-full">
-            <span className="text-green-900">Preferences</span>
-            <TagListInput tags={preferences} setTags={setPreferences} />
           </div>
           <input
             type="submit"
