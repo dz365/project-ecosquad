@@ -5,10 +5,15 @@ import Navbar from "../navigation/Navbar";
 
 interface PageLayout {
   showNavbar?: boolean;
+  showAvatar?: boolean;
   children: JSX.Element;
 }
 
-const PageLayout: React.FC<PageLayout> = ({ showNavbar = true, children }) => {
+const PageLayout: React.FC<PageLayout> = ({
+  showNavbar = true,
+  showAvatar = true,
+  children,
+}) => {
   const { user } = useAuth0();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
   const [displayProfileCard, setDisplayProfileCard] = useState(false);
@@ -34,24 +39,25 @@ const PageLayout: React.FC<PageLayout> = ({ showNavbar = true, children }) => {
         )}
         {children}
       </div>
-      <button
-        className={`z-20 fixed ${
-          isMobile ? "bottom-2 left-4" : "top-2 right-4"
-        } bg-white rounded-full cursor-pointer shadow`}
-        onClick={() => setDisplayProfileCard(!displayProfileCard)}
-      >
-        <img
-          src={`${process.env.REACT_APP_API_SERVER_URL}/users/${user!
-            .sub!}/avatar`}
-          alt="avatar"
-          onError={({ currentTarget }) => {
-            currentTarget.onerror = null; // prevents looping
-            currentTarget.src = "/default_avatar.png";
-          }}
-          className="w-12 h-12 rounded-full border"
-        />
-      </button>
-
+      {showAvatar && user?.sub && (
+        <button
+          className={`z-20 fixed ${
+            isMobile ? "bottom-2 left-4" : "top-2 right-4"
+          } bg-white rounded-full cursor-pointer shadow`}
+          onClick={() => setDisplayProfileCard(!displayProfileCard)}
+        >
+          <img
+            src={`${process.env.REACT_APP_API_SERVER_URL}/users/${user!
+              .sub!}/avatar`}
+            alt="avatar"
+            onError={({ currentTarget }) => {
+              currentTarget.onerror = null; // prevents looping
+              currentTarget.src = "/default_avatar.png";
+            }}
+            className="w-12 h-12 rounded-full border"
+          />
+        </button>
+      )}
       {displayProfileCard && (
         <div
           className={`z-20 fixed ${

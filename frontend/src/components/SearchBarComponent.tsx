@@ -10,10 +10,15 @@ import TypeFilter from "./SearchFilters/TypeFilter";
 
 interface SearchComponent {
   searchHandler: (e: any) => void;
+  searchPreferences: string[];
 }
 
-const SearchBarComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
+const SearchBarComponent: React.FC<SearchComponent> = ({
+  searchHandler,
+  searchPreferences,
+}) => {
   const navigate = useNavigate();
+  const [refreshData, setRefreshData] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -23,18 +28,17 @@ const SearchBarComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
   const [sort, setSort] = useState("relevance");
 
   useEffect(() => {
-    let filter = "";
     const lng = location?.lng;
     const lat = location?.lat;
 
+    const filterBy = [];
     if (typeFilters.length > 0)
-      filter += `properties.type IN [${typeFilters}] `;
+      filterBy.push(`properties.type IN [${typeFilters}]`);
     if (lng && lat && distanceFilter) {
-      if (filter !== "") filter += "AND ";
-      filter += `_geoRadius(${lat}, ${lng}, ${distanceFilter})`;
+      filterBy.push(`_geoRadius(${lat}, ${lng}, ${distanceFilter})`);
     }
 
-    let sortBy = [];
+    const sortBy = [];
     if (sort === "distance" && lat && lng) {
       sortBy.push(`_geoPoint(${lat}, ${lng}):asc`);
     }
@@ -42,8 +46,16 @@ const SearchBarComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
       sortBy.push("properties.createdAt:desc");
     }
 
-    search(searchQuery, filter, sortBy).then((res) => searchHandler(res));
-  }, [searchQuery, typeFilters, location, distanceFilter, sort]);
+    search(searchQuery, filterBy, sortBy).then((res) => searchHandler(res));
+  }, [
+    searchQuery,
+    typeFilters,
+    location,
+    distanceFilter,
+    sort,
+    refreshData,
+    searchPreferences,
+  ]);
 
   const resetFilters = () => {
     setTypeFilters([]);
@@ -70,6 +82,10 @@ const SearchBarComponent: React.FC<SearchComponent> = ({ searchHandler }) => {
           </button>
         </div>
         <div className="w-px h-full border-l"></div>
+        <button
+          className="w-4 h-4 bg-center bg-no-repeat bg-refresh"
+          onClick={() => setRefreshData(!refreshData)}
+        />
         <button
           className="rotate-45 bg-green-600"
           onClick={() => navigate("/posts/new")}

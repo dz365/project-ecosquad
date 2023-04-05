@@ -1,10 +1,10 @@
 import { LngLat } from "maplibre-gl";
 import { useState } from "react";
-import MapLibreAddMarker from "../components/Maps/MapLibreAddMarker";
-import PostForm from "../components/PostForm";
-import Sidebar from "../components/SideBar";
+import MapLibreAddMarker from "../../components/Maps/MapLibreAddMarker";
+import PostForm from "../../components/PostForm";
+import Sidebar from "../../components/SideBar";
 
-import PageLayout from "./PageLayout";
+import PageLayout from "../PageLayout";
 
 const NewPostPage = () => {
   const [sidebarState, setSidebarState] = useState(true);

@@ -41,7 +41,7 @@ const Navbar: React.FC<Navbar> = ({ iconSize = "md" }) => {
           </div>
 
           <NavLink to="/">Explore</NavLink>
-          <p>Credits</p>
+          <NavLink to="/credits">Credits</NavLink>
 
           {isAuthenticated && (
             <>

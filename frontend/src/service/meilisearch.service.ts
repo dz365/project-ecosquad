@@ -12,7 +12,7 @@ searchIndex.updateSettings({
   sortableAttributes: ["properties.createdAt", "_geo"],
 });
 
-const search = async (query: string, filter: string, sort: string[]) => {
+const search = async (query: string, filter: string[], sort: string[]) => {
   return searchIndex.search(query, {
     filter: filter,
     sort: sort,

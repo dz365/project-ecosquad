@@ -7,6 +7,7 @@ module.exports = {
         "blue-gray": "#f3f6fc",
       },
       backgroundImage: {
+        refresh: "url('./assets/icons/refresh.svg')",
         uparrow: "url('./assets/icons/chevron-up.svg')",
         downarrow: "url('./assets/icons/chevron-down.svg')",
         leftarrow: "url('./assets/icons/chevron-left.svg')",
@@ -22,6 +23,7 @@ module.exports = {
         "vertical-dots": "url('./assets/icons/ellipsis-vertical-solid.svg')",
         telescope: "url('./assets/icons/telescope.png')",
         locationpin: "url('./assets/icons/location-pin.png')",
+        plant: "url('./assets/icons/plant.png')",
       },
       animation: {
         slidein: "slidein 1s forwards",
