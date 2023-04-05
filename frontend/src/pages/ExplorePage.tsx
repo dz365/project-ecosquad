@@ -76,6 +76,18 @@ const ExplorePage = () => {
     displayPointData(postId, postUserId);
   };
 
+  const deleteDataHandler = (id: number) => {
+    if (data.features && data.type) {
+      const deletedPostIndex = data.features.findIndex((feature: any) => {
+        return feature.id === id;
+      });
+
+      data.features.splice(deletedPostIndex, 1);
+    }
+
+    setData({ type: data.type, features: data.features });
+  };
+
   useEffect(() => {
     if (sliderRef.current) {
       sliderRef.current.slickGoTo(currentDisplay);
@@ -182,6 +194,8 @@ const ExplorePage = () => {
                     <DisplayPost
                       postId={selectedPostId!}
                       userId={selectedPostUserId!}
+                      displayHandler={setCurrentDisplay}
+                      deleteHandler={deleteDataHandler}
                     />
                   </div>
                 ) : (
