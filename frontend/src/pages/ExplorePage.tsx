@@ -1,6 +1,6 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import MapLibre from "../components/Maps/MapLibre";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { getUser } from "../service/test.service";
 import SearchBarComponent from "../components/SearchBarComponent";
 import Sidebar from "../components/SideBar";
@@ -8,7 +8,6 @@ import { LngLat, LngLatLike } from "maplibre-gl";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
-import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DisplayPost from "../components/DisplayPost";
 import PageLayout from "./PageLayout";
@@ -16,6 +15,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { ICON_IMAGES } from "../components/Maps/MapSymbols";
+import { ToastContext } from "../ToastContext";
 
 const settings = {
   arrows: false,
@@ -30,12 +30,13 @@ const settings = {
 
 const socket = io(process.env.REACT_APP_API_SERVER_URL!);
 const ExplorePage = () => {
+  const { createToast } = useContext(ToastContext);
   const { user, getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
 
   // Map properties
   const [data, setData] = useState<any>();
-  const [radius, setRadius] = useState<number>();
+
   // Sidebar properties
   const sliderRef = useRef<Slider>(null);
   const [sidebarState, setSidebarState] = useState(true);
@@ -47,7 +48,7 @@ const ExplorePage = () => {
   const [mockMapClick, setMockMapClick] = useState<LngLatLike>();
   const [selectedPostId, setSelectedPostId] = useState<number>();
   const [selectedPostUserId, setSelectedPostUserId] = useState<string>();
-
+  const [userPreferences, setUserPreferences] = useState([]);
   const searchHandler = (searchData: any) => {
     setData({
       type: "FeatureCollection",
@@ -101,6 +102,7 @@ const ExplorePage = () => {
         .then((res) => {
           const coordinates = res.geometry.coordinates;
           setUserLocation(new LngLat(coordinates[0], coordinates[1]));
+          setUserPreferences(res.preferences);
         })
         .catch(() => navigate("/profile/update"));
     });
@@ -113,29 +115,19 @@ const ExplorePage = () => {
         new LngLat(coordinates[0], coordinates[1])
       );
       const distanceInKm = Math.round(distanceInMeters / 1000);
-      toast.info(
-        <div>
-          <p>A new post has been created {distanceInKm}km away from you</p>
-        </div>,
-        {
-          toastId: "new post",
-          position: "top-center",
-          autoClose: 30000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        }
+      createToast(
+        "info",
+        `A new post has been created ${distanceInKm}km away from you`
       );
     });
   }, [userLocation]);
   return (
     <PageLayout showNavbar={false}>
       <>
-        <ToastContainer />
-        <SearchBarComponent searchHandler={searchHandler} />
+        <SearchBarComponent
+          searchHandler={searchHandler}
+          searchPreferences={userPreferences}
+        />
         {data && (
           <MapLibre
             initialCenter={userLocation}
@@ -151,7 +143,6 @@ const ExplorePage = () => {
             <Slider ref={sliderRef} {...settings}>
               <div>
                 {data &&
-                  data.features &&
                   data.features.map((post: any, i: number) => (
                     <div
                       key={post.id}

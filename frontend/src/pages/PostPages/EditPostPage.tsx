@@ -2,13 +2,13 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { LngLat } from "maplibre-gl";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import MapLibreAddMarker from "../components/Maps/MapLibreAddMarker";
-import PostForm from "../components/PostForm";
-import Sidebar from "../components/SideBar";
-import { getPost } from "../service/test.service";
-import NotExistingPage from "./NotExistingPage";
-import PageLayout from "./PageLayout";
-import UnauthorizedPage from "./UnauthorizedPage";
+import MapLibreAddMarker from "../../components/Maps/MapLibreAddMarker";
+import PostForm from "../../components/PostForm";
+import Sidebar from "../../components/SideBar";
+import { getPost } from "../../service/test.service";
+import NotExistingPage from "../NotExistingPage";
+import PageLayout from "../PageLayout";
+import UnauthorizedPage from "../UnauthorizedPage";
 
 const EditPostPage = () => {
   const { id } = useParams();
