@@ -203,12 +203,11 @@ const ExplorePage = () => {
                         onClick={() => setPostPage(postPage + 1)}
                         className={`${
                           postPage * POSTPERPAGE + POSTPERPAGE >=
-                            data.features.length - 1 &&
-                          "cursor-default opacity-25"
+                            data.features.length && "cursor-default opacity-25"
                         }`}
                         disabled={
                           postPage * POSTPERPAGE + POSTPERPAGE >=
-                          data.features.length - 1
+                          data.features.length
                         }
                       >
                         <div className="bg-rightarrow bg-center bg-no-repeat w-12 h-6 sm:w-4 sm:h-10"></div>
