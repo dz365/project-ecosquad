@@ -1,13 +1,13 @@
 import Navbar from "../navigation/Navbar";
 import ProfilePopup from "../components/ProfilePopup";
 
-interface PageLayout {
+interface IPageLayout {
   showNavbar?: boolean;
   showAvatar?: boolean;
   children: JSX.Element;
 }
 
-const PageLayout: React.FC<PageLayout> = ({
+const PageLayout: React.FC<IPageLayout> = ({
   showNavbar = true,
   showAvatar = true,
   children,

@@ -13,11 +13,6 @@ const ProfilePopup = () => {
 
   useEffect(() => {
     const resizeListener = () => setIsMobile(window.innerWidth < 640);
-    window.addEventListener("resize", resizeListener);
-    return () => window.removeEventListener("resize", resizeListener);
-  }, []);
-
-  useEffect(() => {
     const handleClickOutside = (event: any) => {
       if (
         divRef.current &&
@@ -28,15 +23,17 @@ const ProfilePopup = () => {
         setShowDisplay(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-
+    window.addEventListener("resize", resizeListener);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("resize", resizeListener);
     };
   }, []);
 
-  if (!user?.sub) return <></>
+  useEffect(() => {}, []);
+
+  if (!user?.sub) return <></>;
   return (
     <>
       <button
