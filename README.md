@@ -22,8 +22,8 @@ https://youtu.be/r7mHGlYXmiU
 
 ## Team Members
 
-**Daniel Zhang** 1006057892 \
-**Andy Lima** 1006015161
+**Daniel Zhang** \
+**Andy Lima**
 
 ## App Description
 
