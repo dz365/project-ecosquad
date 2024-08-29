@@ -66,4 +66,3 @@ Currently, no bonus complexity points are planned. However, if we decide on havi
 
 - Polished UI & UX
 - Deploy app
- 
