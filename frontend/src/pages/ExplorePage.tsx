@@ -75,7 +75,7 @@ const ExplorePage = () => {
   const mockPointClick = (
     postId: number,
     postUserId: string,
-    coordinates: LngLat
+    coordinates: LngLat,
   ) => {
     setMockMapClick(coordinates);
     displayPointData(postId, postUserId);
@@ -116,12 +116,12 @@ const ExplorePage = () => {
     if (!userLocation) return;
     socket.on("new post", (postId: any, coordinates: any) => {
       const distanceInMeters = userLocation!.distanceTo(
-        new LngLat(coordinates[0], coordinates[1])
+        new LngLat(coordinates[0], coordinates[1]),
       );
       const distanceInKm = Math.round(distanceInMeters / 1000);
       createToast(
         "info",
-        `A new post has been created ${distanceInKm}km away from you`
+        `A new post has been created ${distanceInKm}km away from you`,
       );
     });
   }, [userLocation]);
@@ -151,7 +151,7 @@ const ExplorePage = () => {
                     {data.features
                       .slice(
                         postPage * POSTPERPAGE,
-                        postPage * POSTPERPAGE + POSTPERPAGE
+                        postPage * POSTPERPAGE + POSTPERPAGE,
                       )
                       .map((post: any, i: number) => (
                         <div
@@ -165,8 +165,8 @@ const ExplorePage = () => {
                               post.properties.user,
                               new LngLat(
                                 post.geometry.coordinates[0],
-                                post.geometry.coordinates[1]
-                              )
+                                post.geometry.coordinates[1],
+                              ),
                             )
                           }
                         >

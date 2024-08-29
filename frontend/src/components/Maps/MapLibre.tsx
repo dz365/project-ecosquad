@@ -52,8 +52,8 @@ const MapLibre: React.FC<MapLibre> = ({
                 map.addImage(icons.id, image);
                 resolve();
               });
-            })
-        )
+            }),
+        ),
       ).then(() => {
         map.addLayer({
           id: "unclustered-point",
@@ -143,7 +143,7 @@ const MapLibre: React.FC<MapLibre> = ({
               center: features[0].geometry.coordinates,
               zoom: zoom,
             });
-          }
+          },
         );
       });
 

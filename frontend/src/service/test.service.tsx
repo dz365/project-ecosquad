@@ -36,7 +36,7 @@ const createUser = async (accessToken: string, formData: FormData) => {
 const updateUser = async (
   accessToken: string,
   formData: FormData,
-  userId: string
+  userId: string,
 ) => {
   return axios
     .patchForm(`${serverURL}/users/${userId}`, formData, {
@@ -71,7 +71,7 @@ const getPost = async (accessToken: string, id: number) => {
 const updatePost = async (
   accessToken: string,
   postId: number,
-  formData: FormData
+  formData: FormData,
 ) => {
   return axios
     .patch(`${serverURL}/posts/${postId}`, formData, {

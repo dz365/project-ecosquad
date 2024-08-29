@@ -59,7 +59,7 @@ usersRouter.post(
     } catch (e) {
       return res.status(422).json({ error: "User creation failed." });
     }
-  }
+  },
 );
 
 // get a specific user's profile
@@ -143,7 +143,7 @@ usersRouter.patch(
     await user.update(update);
     await user.reload();
     return res.json(user);
-  }
+  },
 );
 
 // delete a specific user
