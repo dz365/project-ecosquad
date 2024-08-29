@@ -1,0 +1,50 @@
+version: "3.3"
+services:
+  frontend:
+    env_file:
+      - ../frontend/.env
+    restart: always
+    build:
+      context: ../frontend
+    container_name: frontend
+    ports:
+      - 80
+  backend:
+    env_file:
+      - ../backend/.env
+    restart: always
+    build:
+      context: ../backend
+    container_name: backend
+    ports:
+      - 3001
+    volumes:
+      - posts:/usr/src/app/posts
+      - avatars:/usr/src/app/avatars
+  postgres:
+    restart: always
+    image: postgis/postgis
+    ports:
+      # Different port in case host has Postgres installed already
+      - 5433:5432
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    # For any persistent storage, you would need to mount a volume to the docker container
+    # so that your data stays intact.
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data
+      - ../database/:/docker-entrypoint-initdb.d/
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    volumes:
+      - meilisearch-data:/data.ms
+    environment:
+      - MEILI_MASTER_KEY=${MEILISEARCH_KEY}
+    ports:
+      - "7700:7700"
+volumes:
+  postgres-volume:
+  posts:
+  avatars:
+  meilisearch-data:
