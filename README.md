@@ -31,8 +31,6 @@ The goal of this app is to give everybody an opportunity to contribute to the un
 
 For example, one might record and share photos of the existing wildlife in their neighbourhood using the app. Over time, one might learn more about how some of those species thrive, and they could continue to share more observations with the rest of the world.
 
-Users will also get the chance to explore what other users are sharing and if interested, follow others or a particular topic, so that they can get notified of the newest discoveries.
-
 ## Complexity Points
 
 | Complexity  | Points | Envisioned Usage                                                          |
